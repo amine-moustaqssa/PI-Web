@@ -1,0 +1,5 @@
+# Global IDE Files
+.idea/
+.vscode/
+*.swp
+*.DS_Store
