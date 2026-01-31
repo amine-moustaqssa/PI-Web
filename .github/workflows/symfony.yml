@@ -2,27 +2,27 @@ name: Symfony CI
 
 on:
   pull_request:
-    branches: ["main", "develop"]
+    branches: [ "main", "develop" ]
   push:
-    branches: ["main", "develop"]
+    branches: [ "main", "develop" ]
 
 jobs:
   symfony-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: ctype, iconv, intl
+        
+    # We add "working-directory: web" to these steps
+    - name: Check PHP Syntax
+      run: find src -name "*.php" -print0 | xargs -0 -n1 php -l
+      working-directory: web
 
-      # 1. Setup PHP
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          extensions: ctype, iconv, intl
-
-      # 2. Check for syntax errors (The "Did you break PHP?" test)
-      - name: Check PHP Syntax
-        run: find web/src -name "*.php" -print0 | xargs -0 -n1 php -l
-
-      # 3. Validate Composer
-      - name: Validate Composer
-        run: cd web && composer validate --strict
+    - name: Validate Composer
+      run: composer validate --strict
+      working-directory: web
