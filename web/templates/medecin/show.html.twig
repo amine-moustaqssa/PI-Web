@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Medecin{% endblock %}
+
+{% block body %}
+    <h1>Medecin</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ medecin.id }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ medecin.email }}</td>
+            </tr>
+            <tr>
+                <th>Roles</th>
+                <td>{{ medecin.roles ? medecin.roles|json_encode : '' }}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>{{ medecin.password }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ medecin.nom }}</td>
+            </tr>
+            <tr>
+                <th>Prenom</th>
+                <td>{{ medecin.prenom }}</td>
+            </tr>
+            <tr>
+                <th>NiveauAcces</th>
+                <td>{{ medecin.niveauAcces }}</td>
+            </tr>
+            <tr>
+                <th>Adresse</th>
+                <td>{{ medecin.adresse }}</td>
+            </tr>
+            <tr>
+                <th>CodePostal</th>
+                <td>{{ medecin.codePostal }}</td>
+            </tr>
+            <tr>
+                <th>Matricule</th>
+                <td>{{ medecin.matricule }}</td>
+            </tr>
+            <tr>
+                <th>Tarif_consultation</th>
+                <td>{{ medecin.tarifConsultation }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_medecin_index') }}">back to list</a>
+
+    <a href="{{ path('app_medecin_edit', {'id': medecin.id}) }}">edit</a>
+
+    {{ include('medecin/_delete_form.html.twig') }}
+{% endblock %}
