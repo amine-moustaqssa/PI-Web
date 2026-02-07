@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Rendez-vous{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bolder text-primary">Mes Rendez-vous</h1>
+            <p class="text-muted">Historique et gestion de vos consultations</p>
+        </div>
+        <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-calendar-plus me-1"></i> Nouveau RDV
+        </a>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 ps-4">Date et Heure</th>
+                            <th class="py-3">Type / Médecin</th>
+                            <th class="py-3 text-center">Statut</th>
+                            <th class="py-3 text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for rdv in rendez_vous %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ rdv.dateDebut|date('d/m/Y') }}</div>
+                                <div class="small text-muted"><i class="bi bi-clock me-1"></i>{{ rdv.dateDebut|date('H:i') }}</div>
+                            </td>
+                            <td>
+                                <span class="fw-medium">{{ rdv.type }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if rdv.statut == 'en attente de confirmation' or rdv.statut == 'En attente' %}
+                                    <span class="badge bg-warning text-dark rounded-pill px-3">En attente</span>
+                                {% elseif rdv.statut == 'annulé' or rdv.statut == 'Annulé' %}
+                                    <span class="badge bg-danger rounded-pill px-3">Annulé</span>
+                                {% elseif rdv.statut == 'confirmé' or rdv.statut == 'Confirmé' %}
+                                    <span class="badge bg-success rounded-pill px-3">Confirmé</span>
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill px-3">{{ rdv.statut }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                {% if rdv.statut != 'annulé' and rdv.statut != 'Annulé' %}
+                                    <div class="btn-group shadow-sm">
+                                        {# Bouton Modifier #}
+                                        <a href="{{ path('app_rendez_vous_edit', {'id': rdv.id}) }}" 
+                                           class="btn btn-outline-primary btn-sm" 
+                                           title="Modifier la réservation">
+                                            <i class="bi bi-pencil-square"></i> Modifier
+                                        </a>
+
+                                        {# Bouton Annuler #}
+                                        <a href="{{ path('app_rendez_vous_cancel', {'id': rdv.id}) }}" 
+                                           class="btn btn-outline-danger btn-sm"
+                                           onclick="return confirm('Voulez-vous vraiment annuler ce rendez-vous ?');"
+                                           title="Annuler la réservation">
+                                            <i class="bi bi-x-circle"></i> Annuler
+                                        </a>
+                                    </div>
+                                {% else %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                                <div class="text-muted">Vous n'avez aucun rendez-vous enregistré.</div>
+                                <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-link mt-2">Prendre rendez-vous maintenant</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
