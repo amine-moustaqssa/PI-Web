@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RapportMedical{% endblock %}
+
+{% block body %}
+    <h1>RapportMedical</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ rapport_medical.id }}</td>
+            </tr>
+            <tr>
+                <th>Contenu</th>
+                <td>{{ rapport_medical.contenu }}</td>
+            </tr>
+            <tr>
+                <th>Conclusion</th>
+                <td>{{ rapport_medical.conclusion }}</td>
+            </tr>
+            <tr>
+                <th>Url_pdf</th>
+                <td>{{ rapport_medical.urlPdf }}</td>
+            </tr>
+            <tr>
+                <th>Date_creation</th>
+                <td>{{ rapport_medical.dateCreation ? rapport_medical.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_rapport_medical_controller_php_index') }}">back to list</a>
+
+    <a href="{{ path('app_rapport_medical_controller_php_edit', {'id': rapport_medical.id}) }}">edit</a>
+
+    {{ include('rapport_medical_controller_php/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,22 @@
+<h1>Liste des Profils Médicaux</h1>
+
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for profil in profils %}
+            <tr>
+                <td>{{ profil.nom }}</td>
+                <td>{{ profil.prenom }}</td>
+                <td>
+                    <a href="{{ path('dossier_show', {'id': profil.id}) }}">Voir dossier</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
