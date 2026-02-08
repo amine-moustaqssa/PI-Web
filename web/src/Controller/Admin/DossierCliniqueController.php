@@ -130,4 +130,30 @@ class DossierCliniqueController extends AbstractController
             'id' => $id,
         ]);
     }
+
+   #[Route('/{id}/delete', name: 'admin_dossier_clinique_delete', methods: ['POST'])]
+    public function delete(
+        ProfilMedical $profil,
+        DossierCliniqueRepository $dossierRepo,
+        EntityManagerInterface $em,
+        Request $request
+    ): Response {
+        $dossier = $dossierRepo->findOneBy(['profilMedical' => $profil]);
+
+        if (!$dossier) {
+            $this->addFlash('danger', 'Dossier clinique introuvable.');
+            return $this->redirectToRoute('admin_dossier_clinique_index');
+        }
+
+        $submittedToken = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $profil->getId(), $submittedToken)) {
+            $em->remove($dossier);
+            $em->flush();
+            $this->addFlash('success', 'Dossier clinique supprimé avec succès.');
+        } else {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+        }
+
+        return $this->redirectToRoute('admin_dossier_clinique_index');
+    }
 }

@@ -3,11 +3,16 @@
 {% block title %}Rapports médicaux{% endblock %}
 
 {% block body %}
-<h1>Rapports médicaux de {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+<h1 class="mb-4" style="color:#0d3b66;">Rapports médicaux de {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+
+<a href="{{ path('admin_rapport_ajouter', {'id': dossier.id}) }}" 
+   class="btn" style="background-color:#00bfff; color:white;">
+    <i class="fas fa-plus"></i> Ajouter un rapport médical
+</a>
 
 {% if rapports|length > 0 %}
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered mt-3" style="background-color: #dbeeff; color:#0d3b66;"> {# fond bleu pâle #}
+    <thead style="background-color: #0077b6; color:white;"> {# bleu foncé header #}
         <tr>
             <th>Contenu</th>
             <th>Conclusion</th>
@@ -23,26 +28,64 @@
             <td>{{ rapport.conclusion }}</td>
             <td>
                 {% if rapport.urlPdf %}
-                    <a href="{{ asset('uploads/' ~ rapport.urlPdf) }}" target="_blank">Voir PDF</a>
+                    <a href="{{ asset('uploads/' ~ rapport.urlPdf) }}" target="_blank" style="color:#00bfff;">
+                        Voir PDF
+                    </a>
                 {% else %}
-                    -
+                    <span class="text-muted">-</span>
                 {% endif %}
             </td>
             <td>{{ rapport.dateCreation|date('d/m/Y H:i') }}</td>
             <td>
-                <a href="{{ path('admin_rapport_modifier', {'id': rapport.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
-                <a href="{{ path('admin_rapport_supprimer', {'id': rapport.id}) }}" class="btn btn-danger btn-sm"
-                   onclick="return confirm('Voulez-vous vraiment supprimer ce rapport ?')">Supprimer</a>
+
+                <a href="{{ path('admin_rapport_modifier', {'id': rapport.id}) }}" 
+                   class="btn btn-sm" style="background-color:#00bfff; color:white;">
+                    Modifier
+                </a>
+
+                <!-- Bouton Supprimer -->
+                <button type="button" class="btn btn-sm" 
+                        style="background-color:#0077b6; color:white;"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteRapportModal{{ rapport.id }}">
+                    Supprimer
+                </button>
+
+                <!-- Modal de confirmation -->
+                <div class="modal fade" id="deleteRapportModal{{ rapport.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: #dbeeff;"> {# bleu très clair #}
+                            <div class="modal-header" style="background-color: #0077b6; color:white;">
+                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" style="color:#0d3b66;">
+                                Voulez-vous vraiment supprimer ce rapport médical de
+                                <strong>{{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</strong> ?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn" 
+                                        style="background-color:white; color:#0077b6;" 
+                                        data-bs-dismiss="modal">
+                                    Annuler
+                                </button>
+                                <form method="post" action="{{ path('admin_rapport_supprimer', {'id': rapport.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ rapport.id) }}">
+                                    <button type="submit" class="btn" style="background-color:#00bfff; color:white;">
+                                        Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<p>Aucun rapport médical pour ce dossier.</p>
+<p style="color:#0d3b66;">Aucun rapport médical pour ce dossier.</p>
 {% endif %}
-
-<a href="{{ path('admin_rapport_ajouter', {'id': dossier.id}) }}" class="btn btn-success mt-3">
-    Ajouter un rapport médical
-</a>
 {% endblock %}
