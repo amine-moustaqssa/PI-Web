@@ -1,36 +1,25 @@
 {# templates/rendez_vous/step3_details.html.twig #}
 {% extends 'base.html.twig' %}
 
+{% block title %}Détails du Rendez-vous{% endblock %}
+
 {% block body %}
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-primary text-white p-4">
-                    <h3 class="mb-0">Détails de votre demande</h3>
-                    <p class="mb-0 opacity-75">Spécialité : {{ specialite.nom }}</p>
-                </div>
-                <div class="card-body p-4">
-                    {{ form_start(form) }}
-                        
-                        {{ form_row(form.date_debut) }}
-                        
-                        {{ form_row(form.type) }}
-                        
-                        {# Le motif est ici #}
-                        {{ form_row(form.motif) }}
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 700px;">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i> {{ specialite.nom }}</h5>
+        </div>
+        <div class="card-body p-4">
+            {{ form_start(form) }}
+                {{ form_row(form.date_debut) }}
+                {{ form_row(form.profil) }} {# Plus d'erreur ici ! #}
+                {{ form_row(form.motif) }}
 
-                        {# Le bouton est placé ici, explicitement après le motif #}
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                Envoyer ma demande
-                            </button>
-                            <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-link text-muted mt-2">Retour</a>
-                        </div>
-
-                    {{ form_end(form) }}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Envoyer ma demande</button>
+                    <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-link text-muted">Annuler</a>
                 </div>
-            </div>
+            {{ form_end(form) }}
         </div>
     </div>
 </div>

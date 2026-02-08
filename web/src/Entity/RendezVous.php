@@ -7,70 +7,62 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RendezVousRepository::class)]
-#[ORM\Table(name: "RendezVous")]
+#[ORM\Table(name: "RendezVous")] // Nom exact de la table en base
 class RendezVous
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: Types::BIGINT)] // Correspond au BIGINT de votre table
+    private ?string $id = null;
 
-    #[ORM\Column(type: Types::BIGINT)]
-    private ?string $profil_id = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_debut = null;
 
-    #[ORM\Column]
-    private ?\DateTime $date_debut = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_fin = null;
 
-    #[ORM\Column]
-    private ?\DateTime $date_fin = null;
-
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 50)] // Augmenté pour "en attente de confirmation"
     private ?string $statut = null;
 
-    #[ORM\Column(length: 30)]
+    #[ORM\Column(length: 100)] // Augmenté pour stocker "Nom [Spécialité]"
     private ?string $type = null;
 
-    #[ORM\Column(length: 60)]
+    #[ORM\Column(length: 60)] // Correspond à votre ALTER TABLE
     private ?string $motif = null;
 
-    public function getId(): ?int
+    /**
+     * Cette relation gère automatiquement la clé étrangère profil_id
+     */
+    #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
+    #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
+    private ?ProfilMedical $profil = null;
+
+    // --- GETTERS & SETTERS ---
+
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getProfilId(): ?string
-    {
-        return $this->profil_id;
-    }
-
-    public function setProfilId(string $profil_id): static
-    {
-        $this->profil_id = $profil_id;
-
-        return $this;
-    }
-
-    public function getDateDebut(): ?\DateTime
+    public function getDateDebut(): ?\DateTimeInterface
     {
         return $this->date_debut;
     }
 
-    public function setDateDebut(\DateTime $date_debut): static
+    public function setDateDebut(\DateTimeInterface $date_debut): static
     {
         $this->date_debut = $date_debut;
-
         return $this;
     }
 
-    public function getDateFin(): ?\DateTime
+    public function getDateFin(): ?\DateTimeInterface
     {
         return $this->date_fin;
     }
 
-    public function setDateFin(\DateTime $date_fin): static
+    public function setDateFin(\DateTimeInterface $date_fin): static
     {
         $this->date_fin = $date_fin;
-
         return $this;
     }
 
@@ -82,7 +74,6 @@ class RendezVous
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
-
         return $this;
     }
 
@@ -94,7 +85,6 @@ class RendezVous
     public function setType(string $type): static
     {
         $this->type = $type;
-
         return $this;
     }
 
@@ -106,7 +96,17 @@ class RendezVous
     public function setMotif(string $motif): static
     {
         $this->motif = $motif;
+        return $this;
+    }
 
+    public function getProfil(): ?ProfilMedical
+    {
+        return $this->profil;
+    }
+
+    public function setProfil(?ProfilMedical $profil): static
+    {
+        $this->profil = $profil;
         return $this;
     }
 }

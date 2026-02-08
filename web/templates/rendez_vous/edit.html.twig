@@ -1,33 +1,26 @@
+{# templates/rendez_vous/edit.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier mon Rendez-vous{% endblock %}
+{% block title %}Modifier mon rendez-vous{% endblock %}
 
 {% block body %}
-<section class="py-5">
-    <div class="container px-5">
-        <div class="bg-light rounded-3 py-5 px-4 px-md-5 mb-5">
-            <div class="text-center mb-5">
-                <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-pencil-square"></i></div>
-                <h1 class="fw-bolder">Modifier ma réservation</h1>
-                <p class="lead fw-normal text-muted mb-0">Vous modifiez votre rendez-vous prévu initialement le {{ rendezVous.dateDebut|date('d/m/Y à H:i') }}</p>
-            </div>
-            <div class="row gx-5 justify-content-center">
-                <div class="col-lg-8 col-xl-6">
-                    {{ form_start(form) }}
-                        <div class="mb-3">
-                            {{ form_row(form.type) }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form_row(form.date_debut) }}
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary btn-lg" type="submit">Enregistrer les modifications</button>
-                            <a href="{{ path('app_mes_rendez_vous') }}" class="btn btn-outline-secondary">Annuler et revenir</a>
-                        </div>
-                    {{ form_end(form) }}
+<div class="container py-5">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 700px;">
+        <div class="card-header bg-warning text-dark py-3">
+            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Modifier le rendez-vous</h5>
+        </div>
+        <div class="card-body p-4">
+            {{ form_start(form) }}
+                {{ form_row(form.date_debut) }}
+                {{ form_row(form.profil) }}
+                {{ form_row(form.motif) }}
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Enregistrer les modifications</button>
+                    <a href="{{ path('app_mes_rendez_vous') }}" class="btn btn-link text-muted">Retour sans modifier</a>
                 </div>
-            </div>
+            {{ form_end(form) }}
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

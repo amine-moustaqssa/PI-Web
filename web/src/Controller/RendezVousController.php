@@ -5,8 +5,8 @@ namespace App\Controller;
 use App\Entity\RendezVous;
 use App\Form\RendezVousType;
 use App\Repository\SpecialiteRepository;
-use App\Repository\MedecinRepository;
 use App\Repository\RendezVousRepository;
+use App\Repository\ProfilMedicalRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,9 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RendezVousController extends AbstractController
 {
-    /**
-     * Tunnel de création de rendez-vous (2 Étapes)
-     */
     #[Route('/nouveau-rendez-vous', name: 'app_rendez_vous_new')]
     public function new(
         Request $request, 
@@ -25,7 +22,6 @@ class RendezVousController extends AbstractController
         EntityManagerInterface $entityManager
     ): Response {
         
-        // 1. Étape 1 : Choix de la spécialité
         $specialiteId = $request->query->get('specialite');
         if (!$specialiteId) {
             return $this->render('rendez_vous/step1_specialite.html.twig', [
@@ -33,24 +29,23 @@ class RendezVousController extends AbstractController
             ]);
         }
 
-        // 2. Étape 2 : Formulaire direct (Date, Bénéficiaire, Motif)
         $specialite = $specRepo->find($specialiteId);
         $rendezVous = new RendezVous();
         
-        $form = $this->createForm(RendezVousType::class, $rendezVous);
+        $form = $this->createForm(RendezVousType::class, $rendezVous, [
+            'titulaire_id' => '6' 
+        ]);
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $rendezVous->setStatut('En attente');
-            $rendezVous->setProfilId("1"); 
-            
-            // On stocke la spécialité dans le type pour que les médecins puissent filtrer
-            $beneficiaire = $form->get('type')->getData(); 
-            $rendezVous->setType($beneficiaire . ' [' . $specialite->getNom() . ']');
+            $profil = $rendezVous->getProfil(); 
+            $rendezVous->setStatut('en attente de confirmation');
+            $rendezVous->setType($profil->getNom() . ' ' . $profil->getPrenom() . ' [' . $specialite->getNom() . ']');
 
-            // Calcul date fin
-            if ($rendezVous->getDateDebut()) {
-                $dateFin = clone $rendezVous->getDateDebut();
+            // CORRECTION VS CODE : On s'assure que c'est un objet DateTime pour utiliser modify()
+            if ($rendezVous->getDateDebut() instanceof \DateTimeInterface) {
+                $dateFin = \DateTime::createFromInterface($rendezVous->getDateDebut());
                 $dateFin->modify('+30 minutes');
                 $rendezVous->setDateFin($dateFin);
             }
@@ -58,26 +53,22 @@ class RendezVousController extends AbstractController
             $entityManager->persist($rendezVous);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Votre demande en ' . $specialite->getNom() . ' a été enregistrée. Un médecin disponible vous confirmera le créneau sous peu.');
-            
+            $this->addFlash('success', 'Demande enregistrée pour ' . $profil->getPrenom());
             return $this->redirectToRoute('app_mes_rendez_vous'); 
         }
 
         return $this->render('rendez_vous/step3_details.html.twig', [
-            'specialite' => $specialite, // On passe la spécialité au lieu du médecin
+            'specialite' => $specialite,
             'form' => $form->createView() 
         ]);
     }
 
-    /**
-     * US-3.5 : Dashboard Client - Liste des rendez-vous
-     */
     #[Route('/mes-rendez-vous', name: 'app_mes_rendez_vous')]
-    public function index_client(RendezVousRepository $rendezVousRepository): Response
+    public function index_client(RendezVousRepository $rendezVousRepository, ProfilMedicalRepository $profilRepo): Response
     {
-        // On récupère les RDV de l'utilisateur "1" triés du plus récent au plus ancien
+        $profilsFamille = $profilRepo->findBy(['titulaire_id' => '6']);
         $mesRendezVous = $rendezVousRepository->findBy(
-            ['profil_id' => '1'], 
+            ['profil' => $profilsFamille], 
             ['date_debut' => 'DESC']
         );
 
@@ -86,70 +77,29 @@ class RendezVousController extends AbstractController
         ]);
     }
 
-    /**
-     * US-3.5 : Action d'annulation par le client
-     */
-    #[Route('/mes-rendez-vous/annuler/{id}', name: 'app_rendez_vous_cancel')]
-    public function cancel(RendezVous $rendezVous, EntityManagerInterface $entityManager): Response
-    {
-        // Sécurité : On vérifie que le RDV appartient bien à l'utilisateur "1"
-        if ($rendezVous->getProfilId() === "1") {
-            $rendezVous->setStatut('Annulé'); // Mettre la majuscule si c'est ta convention
-            $entityManager->flush();
-            $this->addFlash('warning', 'Le rendez-vous a été annulé.');
-        } else {
-            $this->addFlash('danger', 'Action non autorisée.');
-        }
-
-        return $this->redirectToRoute('app_mes_rendez_vous');
-    }
-
-    /**
-     * Modification du rendez-vous
-     */
     #[Route('/mes-rendez-vous/modifier/{id}', name: 'app_rendez_vous_edit')]
-    public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager): Response 
     {
-        // Sécurité
-        if ($rendezVous->getProfilId() !== "1") {
+        // Sécurité : vérifier que le RDV appartient à la famille 6
+        if ($rendezVous->getProfil()->getTitulaireId() !== "6") {
             throw $this->createAccessDeniedException();
         }
 
-        // --- SAUVEGARDE DU TYPE ORIGINAL ---
-        // Avant que le formulaire n'écrase les données, on garde le texte actuel
-        // ex: "Mon enfant (Dr. Ben Romdhane)"
-        $ancienTypeString = $rendezVous->getType(); 
-
-        $form = $this->createForm(RendezVousType::class, $rendezVous);
+        $form = $this->createForm(RendezVousType::class, $rendezVous, [
+            'titulaire_id' => '6'
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
-            // --- RECONSTRUCTION DU TYPE ---
-            // Le formulaire a mis juste "Moi-même" dans l'entité. Il faut remettre le médecin.
-            
-            // 1. On extrait la partie médecin "(Dr. ...)" de l'ancien string
-            $matches = [];
-            preg_match('/\((.*?)\)/', $ancienTypeString, $matches);
-            $suffixeMedecin = isset($matches[0]) ? $matches[0] : ''; // ex: "(Dr. Ben Romdhane)"
-
-            // 2. On récupère le nouveau choix de bénéficiaire (ex: "Moi-même")
-            $nouveauBeneficiaire = $rendezVous->getType(); 
-
-            // 3. On fusionne
-            $rendezVous->setType($nouveauBeneficiaire . ' ' . $suffixeMedecin);
-            // -----------------------------
-
-            // Recalcul de la date de fin au cas où l'heure change
-            if ($rendezVous->getDateDebut()) {
-                $dateFin = clone $rendezVous->getDateDebut();
+            // Recalcul de la date de fin
+            if ($rendezVous->getDateDebut() instanceof \DateTimeInterface) {
+                $dateFin = \DateTime::createFromInterface($rendezVous->getDateDebut());
                 $dateFin->modify('+30 minutes');
                 $rendezVous->setDateFin($dateFin);
             }
 
             $entityManager->flush();
-
-            $this->addFlash('success', 'Votre rendez-vous a été modifié avec succès.');
+            $this->addFlash('success', 'Rendez-vous mis à jour.');
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
@@ -158,4 +108,15 @@ class RendezVousController extends AbstractController
             'rendezVous' => $rendezVous
         ]);
     }
-}   
+
+    #[Route('/mes-rendez-vous/annuler/{id}', name: 'app_rendez_vous_cancel')]
+    public function cancel(RendezVous $rendezVous, EntityManagerInterface $entityManager): Response
+    {
+        if ($rendezVous->getProfil()->getTitulaireId() === "6") {
+            $rendezVous->setStatut('annulé');
+            $entityManager->flush();
+            $this->addFlash('warning', 'Le rendez-vous a été annulé.');
+        }
+        return $this->redirectToRoute('app_mes_rendez_vous');
+    }
+}

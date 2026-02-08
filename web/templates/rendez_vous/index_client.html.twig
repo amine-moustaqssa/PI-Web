@@ -38,13 +38,13 @@
                             </td>
                             <td class="text-center">
                                 {% if rdv.statut == 'en attente de confirmation' or rdv.statut == 'En attente' %}
-                                    <span class="badge bg-warning text-dark rounded-pill px-3">En attente</span>
+                                    <span class="badge bg-warning text- rounded-pill px-3">En attente</span>
                                 {% elseif rdv.statut == 'annulé' or rdv.statut == 'Annulé' %}
                                     <span class="badge bg-danger rounded-pill px-3">Annulé</span>
                                 {% elseif rdv.statut == 'confirmé' or rdv.statut == 'Confirmé' %}
                                     <span class="badge bg-success rounded-pill px-3">Confirmé</span>
                                 {% else %}
-                                    <span class="badge bg-secondary rounded-pill px-3">{{ rdv.statut }}</span>
+                                    <span class="badge rounded-pill px-3">{{ rdv.statut }}</span>
                                 {% endif %}
                             </td>
                             <td class="text-end pe-4">

@@ -3,10 +3,12 @@
 namespace App\Form;
 
 use App\Entity\RendezVous;
+use App\Entity\ProfilMedical;
+use App\Repository\ProfilMedicalRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType; // <-- Import important
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,8 +16,9 @@ class RendezVousType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $tid = $options['titulaire_id'];
+
         $builder
-            // 1. Choix de la Date et de l'Heure
             ->add('date_debut', DateTimeType::class, [
                 'label' => 'Date et Heure souhaitée',
                 'widget' => 'single_text',
@@ -24,25 +27,29 @@ class RendezVousType extends AbstractType
                     'min' => (new \DateTime())->format('Y-m-d\TH:i')
                 ]
             ])
-            // 2. Choix du Bénéficiaire (Le menu déroulant demandé)
-            ->add('type', ChoiceType::class, [
+            // ON CHANGE "type" PAR "profil" ICI :
+            ->add('profil', EntityType::class, [
+                'class' => ProfilMedical::class,
                 'label' => 'Pour qui est ce rendez-vous ?',
-                'choices'  => [
-                    'Pour moi-même' => 'Moi-même',
-                    'Pour mon enfant' => 'Mon enfant',
-                    'Pour un proche' => 'Un proche',
-                ],
-                'attr' => ['class' => 'form-select mb-3']
+                'choice_label' => function (ProfilMedical $profil) {
+                    return $profil->getPrenom() . ' ' . $profil->getNom();
+                },
+                'query_builder' => function (ProfilMedicalRepository $er) use ($tid) {
+                    return $er->createQueryBuilder('p')
+                        ->where('p.titulaire_id = :tid')
+                        ->setParameter('tid', $tid);
+                },
+                'attr' => ['class' => 'form-select mb-3'],
+                'placeholder' => 'Choisissez le bénéficiaire'
             ])
-            // 3. Le Motif (Nouvelle zone de texte)
             ->add('motif', TextareaType::class, [
-                'label' => 'Motif de la consultation (Décrivez brièvement vos symptômes)',
+                'label' => 'Motif de la consultation',
                 'attr' => [
                     'class' => 'form-control',
                     'rows' => 4,
-                    'placeholder' => 'Ex: Douleurs abdominales, fièvre, renouvellement ordonnance...'
+                    'placeholder' => 'Décrivez brièvement vos symptômes...'
                 ],
-                'required' => true // Vous pouvez le mettre à false si optionnel
+                'required' => true
             ])
         ;
     }
@@ -51,6 +58,8 @@ class RendezVousType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => RendezVous::class,
+            'titulaire_id' => null, 
         ]);
+        $resolver->setRequired('titulaire_id');
     }
 }
