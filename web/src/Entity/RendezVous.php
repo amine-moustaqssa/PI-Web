@@ -30,6 +30,9 @@ class RendezVous
     #[ORM\Column(length: 30)]
     private ?string $type = null;
 
+    #[ORM\Column(length: 60)]
+    private ?string $motif = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +94,18 @@ class RendezVous
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getMotif(): ?string
+    {
+        return $this->motif;
+    }
+
+    public function setMotif(string $motif): static
+    {
+        $this->motif = $motif;
 
         return $this;
     }

@@ -16,20 +16,29 @@
     <body class="d-flex flex-column h-100">
         <main class="flex-shrink-0">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="container px-5">
-                    <a class="navbar-brand" href="/">Clinic360</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                            <li class="nav-item"><a class="nav-link" href="/">Accueil</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ path('app_rendez_vous_new') }}">Réserver</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ path('app_mes_rendez_vous') }}">Mes Rendez-vous</a></li>
+    <div class="container px-5">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <img src="{{ asset('logoApp.png') }}"
+                 alt="Clinic360 Logo"
+                 height="80"
+                 class="d-inline-block align-text-top">
+            <span>Clinic360</span>
+        </a>
 
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="/">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ path('app_rendez_vous_new') }}">Réserver</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ path('app_mes_rendez_vous') }}">Mes Rendez-vous</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
             <div class="container mt-4">
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}

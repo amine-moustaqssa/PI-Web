@@ -1,35 +1,37 @@
+{# templates/rendez_vous/step3_details.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Finaliser le RDV{% endblock %}
-
 {% block body %}
-<section class="py-5">
-    <div class="container px-5">
-        <div class="bg-light rounded-3 py-5 px-4 px-md-5 mb-5">
-            <div class="text-center mb-5">
-                <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-calendar-check"></i></div>
-                <h1 class="fw-bolder">Dernière étape</h1>
-                <p class="lead fw-normal text-muted mb-0">Rendez-vous avec le <strong>Dr. {{ medecin.nom }}</strong></p>
-                <div class="progress mt-4" style="height: 10px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white p-4">
+                    <h3 class="mb-0">Détails de votre demande</h3>
+                    <p class="mb-0 opacity-75">Spécialité : {{ specialite.nom }}</p>
                 </div>
-            </div>
-            <div class="row gx-5 justify-content-center">
-                <div class="col-lg-8 col-xl-6">
+                <div class="card-body p-4">
                     {{ form_start(form) }}
-                        <div class="form-floating mb-3">
-                            {{ form_row(form.type) }}
+                        
+                        {{ form_row(form.date_debut) }}
+                        
+                        {{ form_row(form.type) }}
+                        
+                        {# Le motif est ici #}
+                        {{ form_row(form.motif) }}
+
+                        {# Le bouton est placé ici, explicitement après le motif #}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Envoyer ma demande
+                            </button>
+                            <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-link text-muted mt-2">Retour</a>
                         </div>
-                        <div class="form-floating mb-3">
-                            {{ form_row(form.date_debut) }}
-                        </div>
-                        <div class="d-grid">
-                            <button class="btn btn-primary btn-lg" type="submit">Confirmer la réservation</button>
-                        </div>
+
                     {{ form_end(form) }}
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
