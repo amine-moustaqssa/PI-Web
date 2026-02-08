@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -55,6 +57,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     // Matches column 'code_postal'
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $codePostal = null;
+
+    /**
+     * @var Collection<int, ProfilMedical>
+     */
+    #[ORM\OneToMany(targetEntity: ProfilMedical::class, mappedBy: 'titulaire')]
+    private Collection $profilsMedicaux;
+
+    public function __construct()
+    {
+        $this->profilsMedicaux = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -174,6 +187,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCodePostal(?string $codePostal): static
     {
         $this->codePostal = $codePostal;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProfilMedical>
+     */
+    public function getProfilsMedicaux(): Collection
+    {
+        return $this->profilsMedicaux;
+    }
+
+    public function addProfilsMedicaux(ProfilMedical $profilsMedicaux): static
+    {
+        if (!$this->profilsMedicaux->contains($profilsMedicaux)) {
+            $this->profilsMedicaux->add($profilsMedicaux);
+            $profilsMedicaux->setTitulaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfilsMedicaux(ProfilMedical $profilsMedicaux): static
+    {
+        if ($this->profilsMedicaux->removeElement($profilsMedicaux)) {
+            // set the owning side to null (unless already changed)
+            if ($profilsMedicaux->getTitulaire() === $this) {
+                $profilsMedicaux->setTitulaire(null);
+            }
+        }
+
         return $this;
     }
 }

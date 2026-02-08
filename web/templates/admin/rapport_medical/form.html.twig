@@ -1,0 +1,14 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ action }} rapport médical{% endblock %}
+
+{% block body %}
+<h1>{{ action }} rapport médical pour {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary mt-3">{{ action }}</button>
+{{ form_end(form) }}
+
+<a href="{{ path('admin_dossier_clinique_reports', {'id': dossier.id}) }}" class="btn btn-secondary mt-2">Retour aux rapports</a>
+{% endblock %}
