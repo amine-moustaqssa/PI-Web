@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DepartementRepository::class)]
-#[ORM\Table(name: 'Departement')] // Forces Capital 'D' for your existing DB
+#[ORM\Table(name: 'Departement')]
 class Departement
 {
     #[ORM\Id]
@@ -16,13 +16,13 @@ class Departement
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 100)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 20)]
     private ?string $code = null;
 
-    #[ORM\OneToMany(mappedBy: 'departement', targetEntity: Specialite::class)]
+    #[ORM\OneToMany(mappedBy: 'departement', targetEntity: Specialite::class, orphanRemoval: true)]
     private Collection $specialites;
 
     public function __construct()
@@ -51,7 +51,7 @@ class Departement
         return $this->code;
     }
 
-    public function setCode(?string $code): static
+    public function setCode(string $code): static
     {
         $this->code = $code;
         return $this;
@@ -77,6 +77,7 @@ class Departement
     public function removeSpecialite(Specialite $specialite): static
     {
         if ($this->specialites->removeElement($specialite)) {
+            // set the owning side to null (unless already changed)
             if ($specialite->getDepartement() === $this) {
                 $specialite->setDepartement(null);
             }
