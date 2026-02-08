@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Consultation{% endblock %}
+
+{% block body %}
+<h1>Modifier la consultation</h1>
+
+{{ include('medecin/consultation/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+
+<a href="{{ path('medecin_consultation_index') }}">Retour à la liste</a>
+{% endblock %}
