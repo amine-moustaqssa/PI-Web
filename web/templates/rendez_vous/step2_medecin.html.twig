@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir un Médecin{% endblock %}
+
+{% block body %}
+<header class="py-5 bg-light">
+    <div class="container px-5">
+        <div class="text-center my-5">
+            <h1 class="fw-bolder">Étape 2 : Votre praticien</h1>
+            <p class="lead fw-normal text-muted mb-4">Médecins disponibles en <strong>{{ specialite.nom }}</strong></p>
+            <div class="progress mb-4" style="height: 10px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 66%" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+        
+        <div class="row gx-5 row-cols-1 row-cols-sm-2 row-cols-xl-4 justify-content-center">
+            {% for medecin in medecins %}
+                <div class="col mb-5 mb-5 mb-xl-0">
+                    <div class="text-center">
+                        <img class="img-fluid rounded-circle mb-4 px-4" src="{{ asset('doctor-with-his-arms-crossed-white-background.jpg') }}" alt="Photo de {{ medecin.nom }}" />
+                        <h5 class="fw-bolder">Dr. {{ medecin.nom }}</h5>
+                        <div class="fst-italic text-muted">Tarif : {{ medecin.tarifConsultation }} DT</div>
+                        
+                        <a class="btn btn-primary btn-sm mt-3" href="{{ path('app_rendez_vous_new', {'specialite': specialite.id, 'medecin': medecin.id}) }}">
+                            Choisir ce médecin
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-warning">Aucun médecin n'est rattaché à cette spécialité pour le moment.</div>
+                    <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-link">Retour aux spécialités</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</header>
+{% endblock %}

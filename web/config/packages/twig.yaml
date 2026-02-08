@@ -1,6 +1,10 @@
-twig:
-    file_name_pattern: '*.twig'
+#twig:
+ #   file_name_pattern: '*.twig'
 
 when@test:
     twig:
         strict_variables: true
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    # Ajoute simplement la ligne ci-dessous sous le bloc existant :
+    form_themes: ['bootstrap_5_layout.html.twig']
