@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RapportMedical index{% endblock %}
+
+{% block body %}
+    <h1>RapportMedical index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Contenu</th>
+                <th>Conclusion</th>
+                <th>Url_pdf</th>
+                <th>Date_creation</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rapport in rapports %}
+                <tr>
+                    <td>{{ rapport.id }}</td>
+                    <td>{{ rapport.contenu }}</td>
+                    <td>{{ rapport.conclusion }}</td>
+                    <td>{{ rapport.urlPdf }}</td>
+                    <td>{{ rapport.dateCreation ? rapport.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>
+                        <a href="{{ path('rapport_show', {'id': rapport.id}) }}">show</a>
+                        <a href="{{ path('rapport_edit', {'id': rapport.id}) }}">edit</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">no records found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('rapport_new', {'idDossier': 1}) }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,47 @@
+<header class="hero-section pt-5 pb-0">
+    <div class="hero-pattern"></div>
+    
+    <div class="container px-5 position-relative">
+        <div class="row gx-5 align-items-end justify-content-center">
+            
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+                <div class="my-5 pb-5 text-center text-xl-start position-relative" style="z-index: 2;">
+                    <div class="badge bg-white text-primary mb-3 px-3 py-2 rounded-pill shadow-sm">
+                        <i class="bi bi-star-fill me-1"></i> #1 Solution Clinique
+                    </div>
+                    
+                    <h1 class="display-5 fw-bold text-white mb-3">
+                        Votre Santé, <br>Notre Priorité.
+                    </h1>
+                    <p class="lead fw-normal text-white-50 mb-4">
+                        Une plateforme unifiée pour vos rendez-vous, vos dossiers médicaux et le suivi de votre famille. Simple. Sécurisé. Digital.
+                    </p>
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
+                        {% if app.user %}
+                            <a class="btn btn-custom-white fw-bold shadow-sm" href="#">Mon Espace</a>
+                        {% else %}
+                            <a class="btn btn-custom-white fw-bold shadow-sm" href="{{ path('app_login') }}">Se Connecter</a>
+                        {% endif %}
+                        <a class="btn btn-custom-outline fw-bold" href="#features">En savoir plus</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center">
+                <div id="heroCarousel" class="carousel slide mt-5" data-bs-ride="carousel" data-bs-interval="4000">
+                    <div class="carousel-inner hero-carousel-height">
+                        <div class="carousel-item active h-100">
+                            <img src="{{ asset('front/assets/hero-1.png') }}" class="hero-img" alt="Doctor 1">
+                        </div>
+                        <div class="carousel-item h-100">
+                            <img src="{{ asset('front/assets/hero-2.png') }}" class="hero-img" alt="Doctor 2">
+                        </div>
+                        <div class="carousel-item h-100">
+                            <img src="{{ asset('front/assets/hero-3.png') }}" class="hero-img" alt="Family Health">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

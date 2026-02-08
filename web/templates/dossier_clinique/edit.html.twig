@@ -1,0 +1,14 @@
+<h1>Modifier le dossier clinique</h1>
+
+<form method="post">
+    <label>Antécédents</label><br>
+    <textarea name="antecedents">{{ dossier.antecedents }}</textarea><br><br>
+
+    <label>Allergies (séparées par des virgules)</label><br>
+    <textarea name="allergies">
+{{ dossier.allergies ? dossier.allergies|join(', ') : '' }}
+    </textarea><br><br>
+
+    <button type="submit">Enregistrer</button>
+</form>
+<a href="{{ path('dossier_show', {'id': dossier.profilMedical.id}) }}">Retour au dossier</a>

@@ -1,0 +1,35 @@
+{% for profil in profils %}
+<tr>
+    <td>{{ profil.id }}</td>
+    <td>{{ profil.nom }}</td>
+    <td>{{ profil.prenom }}</td>
+    <td>
+        <a href="{{ path('admin_dossier_clinique_show', {id: profil.id}) }}" class="btn btn-sm btn-info">
+            <i class="fas fa-eye"></i> Voir dossier
+        </a>
+
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ profil.id }}">
+            <i class="fas fa-edit"></i> Modifier
+        </button>
+
+        <!-- MODAL -->
+        <div class="modal fade" id="editModal{{ profil.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modifier le dossier de {{ profil.nom }} {{ profil.prenom }}</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form_start(forms[profil.id]) }}
+                            {{ form_widget(forms[profil.id]) }}
+                            <button class="btn btn-primary mt-3">Enregistrer</button>
+                        {{ form_end(forms[profil.id]) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FIN MODAL -->
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,6 @@
+{# Ce formulaire ne sera inclus que pour Admin #}
+
+<form method="post" action="{{ path('admin_consultation_delete', {'id': consultation.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cette consultation ?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ consultation.id) }}">
+    <button class="btn btn-danger">Supprimer</button>
+</form>

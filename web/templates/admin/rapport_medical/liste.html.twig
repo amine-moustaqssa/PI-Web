@@ -1,0 +1,48 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Rapports médicaux{% endblock %}
+
+{% block body %}
+<h1>Rapports médicaux de {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+
+{% if rapports|length > 0 %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Contenu</th>
+            <th>Conclusion</th>
+            <th>PDF</th>
+            <th>Date de création</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rapport in rapports %}
+        <tr>
+            <td>{{ rapport.contenu }}</td>
+            <td>{{ rapport.conclusion }}</td>
+            <td>
+                {% if rapport.urlPdf %}
+                    <a href="{{ asset('uploads/' ~ rapport.urlPdf) }}" target="_blank">Voir PDF</a>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ rapport.dateCreation|date('d/m/Y H:i') }}</td>
+            <td>
+                <a href="{{ path('admin_rapport_modifier', {'id': rapport.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                <a href="{{ path('admin_rapport_supprimer', {'id': rapport.id}) }}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Voulez-vous vraiment supprimer ce rapport ?')">Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Aucun rapport médical pour ce dossier.</p>
+{% endif %}
+
+<a href="{{ path('admin_rapport_ajouter', {'id': dossier.id}) }}" class="btn btn-success mt-3">
+    Ajouter un rapport médical
+</a>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Consultations Admin{% endblock %}
+
+{% block body %}
+<h1>Consultations Admin</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Rdv_id</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Notes</th>
+            <th>Médecin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for consultation in consultations %}
+        <tr>
+            <td>{{ consultation.id }}</td>
+            <td>{{ consultation.rdvId }}</td>
+            <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('Y-m-d H:i:s') : '' }}</td>
+            <td>{{ consultation.statut }}</td>
+            <td>{{ consultation.notesPrivees }}</td>
+            <td>{{ consultation.medecin.id }}</td>
+            <td>
+                <a href="{{ path('admin_consultation_show', {'id': consultation.id}) }}">show</a>
+                <a href="{{ path('admin_consultation_edit', {'id': consultation.id}) }}">edit</a>
+                {{ include('admin/consultation/_delete_form.html.twig') }}
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7">No records found</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('admin_consultation_new') }}">Create new</a>
+{% endblock %}
