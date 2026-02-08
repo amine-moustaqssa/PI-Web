@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Disponibilite index{% endblock %}
+
+{% block body %}
+    <h1>Disponibilite index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>JourSemaine</th>
+                <th>HeureDebut</th>
+                <th>HeureFin</th>
+                <th>EstRecurrent</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for disponibilite in disponibilites %}
+            <tr>
+                <td>{{ disponibilite.id }}</td>
+                <td>{{ disponibilite.jourSemaine }}</td>
+                <td>{{ disponibilite.heureDebut ? disponibilite.heureDebut|date('H:i:s') : '' }}</td>
+                <td>{{ disponibilite.heureFin ? disponibilite.heureFin|date('H:i:s') : '' }}</td>
+                <td>{{ disponibilite.estRecurrent ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_disponibilite_show', {'id': disponibilite.id}) }}">show</a>
+                    <a href="{{ path('app_disponibilite_edit', {'id': disponibilite.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_disponibilite_new') }}">Create new</a>
+{% endblock %}
