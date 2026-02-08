@@ -10,10 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/consultation')]
-#[IsGranted('ROLE_ADMIN')]
 final class ConsultationController extends AbstractController
 {
     #[Route('/', name: 'admin_consultation_index', methods: ['GET'])]
@@ -71,10 +69,8 @@ final class ConsultationController extends AbstractController
     #[Route('/{id}', name: 'admin_consultation_delete', methods: ['POST'])]
     public function delete(Request $request, Consultation $consultation, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$consultation->getId(), $request->get('_token'))) {
-            $em->remove($consultation);
-            $em->flush();
-        }
+        $em->remove($consultation);
+        $em->flush();
 
         return $this->redirectToRoute('admin_consultation_index');
     }

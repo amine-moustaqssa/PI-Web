@@ -10,10 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/medecin/consultation')]
-#[IsGranted('ROLE_MEDECIN')]
 final class ConsultationController extends AbstractController
 {
     #[Route('/', name: 'medecin_consultation_index', methods: ['GET'])]
@@ -28,7 +26,6 @@ final class ConsultationController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $consultation = new Consultation();
-        $consultation->setMedecin($this->getUser()); // médecin connecté
 
         $form = $this->createForm(ConsultationMedecinType::class, $consultation);
         $form->handleRequest($request);
