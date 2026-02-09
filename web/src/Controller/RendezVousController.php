@@ -33,7 +33,7 @@ class RendezVousController extends AbstractController
         $rendezVous = new RendezVous();
         
         $form = $this->createForm(RendezVousType::class, $rendezVous, [
-            'titulaire_id' => '6' 
+            'titulaire_id' => '7' 
         ]);
         
         $form->handleRequest($request);
@@ -66,7 +66,7 @@ class RendezVousController extends AbstractController
     #[Route('/mes-rendez-vous', name: 'app_mes_rendez_vous')]
     public function index_client(RendezVousRepository $rendezVousRepository, ProfilMedicalRepository $profilRepo): Response
     {
-        $profilsFamille = $profilRepo->findBy(['titulaire_id' => '6']);
+        $profilsFamille = $profilRepo->findBy(['titulaire_id' => '7']);
         $mesRendezVous = $rendezVousRepository->findBy(
             ['profil' => $profilsFamille], 
             ['date_debut' => 'DESC']
@@ -81,12 +81,12 @@ class RendezVousController extends AbstractController
     public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager): Response 
     {
         // Sécurité : vérifier que le RDV appartient à la famille 6
-        if ($rendezVous->getProfil()->getTitulaireId() !== "6") {
+        if ($rendezVous->getProfil()->getTitulaireId() !== "7") {
             throw $this->createAccessDeniedException();
         }
 
         $form = $this->createForm(RendezVousType::class, $rendezVous, [
-            'titulaire_id' => '6'
+            'titulaire_id' => '7'
         ]);
         $form->handleRequest($request);
 
@@ -112,7 +112,7 @@ class RendezVousController extends AbstractController
     #[Route('/mes-rendez-vous/annuler/{id}', name: 'app_rendez_vous_cancel')]
     public function cancel(RendezVous $rendezVous, EntityManagerInterface $entityManager): Response
     {
-        if ($rendezVous->getProfil()->getTitulaireId() === "6") {
+        if ($rendezVous->getProfil()->getTitulaireId() === "7") {
             $rendezVous->setStatut('annulé');
             $entityManager->flush();
             $this->addFlash('warning', 'Le rendez-vous a été annulé.');

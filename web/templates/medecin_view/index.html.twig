@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Espace Médecin{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mes demandes de rendez-vous</h1>
+        <span class="badge bg-info px-3 py-3 text-white">{{ rendez_vous|length }} en attente</span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date et Heure</th>
+                        <th>Patient</th>
+                        <th>Motif</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rdv in rendez_vous %}
+                    <tr>
+                        <td>
+                            <strong>{{ rdv.dateDebut|date('d/m/Y') }}</strong><br>
+                            <small class="text-muted">{{ rdv.dateDebut|date('H:i') }}</small>
+                        </td>
+                        <td>{{ rdv.profil.prenom }} {{ rdv.profil.nom }}</td>
+                        <td>{{ rdv.motif|slice(0, 50) }}...</td>
+                        <td class="text-center">
+                            <a href="{{ path('app_medecin_view_confirm', {id: rdv.id}) }}" 
+                               class="btn btn-success btn-sm px-3"
+                               onclick="return confirm('Confirmer ce rendez-vous et envoyer un mail ?')">
+                               <i class="bi bi-check-circle me-1"></i> Confirmer
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            Aucune nouvelle demande de rendez-vous.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
