@@ -1,0 +1,9 @@
+{% if consultation.rapportMedical %}
+    <a href="{{ path('medecin_rapport_modifier', {id: consultation.rapportMedical.id}) }}" class="btn btn-primary">
+        Ouvrir le rapport médical
+    </a>
+{% else %}
+    <a href="{{ path('app_consultation_start', {id: consultation.id}) }}" class="btn btn-success">
+        Démarrer consultation
+    </a>
+{% endif %}

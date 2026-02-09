@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+
 use App\Entity\DossierClinique;
 use App\Entity\ProfilMedical;
 use App\Form\DossierCliniqueAdminType;
