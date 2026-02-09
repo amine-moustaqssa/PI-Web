@@ -44,6 +44,22 @@
     </a>
     </li>
 
+    <li class="nav-item {{ app.request.get('_route') and 'disponibilite' in app.request.get('_route') ? 'active' : '' }}">
+    {# Attention : Utilisez la route Admin (souvent app_disponibilite_index) et non medecin_ #}
+    <a class="nav-link" href="{{ path('app_disponibilite_index') }}">
+        <i class="fas fa-calendar-alt"></i> {# Icône FontAwesome blanche #}
+        <span>Disponibilité</span>
+    </a>
+</li>
+
+    <li class="nav-item {{ app.request.get('_route') and 'specialite' in app.request.get('_route') ? 'active' : '' }}">
+    {# Utilisez la route Admin pour les spécialités #}
+    <a class="nav-link" href="{{ path('app_specialite_index') }}">
+        <i class="fas fa-hospital"></i> {# Icône FontAwesome blanche #}
+        <span>Spécialité & Département</span>
+    </a>
+</li>
+
 
     <hr class="sidebar-divider d-none d-md-block">
 
