@@ -1,30 +1,67 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Specialite{% endblock %}
+{% block title %}Détails Spécialité{% endblock %}
 
 {% block body %}
-    <h1>Specialite</h1>
+    <div class="container-fluid">
+        {# Titre de la page #}
+        <h1 class="h3 mb-4 text-gray-800">Détails de la spécialité</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ specialite.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ specialite.nom }}</td>
-            </tr>
-            <tr>
-                <th>Couleur</th>
-                <td>{{ specialite.couleur }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informations : {{ specialite.nom }}</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th style="width: 30%;">ID</th>
+                            <td>{{ specialite.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Nom</th>
+                            <td class="font-weight-bold text-dark">{{ specialite.nom }}</td>
+                        </tr>
+                        <tr>
+                            <th>Couleur</th>
+                            <td>
+                                <span class="d-flex align-items-center">
+                                    {# Petit rond de couleur visuel #}
+                                    <span style="display:inline-block; width: 25px; height: 25px; border-radius: 50%; background-color: {{ specialite.couleur }}; border: 1px solid #ccc; margin-right: 10px;"></span>
+                                    {{ specialite.couleur }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-    <a href="{{ path('app_specialite_index') }}">back to list</a>
+                <hr class="sidebar-divider my-4">
 
-    <a href="{{ path('app_specialite_edit', {'id': specialite.id}) }}">edit</a>
+                {# Zone des boutons d'action #}
+                <div class="d-flex align-items-center">
+                    {# Bouton Retour #}
+                    <a href="{{ path('app_specialite_index') }}" class="btn btn-secondary btn-icon-split mr-2">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Retour</span>
+                    </a>
 
-    {{ include('specialite/_delete_form.html.twig') }}
+                    {# Bouton Modifier #}
+                    <a href="{{ path('app_specialite_edit', {'id': specialite.id}) }}" class="btn btn-warning btn-icon-split mr-2">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-pen"></i>
+                        </span>
+                        <span class="text">Modifier</span>
+                    </a>
+
+                    {# Formulaire de suppression #}
+                    <div class="d-inline-block">
+                        {{ include('specialite/_delete_form.html.twig') }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}
