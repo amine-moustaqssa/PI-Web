@@ -13,15 +13,15 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/reception/paiement')]
 final class PaiementController extends AbstractController
 {
-    #[Route(name: 'app_patient_paiement_index', methods: ['GET'])]
+    #[Route(name: 'app_reception_paiement_index', methods: ['GET'])]
     public function index(PaiementRepository $paiementRepository): Response
     {
-        return $this->render('front/patient/paiement/index.html.twig', [
+        return $this->render('front/Reception/paiement/index.html.twig', [
             'paiements' => $paiementRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_patient_paiement_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_reception_paiement_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $paiement = new Paiement();
@@ -31,19 +31,19 @@ final class PaiementController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($paiement);
             $entityManager->flush();
-            return $this->redirectToRoute('app_patient_paiement_index');
+            return $this->redirectToRoute('app_reception_paiement_index');
         }
 
-        return $this->render('front/patient/paiement/new.html.twig', [
+        return $this->render('front/Reception/paiement/new.html.twig', [
             'paiement' => $paiement,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_patient_paiement_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_reception_paiement_show', methods: ['GET'])]
     public function show(Paiement $paiement): Response
     {
-        return $this->render('front/patient/paiement/show.html.twig', [
+        return $this->render('front/Reception/paiement/show.html.twig', [
             'paiement' => $paiement,
         ]);
     }
