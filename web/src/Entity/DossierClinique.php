@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Table(name: "DossierClinique")]
 #[ORM\Entity(repositoryClass: DossierCliniqueRepository::class)]
@@ -20,10 +21,11 @@ class DossierClinique
     // Relation OneToOne avec ProfilMedical
     #[ORM\OneToOne(inversedBy: 'dossierClinique', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
+    #[Ignore]
     private ?ProfilMedical $profilMedical = null;
 
     #[ORM\Column(type: 'json', nullable: true)]
-private array $allergies = [];
+    private array $allergies = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $antecedents = null;
@@ -59,17 +61,17 @@ private array $allergies = [];
         return $this;
     }
 
-   public function getAllergies(): array
-{
-    return $this->allergies ?? [];
-}
+    public function getAllergies(): array
+    {
+        return $this->allergies ?? [];
+    }
 
 
     public function setAllergies(?array $allergies): self
-{
-    $this->allergies = $allergies ?? [];
-    return $this;
-}
+    {
+        $this->allergies = $allergies ?? [];
+        return $this;
+    }
 
     public function getAntecedents(): ?string
     {
@@ -110,4 +112,12 @@ private array $allergies = [];
 
         return $this;
     }
-}
+    public function __debugInfo(): array
+    {
+        return [
+            'id' => $this->id,
+            'antecedents' => $this->antecedents,
+            // We intentionally leave out 'profilMedical' to stop the loop
+        ];
+    }
+} // End of class

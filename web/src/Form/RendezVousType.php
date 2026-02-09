@@ -16,7 +16,8 @@ class RendezVousType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $tid = $options['titulaire_id'];
+        // This contains the User object passed from the controller
+        $user = $options['titulaire_id'];
 
         $builder
             ->add('date_debut', DateTimeType::class, [
@@ -24,20 +25,22 @@ class RendezVousType extends AbstractType
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-3',
+                    // Optional: blocks past dates in the picker
                     'min' => (new \DateTime())->format('Y-m-d\TH:i')
                 ]
             ])
-            // ON CHANGE "type" PAR "profil" ICI :
             ->add('profil', EntityType::class, [
                 'class' => ProfilMedical::class,
                 'label' => 'Pour qui est ce rendez-vous ?',
                 'choice_label' => function (ProfilMedical $profil) {
                     return $profil->getPrenom() . ' ' . $profil->getNom();
                 },
-                'query_builder' => function (ProfilMedicalRepository $er) use ($tid) {
+                'query_builder' => function (ProfilMedicalRepository $er) use ($user) {
                     return $er->createQueryBuilder('p')
-                        ->where('p.titulaire_id = :tid')
-                        ->setParameter('tid', $tid);
+                        // --- FIX IS HERE ---
+                        // Use 'p.titulaire' (Entity Property), NOT 'p.titulaire_id'
+                        ->where('p.titulaire = :user')
+                        ->setParameter('user', $user);
                 },
                 'attr' => ['class' => 'form-select mb-3'],
                 'placeholder' => 'Choisissez le bénéficiaire'
@@ -58,8 +61,9 @@ class RendezVousType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => RendezVous::class,
-            'titulaire_id' => null, 
         ]);
+
+        // We define that this form MUST receive a 'titulaire_id' option
         $resolver->setRequired('titulaire_id');
     }
 }
