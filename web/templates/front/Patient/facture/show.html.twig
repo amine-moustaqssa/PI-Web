@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Détails Facture #{{ facture.id }}</h1>
+    <table class="table">
+        <tr><th>Montant</th><td>{{ facture.montant }} DT</td></tr>
+        <tr><th>Date</th><td>{{ facture.date|date('Y-m-d') }}</td></tr>
+    </table>
+    <a href="{{ path('app_patient_facture_index') }}">Retour</a>
+{% endblock %}
