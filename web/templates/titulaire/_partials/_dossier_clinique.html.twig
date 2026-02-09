@@ -1,0 +1,95 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-folder-open mr-2"></i> Dossier Clinique
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if activeProfil.dossierClinique %}
+            
+            <ul class="nav nav-tabs mb-4" id="dossierTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="antecedents-tab" data-toggle="tab" href="#antecedents" role="tab" aria-controls="antecedents" aria-selected="true">
+                        <i class="fas fa-history mr-2 text-gray-500"></i>Antécédents
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="allergies-tab" data-toggle="tab" href="#allergies" role="tab" aria-controls="allergies" aria-selected="false">
+                        <i class="fas fa-exclamation-triangle mr-2 text-warning"></i>Allergies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="rapports-tab" data-toggle="tab" href="#rapports" role="tab" aria-controls="rapports" aria-selected="false">
+                        <i class="fas fa-file-medical-alt mr-2 text-info"></i>Historique Médical
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="dossierTabContent">
+                
+                <div class="tab-pane fade show active" id="antecedents" role="tabpanel" aria-labelledby="antecedents-tab">
+                    <div class="p-4 bg-gray-100 rounded border border-light">
+                        <h6 class="font-weight-bold text-primary mb-3">Historique des maladies et traitements</h6>
+                        <p class="text-gray-800 mb-0">
+                            {{ activeProfil.dossierClinique.antecedents|default('Aucun antécédent médical enregistré pour ce patient.') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="allergies" role="tabpanel" aria-labelledby="allergies-tab">
+                    <div class="p-4 bg-gray-100 rounded border border-light">
+                        <h6 class="font-weight-bold text-danger mb-3">Allergies et intolérances connues</h6>
+                        {% if activeProfil.dossierClinique.allergies is not empty %}
+                            <ul class="list-group">
+                                {% for allergy in activeProfil.dossierClinique.allergies %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ allergy }}
+                                        <span class="badge badge-danger badge-pill">Allergie</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="alert alert-success border-0 mb-0">
+                                <i class="fas fa-check-circle mr-2"></i> Aucune allergie connue.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="rapports" role="tabpanel" aria-labelledby="rapports-tab">
+                    <div class="list-group list-group-flush border rounded">
+                        {% if activeProfil.dossierClinique.rapportsMedicaux is defined and activeProfil.dossierClinique.rapportsMedicaux is not empty %}
+                            {% for rapport in activeProfil.dossierClinique.rapportsMedicaux %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                        <span class="font-weight-bold text-primary">
+                                            <i class="far fa-calendar-alt mr-2"></i>
+                                            {{ rapport.date_creation|date('d M Y') }}
+                                        </span>
+                                        {% if rapport.url_pdf %}
+                                            <a href="{{ asset(rapport.url_pdf) }}" target="_blank" class="btn btn-sm btn-danger shadow-sm">
+                                                <i class="fas fa-file-pdf mr-1"></i> PDF
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <h6 class="mb-1 font-weight-bold text-gray-800">{{ rapport.conclusion }}</h6>
+                                    <p class="mb-1 text-gray-600 small">{{ rapport.contenu }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-folder-open fa-3x text-gray-200 mb-3"></i>
+                                <p class="text-gray-500 mb-0">Aucun rapport médical disponible.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="alert alert-warning border-left-warning mt-3" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Aucun dossier clinique trouvé pour ce profil.
+            </div>
+        {% endif %}
+    </div>
+</div>
