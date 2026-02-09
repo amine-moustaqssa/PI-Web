@@ -101,9 +101,10 @@ class ProfilMedical
     }
 
     public function getContactUrgence(): ?string
-    {
-        return $this;
-    }
+{
+    return $this->contact_urgence;
+}
+
 
     public function setContactUrgence(string $contact_urgence): static
     {
@@ -155,4 +156,5 @@ class ProfilMedical
         $this->dossierClinique = $dossierClinique;
         return $this;
     }
+    
 }

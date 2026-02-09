@@ -1,18 +1,19 @@
-{# templates/medecin/_partials/_sidebar.html.twig #}
-
 <ul class="navbar-nav bg-dark-sidebar sidebar sidebar-dark accordion" id="accordionSidebar">
 
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('medecin_dashboard') }}">
+    {# Logo #}
+    <a class="sidebar-brand d-flex align-items-center justify-content-center"
+       href="{{ path('medecin_dashboard') }}">
         <img class="img-profile rounded-circle"
-                    src="{{ asset('front/assets/logo.png') }}" width="50">
+             src="{{ asset('front/assets/logo.png') }}" width="50">
         <div class="sidebar-brand-text mx-3">Clinic360</div>
     </a>
 
     <hr class="sidebar-divider my-0 border-secondary-custom">
 
+    {# Dashboard #}
     <li class="nav-item {{ app.request.get('_route') == 'medecin_dashboard' ? 'active' : '' }}">
         <a class="nav-link" href="{{ path('medecin_dashboard') }}">
-                        <img src="{{ asset('front/assets/chart.svg') }}" width="14" alt="Remove User">
+            <img src="{{ asset('front/assets/chart.svg') }}" width="14">
             <span>Tableau de bord</span>
         </a>
     </li>
@@ -23,23 +24,26 @@
         Activité Médicale
     </div>
 
+    {# Consultation (placeholder) #}
     <li class="nav-item">
         <a class="nav-link" href="#">
             <img src="{{ asset('front/assets/user-minus.svg') }}" width="14">
             <span>Consultation</span>
         </a>
     </li>
-<li class="nav-item">
-    <a class="nav-link" href="#">
-        <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14" >
-        <span>Rendez-vous</span>
-    </a>
-</li>
 
-
+    {# Rendez-vous (placeholder) #}
     <li class="nav-item">
         <a class="nav-link" href="#">
-        <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
+            <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14">
+            <span>Rendez-vous</span>
+        </a>
+    </li>
+
+    {# ✅ Dossier Clinique #}
+    <li class="nav-item {{ app.request.get('_route') starts with 'medecin_dossier' or app.request.get('_route') == 'medecin_profils_list' ? 'active' : '' }}">
+<a class="nav-link" href="{{ path('medecin_profils_list') }}">
+            <img src="{{ asset('front/assets/folder-add.svg') }}" width="14">
             <span>Dossier Clinique</span>
         </a>
     </li>
@@ -50,28 +54,33 @@
         Administrative
     </div>
 
+    {# Disponibilité #}
     <li class="nav-item">
         <a class="nav-link" href="#">
-        <img src="{{ asset('front/assets/truck-remove.svg') }} " width="14" >
+            <img src="{{ asset('front/assets/truck-remove.svg') }}" width="14">
             <span>Disponibilité</span>
         </a>
     </li>
 
+    {# Spécialité #}
     <li class="nav-item">
         <a class="nav-link" href="#">
-        <img src="{{ asset('front/assets/hospital.svg') }} " width="14" >
-            <span>Specialité</span>
+            <img src="{{ asset('front/assets/hospital.svg') }}" width="14">
+            <span>Spécialité</span>
         </a>
     </li>
-
-    
 
     <div class="text-center d-none d-md-inline mt-4">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
     </div>
 
+    {# Logout #}
     <div class="sidebar-logout mt-auto p-3">
-        <a class="text-danger small d-flex align-items-center gap-2" href="#" data-toggle="modal" data-target="#logoutModal" style="text-decoration: none;">
+        <a class="text-danger small d-flex align-items-center gap-2"
+           href="#"
+           data-toggle="modal"
+           data-target="#logoutModal"
+           style="text-decoration: none;">
             <i class="fas fa-sign-out-alt"></i>
             <span>Déconnexion</span>
         </a>
@@ -80,9 +89,8 @@
 </ul>
 
 <style>
-    /* Dark Theme Custom Colors matching the React version */
     .bg-dark-sidebar {
-        background-color: #1F222A !important; /* Matches the dark:bg-[#1F222A] */
+        background-color: #1F222A !important;
     }
 
     .border-secondary-custom {
@@ -91,26 +99,17 @@
 
     .text-muted-custom {
         color: #818898 !important;
-        font-size: 0.7rem !important;
+        font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
         padding-left: 1.5rem;
         margin-top: 1rem;
     }
 
-    .text-primary-custom {
-        color: #5546FF !important;
-    }
-
-    /* Active link style matching your React logic */
     .sidebar-dark .nav-item.active .nav-link {
         background-color: rgba(85, 70, 255, 0.1) !important;
         color: #5546FF !important;
         font-weight: 500;
-    }
-
-    .sidebar-dark .nav-item.active .nav-link i {
-        color: #5546FF !important;
     }
 
     .sidebar-dark .nav-item .nav-link:hover {

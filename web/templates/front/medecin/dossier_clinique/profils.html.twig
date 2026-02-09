@@ -1,0 +1,45 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Dossier Clinique{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Liste des Profils Médicaux</h1>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profil in profils %}
+                        <tr>
+                            <td>{{ profil.nom }}</td>
+                            <td>{{ profil.prenom }}</td>
+                            <td class="text-center">
+                                <a href="{{ path('medecin_dossier_show', { id: profil.id }) }}"
+                                   class="btn btn-sm btn-primary">
+                                    Voir dossier
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">
+                                Aucun profil trouvé
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
