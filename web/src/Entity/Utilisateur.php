@@ -219,4 +219,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    public function __debugInfo(): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'roles' => $this->roles,
+            // We intentionally DO NOT return 'profilsMedicaux' here.
+            // This stops the infinite loop at the source.
+        ];
+    }
 }

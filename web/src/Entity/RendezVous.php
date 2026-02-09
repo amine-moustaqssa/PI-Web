@@ -7,12 +7,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RendezVousRepository::class)]
-#[ORM\Table(name: "RendezVous")] // Nom exact de la table en base
+#[ORM\Table(name: "RendezVous")]
 class RendezVous
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::BIGINT)] // Correspond au BIGINT de votre table
+    #[ORM\Column(type: Types::BIGINT)]
     private ?string $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -21,23 +21,18 @@ class RendezVous
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_fin = null;
 
-    #[ORM\Column(length: 50)] // Augmenté pour "en attente de confirmation"
+    #[ORM\Column(length: 50)]
     private ?string $statut = null;
 
-    #[ORM\Column(length: 100)] // Augmenté pour stocker "Nom [Spécialité]"
+    #[ORM\Column(length: 100)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 60)] // Correspond à votre ALTER TABLE
+    #[ORM\Column(length: 60, nullable: true)]
     private ?string $motif = null;
 
-    /**
-     * Cette relation gère automatiquement la clé étrangère profil_id
-     */
     #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
     private ?ProfilMedical $profil = null;
-
-    // --- GETTERS & SETTERS ---
 
     public function getId(): ?string
     {

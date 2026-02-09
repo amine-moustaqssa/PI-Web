@@ -54,20 +54,22 @@
         Administrative
     </div>
 
-    {# Disponibilité #}
-    <li class="nav-item">
-        <a class="nav-link" href="#">
-            <img src="{{ asset('front/assets/truck-remove.svg') }}" width="14">
-            <span>Disponibilité</span>
-        </a>
+    <li class="nav-item {{ app.request.get('_route') and 'medecin_disponibilite' in app.request.get('_route') ? 'active' : '' }}">
+    
+    {# IMPORTANT : On utilise path() pour générer la bonne URL sans '/dashboard/' #}
+    <a class="nav-link" href="{{ path('medecin_disponibilite_index') }}">
+        
+        <img src="{{ asset('front/assets/truck-remove.svg') }}" width="14">
+        <span>Disponibilité</span>
+    </a>
     </li>
 
-    {# Spécialité #}
-    <li class="nav-item">
-        <a class="nav-link" href="#">
-            <img src="{{ asset('front/assets/hospital.svg') }}" width="14">
-            <span>Spécialité</span>
-        </a>
+    <li class="nav-item {{ app.request.get('_route') and 'medecin_specialite' in app.request.get('_route') ? 'active' : '' }}">
+    {# Vérifiez bien que cette ligne ne contient PAS de '#' #}
+    <a class="nav-link" href="{{ path('medecin_specialite_index') }}">
+        <img src="{{ asset('front/assets/hospital.svg') }}" width="14">
+        <span>Specialité</span>
+    </a>
     </li>
 
     <div class="text-center d-none d-md-inline mt-4">
