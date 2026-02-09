@@ -5,99 +5,85 @@
 {% block body %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Dossiers Cliniques</h1>
-    <a href="{{ path('admin_dossier_clinique_new') }}"
-       class="btn btn-sm btn-success shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i>
-        Ajouter un dossier clinique
+    <a href="{{ path('admin_dossier_clinique_new') }}" class="btn btn-sm btn-success shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Ajouter un dossier clinique
     </a>
 </div>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">
-            Liste des profils médicaux
-        </h6>
+        <h6 class="m-0 font-weight-bold text-primary">Liste des profils médicaux</h6>
     </div>
-
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered">
+            <table id="profilTable" class="table table-bordered">
                 <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Actions</th>
-                </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Date de naissance</th>
+                        <th>Score</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th><input type="text" placeholder="Nom" class="column-filter form-control"></th>
+                        <th><input type="text" placeholder="Prénom" class="column-filter form-control"></th>
+                        <th><input type="date" class="column-filter form-control"></th>
+                        <th><input type="text" placeholder="Score" class="column-filter form-control"></th>
+                        <th></th>
+                    </tr>
                 </thead>
-                <tbody>
-
-                {% for profil in profils %}
-                    <tr>
-                        <td>{{ profil.id }}</td>
-                        <td>{{ profil.nom }}</td>
-                        <td>{{ profil.prenom }}</td>
-                        <td>
-
-                            <a href="{{ path('admin_dossier_clinique_show', {id: profil.id}) }}"
-                               class="btn btn-sm btn-info">
-                                <i class="fas fa-eye"></i> Voir dossier
-                            </a>
-
-                            <button class="btn btn-sm btn-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal{{ profil.id }}">
-                                <i class="fas fa-edit"></i> Modifier dossier
-                            </button>
-
-                            <a href="{{ path('admin_dossier_clinique_reports', {id: profil.id}) }}"
-                               class="btn btn-sm btn-warning">
-                                <i class="fas fa-folder-open"></i> Voir rapports
-                            </a>
-
-                            <!-- MODAL -->
-                            <div class="modal fade"
-                                 id="editModal{{ profil.id }}"
-                                 tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">
-                                                Modifier le dossier de
-                                                {{ profil.nom }} {{ profil.prenom }}
-                                            </h5>
-                                            <button class="btn-close"
-                                                    data-bs-dismiss="modal"></button>
-                                        </div>
-
-                                        <div class="modal-body">
-                                            {{ form_start(forms[profil.id]) }}
-                                                {{ form_widget(forms[profil.id]) }}
-                                                <button class="btn btn-primary mt-3">
-                                                    Enregistrer
-                                                </button>
-                                            {{ form_end(forms[profil.id]) }}
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- FIN MODAL -->
-
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            Aucun profil médical trouvé
-                        </td>
-                    </tr>
-                {% endfor %}
-
-                </tbody>
             </table>
         </div>
     </div>
 </div>
+
+{# Modal unique pour modifier #}
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="editModalContent">
+            {# Le contenu du formulaire sera chargé via AJAX #}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    let table = $('#profilTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "{{ path('admin_dossier_clinique_data') }}",
+            "type": "GET"
+        },
+        "columns": [
+            { "data": "id" },
+            { "data": "nom" },
+            { "data": "prenom" },
+            { "data": "dateNaissance" },
+            { "data": "score" },
+            { "data": "actions", "orderable": false, "searchable": false }
+        ]
+    });
+
+    // Filtre par colonne
+    $('.column-filter').on('keyup change', function() {
+        let index = $(this).parent().index();
+        table.column(index).search(this.value).draw();
+    });
+
+    // Ouvrir modal et charger formulaire via AJAX
+    $('#profilTable').on('click', '.edit-btn', function() {
+        let profilId = $(this).data('id');
+        $.get("{{ path('admin_dossier_clinique_edit', {'id': 0}) }}".replace('0', profilId), function(data) {
+            $('#editModalContent').html(data);
+            $('#editModal').modal('show');
+        });
+    });
+});
+</script>
 {% endblock %}
