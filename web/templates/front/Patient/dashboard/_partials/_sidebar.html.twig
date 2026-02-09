@@ -1,0 +1,120 @@
+{# templates/front/Patient/base_patient.html.twig
+ #}
+
+<ul class="navbar-nav bg-dark-sidebar sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('medecin_dashboard') }}">
+        <img class="img-profile rounded-circle"
+                    src="{{ asset('front/assets/logo.png') }}" width="50">
+        <div class="sidebar-brand-text mx-3">Clinic360</div>
+    </a>
+
+    <hr class="sidebar-divider my-0 border-secondary-custom">
+
+    <li class="nav-item {{ app.request.get('_route') == 'medecin_dashboard' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('medecin_dashboard') }}">
+                        <img src="{{ asset('front/assets/chart.svg') }}" width="14" alt="Remove User">
+            <span>Tableau de bord</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider border-secondary-custom">
+
+    <div class="sidebar-heading text-muted-custom">
+        Activité Médicale
+    </div>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <img src="{{ asset('front/assets/user-minus.svg') }}" width="14">
+            <span>Consultation</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+        <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14" >
+            <span>Rendez-vous</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+        <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
+            <span>Dossier medicale</span>
+        </a>
+    
+
+    <hr class="sidebar-divider border-secondary-custom">
+
+    <div class="sidebar-heading text-muted-custom">
+        Administrative
+    </div>
+
+   <li class="nav-item {{ app.request.get('_route') starts with 'app_patient_facture_index' ? 'active' : '' }}">
+    <a class="nav-link" href="{{ path('app_patient_facture_index') }}">
+        <i class="fas fa-fw fa-dollar-sign"></i>
+        <span>Facture</span>
+    </a>
+</li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <i class="fas fa-fw fa-microchip"></i>
+            <span>Paiment</span>
+        </a>
+    </li>
+
+    
+
+    <div class="text-center d-none d-md-inline mt-4">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+    <div class="sidebar-logout mt-auto p-3">
+        <a class="text-danger small d-flex align-items-center gap-2" href="#" data-toggle="modal" data-target="#logoutModal" style="text-decoration: none;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
+        </a>
+    </div>
+
+</ul>
+
+<style>
+    /* Dark Theme Custom Colors matching the React version */
+    .bg-dark-sidebar {
+        background-color: #1F222A !important; /* Matches the dark:bg-[#1F222A] */
+    }
+
+    .border-secondary-custom {
+        border-top: 1px solid #2A2D35 !important;
+    }
+
+    .text-muted-custom {
+        color: #818898 !important;
+        font-size: 0.7rem !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding-left: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .text-primary-custom {
+        color: #5546FF !important;
+    }
+
+    /* Active link style matching your React logic */
+    .sidebar-dark .nav-item.active .nav-link {
+        background-color: rgba(85, 70, 255, 0.1) !important;
+        color: #5546FF !important;
+        font-weight: 500;
+    }
+
+    .sidebar-dark .nav-item.active .nav-link i {
+        color: #5546FF !important;
+    }
+
+    .sidebar-dark .nav-item .nav-link:hover {
+        background-color: #2A2D35 !important;
+    }
+</style>

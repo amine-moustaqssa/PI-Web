@@ -1,4 +1,4 @@
-{# templates/medecin/_partials/_sidebar.html.twig #}
+{# templates/front/Reception/base_patient.html.twig#}
 
 <ul class="navbar-nav bg-dark-sidebar sidebar sidebar-dark accordion" id="accordionSidebar">
 
@@ -12,7 +12,7 @@
 
     <li class="nav-item {{ app.request.get('_route') == 'medecin_dashboard' ? 'active' : '' }}">
         <a class="nav-link" href="{{ path('medecin_dashboard') }}">
-            <i class="fas fa-fw fa-th-large"></i>
+                        <img src="{{ asset('front/assets/chart.svg') }}" width="14" alt="Remove User">
             <span>Tableau de bord</span>
         </a>
     </li>
@@ -25,22 +25,28 @@
 
     <li class="nav-item">
         <a class="nav-link" href="#">
-            <i class="fas fa-fw fa-user"></i>
+            <img src="{{ asset('front/assets/user-minus.svg') }}" width="14">
             <span>Consultation</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link" href="#">
-            <i class="fas fa-fw fa-graduation-cap"></i>
+        <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14" >
             <span>Rendez-vous</span>
+        </a>
+    </li>
+<li class="nav-item">
+        <a class="nav-link" href="#">
+        <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
+            <span>Dossier Clinique</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link" href="#">
-            <i class="fas fa-fw fa-music"></i>
-            <span>Dossier Clinique</span>
+        <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
+            <span>Dossier medicale</span>
         </a>
     </li>
 
@@ -53,14 +59,21 @@
     <li class="nav-item">
         <a class="nav-link" href="#">
             <i class="fas fa-fw fa-dollar-sign"></i>
-            <span>Disponibilité</span>
+            <span>Facture</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link" href="#">
             <i class="fas fa-fw fa-microchip"></i>
-            <span>Specialité</span>
+            <span>Paiment</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+        <img src="{{ asset('front/assets/truck-remove.svg') }} " width="14" >
+            <span>Disponibilité</span>
         </a>
     </li>
 

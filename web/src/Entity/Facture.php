@@ -34,9 +34,9 @@ class Facture
     #[ORM\OneToOne(targetEntity: Consultation::class, inversedBy: 'facture', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)] // Set to true if a facture can exist without a consultation
     private ?Consultation $consultation = null;
-    #[ORM\ManyToOne(targetEntity: Titulaire::class)]
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Titulaire $titulaire = null;
+    private ?Utilisateur $titulaire = null;
 
     public function __construct()
     {
