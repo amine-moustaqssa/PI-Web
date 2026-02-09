@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Medecin;
+namespace App\Controller\Front\Medecin;
 
 use App\Entity\Consultation;
 use App\Form\ConsultationMedecinType;

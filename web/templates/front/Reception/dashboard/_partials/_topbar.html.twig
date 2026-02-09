@@ -1,0 +1,74 @@
+{# templates/Patient/_partials/_topbar.html.twig #}
+
+<nav class="navbar navbar-expand navbar-dark bg-dark topbar mb-4 static-top shadow">
+
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3 text-white">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <ul class="navbar-nav ml-auto">
+
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <span class="badge badge-danger badge-counter">3+</span>
+            </a>
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in bg-dark border-secondary"
+                aria-labelledby="alertsDropdown">
+                <h6 class="dropdown-header bg-secondary border-secondary text-white">
+                    Centre de Notifications
+                </h6>
+                <a class="dropdown-item d-flex align-items-center text-white-50 hover-dark" href="#">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-primary">
+                            <i class="fas fa-file-alt text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">Aujourd'hui</div>
+                        <span class="font-weight-bold">Nouveau rapport mensuel disponible !</span>
+                    </div>
+                </a>
+                <a class="dropdown-item text-center small text-gray-500" href="#">Voir tout</a>
+            </div>
+        </li>
+
+        <div class="topbar-divider d-none d-sm-block border-secondary"></div>
+
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mr-2 d-none d-lg-inline text-white small">User</span>
+                <img class="img-profile rounded-circle border border-secondary"
+                    src="{{ asset('backoffice/img/undraw_profile.svg') }}" width="30">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in bg-dark border-secondary"
+                aria-labelledby="userDropdown">
+                <a class="dropdown-item text-white hover-dark" href="#">
+                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Profil
+                </a>
+                <div class="dropdown-divider border-secondary"></div>
+                <a class="dropdown-item text-white hover-dark" href="#" data-toggle="modal" data-target="#logoutModal">
+                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Déconnexion
+                </a>
+            </div>
+        </li>
+
+    </ul>
+
+</nav>
+
+<style>
+    /* Adding a slight hover effect for the dark dropdown items */
+    .hover-dark:hover {
+        background-color: #3a3b45 !important;
+        color: white !important;
+    }
+    /* Custom dark blue/black background if bg-dark is too light */
+    .bg-dark {
+        background-color: #1a1c2e !important; 
+    }
+</style>

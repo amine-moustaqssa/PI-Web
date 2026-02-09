@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Gestion Factures (Réception)</h1>
+    <a href="{{ path('app_reception_facture_new') }}" class="btn btn-primary">Créer Nouvelle</a>
+    <table class="table">
+        <thead><tr><th>ID</th><th>Client</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for f in factures %}
+            <tr>
+                <td>{{ f.id }}</td>
+                <td>{{ f.patientName }}</td>
+                <td>
+                    <a href="{{ path('app_reception_facture_edit', {id: f.id}) }}">Modifier</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

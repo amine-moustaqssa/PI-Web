@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Facture{% endblock %}
+
+{% block body %}
+    <h1>Modifier la Facture #{{ facture.id }}</h1>
+
+    {{ include('admin/facture/_form.html.twig') }}
+
+    <div class="mt-3">
+        <a href="{{ path('app_admin_facture_index') }}" class="btn btn-secondary">Retour</a>
+        {{ include('admin/facture/_delete_form.html.twig') }}
+    </div>
+{% endblock %}
