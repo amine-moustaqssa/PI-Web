@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Constantes Vitales{% endblock %}
+
+{% block body %}
+<h1>Constantes Vitales</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Consultation</th>
+            <th>Date Prise</th>
+            <th>Type</th>
+            <th>Unité</th>
+            <th>Valeur</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for constante in constantes %}
+        <tr>
+            <td>{{ constante.id }}</td>
+            <td>{{ constante.consultationId.id }}</td>
+            <td>{{ constante.datePrise ? constante.datePrise|date('Y-m-d H:i') : '' }}</td>
+            <td>{{ constante.type }}</td>
+            <td>{{ constante.unite }}</td>
+            <td>{{ constante.valeur }}</td>
+            <td>
+                <a href="{{ path('admin_constante_show', {'id': constante.id}) }}">show</a>
+                <a href="{{ path('admin_constante_edit', {'id': constante.id}) }}">edit</a>
+                <form method="post" action="{{ path('admin_constante_delete', {'id': constante.id}) }}" style="display:inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constante.id) }}">
+                    <button class="btn btn-danger btn-sm">delete</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="7">Aucune constante trouvée</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('admin_constante_new') }}">Créer une nouvelle constante</a>
+{% endblock %}
