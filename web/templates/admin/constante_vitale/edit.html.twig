@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Constante Vitale{% endblock %}
+
+{% block body %}
+<h1>Modifier Constante Vitale</h1>
+
+{{ include('admin/constante_vitale/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+
+<a href="{{ path('admin_constante_index') }}" class="btn btn-secondary mt-2">Retour à la liste</a>
+
+<form method="post" action="{{ path('admin_constante_delete', {'id': constante.id}) }}" style="margin-top:10px;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette constante ?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constante.id) }}">
+    <button class="btn btn-danger">Supprimer</button>
+</form>
+{% endblock %}

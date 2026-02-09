@@ -1,0 +1,28 @@
+{{ form_start(form) }}
+<div class="form-group">
+    {{ form_label(form.consultation_id) }}
+    {{ form_widget(form.consultation_id, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.date_prise) }}
+    {{ form_widget(form.date_prise, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.type) }}
+    {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.unite) }}
+    {{ form_widget(form.unite, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.valeur) }}
+    {{ form_widget(form.valeur, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<button class="btn btn-primary mt-2">{{ button_label|default('Enregistrer') }}</button>
+{{ form_end(form) }}

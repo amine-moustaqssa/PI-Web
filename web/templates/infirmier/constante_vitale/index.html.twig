@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Constantes Vitales{% endblock %}
+
+{% block body %}
+<h1>Constantes Vitales - Consultation {{ consultation.id }}</h1>
+
+{% for label, msg in app.flashes %}
+    <div class="alert alert-{{ label }}">{{ msg|first }}</div>
+{% endfor %}
+
+{% if consultation.statut != 'Terminée' %}
+    <a href="{{ path('infirmier_constante_new', {'id': consultation.id}) }}" class="btn btn-success">Ajouter une constante</a>
+{% endif %}
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Valeur</th>
+            <th>Unité</th>
+            <th>Date de prise</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for constante in constantes %}
+            <tr>
+                <td>{{ constante.type }}</td>
+                <td>{{ constante.valeur }}</td>
+                <td>{{ constante.unite }}</td>
+                <td>{{ constante.datePrise ? constante.datePrise|date('Y-m-d H:i') : '' }}</td>
+                <td>
+                    {% if consultation.statut != 'Terminée' %}
+                        <a href="{{ path('infirmier_constante_edit', {'id': consultation.id, 'constanteId': constante.id}) }}" class="btn btn-primary btn-sm">Edit</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Aucune constante trouvée</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
