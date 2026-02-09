@@ -13,10 +13,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/patient/paiement')]
 final class PaiementController extends AbstractController
 {
-    #[Route(name: 'app_patient_paiement_index', methods: ['GET'])]
+    #[Route('/', name: 'app_patient_paiement_index', methods: ['GET'])]
     public function index(PaiementRepository $paiementRepository): Response
     {
-        return $this->render('front/patient/paiement/index.html.twig', [
+        return $this->render('front/Patient/paiement/index.html.twig', [
             'paiements' => $paiementRepository->findAll(),
         ]);
     }
@@ -34,7 +34,7 @@ final class PaiementController extends AbstractController
             return $this->redirectToRoute('app_patient_paiement_index');
         }
 
-        return $this->render('front/patient/paiement/new.html.twig', [
+        return $this->render('front/Patient/paiement/new.html.twig', [
             'paiement' => $paiement,
             'form' => $form,
         ]);
@@ -43,7 +43,7 @@ final class PaiementController extends AbstractController
     #[Route('/{id}', name: 'app_patient_paiement_show', methods: ['GET'])]
     public function show(Paiement $paiement): Response
     {
-        return $this->render('front/patient/paiement/show.html.twig', [
+        return $this->render('front/Patient/paiement/show.html.twig', [
             'paiement' => $paiement,
         ]);
     }
