@@ -3,77 +3,140 @@
 {% block title %}Tableau de Bord{% endblock %}
 
 {% block body %}
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Tableau de Bord</h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-download fa-sm text-white-50"></i> Générer un rapport
-        </a>
-    </div>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Tableau de Bord</h1>
+    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-download fa-sm text-white-50"></i> Générer un rapport
+    </a>
+</div>
 
-    <div class="row">
+<div class="row">
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Rendez-vous (Mensuel)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">40</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Rendez-vous (Mensuel)
                     </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">40</div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Revenu (Annuel)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">215,000 TND</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Demandes en attente</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+                <i class="fas fa-calendar fa-2x text-gray-300"></i>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Bienvenue dans l'Admin</h6>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        Revenu (Annuel)
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">215 000 TND</div>
                 </div>
-                <div class="card-body">
-                    <p>L'intégration du template est terminée ! Vous pouvez maintenant commencer à créer vos pages CRUD pour gérer les utilisateurs, les rendez-vous et les départements.</p>
-                </div>
+                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
             </div>
         </div>
     </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        Demandes en attente
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                </div>
+                <i class="fas fa-comments fa-2x text-gray-300"></i>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Vue d'ensemble des rendez-vous
+        </h6>
+    </div>
+
+    <div class="card-body">
+
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-md-10">
+                <input
+                    type="text"
+                    name="q"
+                    class="form-control"
+                    placeholder="Rechercher un médecin, une spécialité ou un patient..."
+                    value="{{ search_query|default('') }}"
+                >
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">
+                    Filtrer
+                </button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date & Heure</th>
+                        <th>Patient</th>
+                        <th>Médecin / Spécialité</th>
+                        <th>Motif</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rdv in rendez_vous %}
+                    <tr>
+                        <td>
+                            <strong>{{ rdv.dateDebut|date('d/m/Y') }}</strong><br>
+                            <small class="text-muted">{{ rdv.dateDebut|date('H:i') }}</small>
+                        </td>
+                        <td>{{ rdv.profil.prenom }} {{ rdv.profil.nom }}</td>
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                {{ rdv.type }}
+                            </span>
+                        </td>
+                        <td>
+                            <small>
+                                {{ rdv.motif|length > 50
+                                    ? rdv.motif|slice(0, 50) ~ '...'
+                                    : rdv.motif
+                                }}
+                            </small>
+                        </td>
+                        <td>
+                            {% if rdv.statut == 'validé' %}
+                                <span class="badge bg-success">Validé</span>
+                            {% elseif rdv.statut == 'annulé' %}
+                                <span class="badge bg-danger">Annulé</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ rdv.statut }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            Aucun rendez-vous trouvé.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
 {% endblock %}

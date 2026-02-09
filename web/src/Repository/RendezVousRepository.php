@@ -15,7 +15,23 @@ class RendezVousRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, RendezVous::class);
     }
+/**
+     * Recherche les rendez-vous par mot clé (Nom médecin, spécialité ou patient)
+     */
+    public function findBySearchQuery(?string $query)
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.profil', 'p') // On joint le profil pour chercher aussi par nom de patient
+            ->addSelect('p')
+            ->orderBy('r.date_debut', 'DESC');
 
+        if ($query) {
+            $qb->andWhere('r.type LIKE :term OR p.nom LIKE :term OR p.prenom LIKE :term')
+               ->setParameter('term', '%' . $query . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
     //    /**
     //     * @return RendezVous[] Returns an array of RendezVous objects
     //     */
