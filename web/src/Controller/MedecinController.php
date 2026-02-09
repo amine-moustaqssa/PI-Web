@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/medecin')]
+#[Route('/medecins')]
 final class MedecinController extends AbstractController
 {
     #[Route(name: 'app_medecin_index', methods: ['GET'])]

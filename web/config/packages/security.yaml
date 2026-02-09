@@ -41,8 +41,10 @@ security:
     - { path: ^/register, roles: PUBLIC_ACCESS }
 
     # Protect the Admin Dashboard (Only Admins and Doctors can enter)
-    - { path: ^/admin, roles: ROLE_USER }
-    - { path: ^/medecin, roles: ROLE_MEDECIN }
+    - { path: ^/admin, roles: PUBLIC_ACCESS } #ROLE_USER
+    - { path: ^/medecin, roles: PUBLIC_ACCESS } #ROLE_MEDECIN
+    - { path: ^/patient, roles: PUBLIC_ACCESS } #ROLE_PATIENT
+    - { path: ^/reception, roles: PUBLIC_ACCESS } #ROLE_RECEPTION
 
 when@test:
   security:
