@@ -1,0 +1,60 @@
+{{ form_start(form) }}
+    
+    {# Affiche les erreurs globales du formulaire s'il y en a #}
+    {{ form_errors(form) }}
+
+    <div class="row">
+        {# Champ Jour de la semaine #}
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="small mb-1 font-weight-bold">Jour de la semaine</label>
+                {{ form_widget(form.jourSemaine, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.jourSemaine) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Champ Heure Début #}
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="small mb-1 font-weight-bold">Heure de Début</label>
+                {{ form_widget(form.heureDebut, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.heureDebut) }}
+            </div>
+        </div>
+
+        {# Champ Heure Fin #}
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="small mb-1 font-weight-bold">Heure de Fin</label>
+                {{ form_widget(form.heureFin, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.heureFin) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Champ Récurrence (Checkbox) #}
+        <div class="col-md-12">
+            <div class="form-group form-check">
+                {{ form_widget(form.estRecurrent, {'attr': {'class': 'form-check-input'}}) }}
+                <label class="form-check-label" for="{{ form.estRecurrent.vars.id }}">
+                    Répéter cette disponibilité chaque semaine ?
+                </label>
+                {{ form_errors(form.estRecurrent) }}
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    {# Bouton Enregistrer Stylisé #}
+    <button class="btn btn-success btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-check"></i>
+        </span>
+        <span class="text">{{ button_label|default('Enregistrer') }}</span>
+    </button>
+
+{{ form_end(form) }}

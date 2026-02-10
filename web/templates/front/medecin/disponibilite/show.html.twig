@@ -1,0 +1,89 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Détail Disponibilité | Clinic360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Page Heading #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-clock mr-2"></i>Détail du créneau</h1>
+        <a href="{{ path('medecin_disponibilite_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Retour à la liste
+        </a>
+    </div>
+
+    {% set jours = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche'} %}
+
+    {# Detail Card #}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle mr-1"></i> Informations du créneau
+                    </h6>
+                    <div>
+                        <a href="{{ path('medecin_disponibilite_edit', {id: disponibilite.id}) }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-pen mr-1"></i> Modifier
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <th class="text-gray-600" style="width: 35%;">
+                                <i class="fas fa-calendar-day mr-2 text-primary"></i>Jour de la semaine
+                            </th>
+                            <td class="font-weight-bold">{{ jours[disponibilite.jourSemaine] | default('Jour ' ~ disponibilite.jourSemaine) }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-gray-600">
+                                <i class="fas fa-play text-success mr-2"></i>Heure de début
+                            </th>
+                            <td>{{ disponibilite.heureDebut ? disponibilite.heureDebut|date('H:i') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-gray-600">
+                                <i class="fas fa-stop text-danger mr-2"></i>Heure de fin
+                            </th>
+                            <td>{{ disponibilite.heureFin ? disponibilite.heureFin|date('H:i') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-gray-600">
+                                <i class="fas fa-redo mr-2 text-info"></i>Récurrence
+                            </th>
+                            <td>
+                                {% if disponibilite.estRecurrent %}
+                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-redo mr-1"></i>Hebdomadaire</span>
+                                {% else %}
+                                    <span class="badge badge-secondary px-3 py-2">Ponctuel</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# Quick actions #}
+        <div class="col-lg-4">
+            <div class="card shadow mb-4 border-left-danger">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger"><i class="fas fa-exclamation-triangle mr-1"></i> Zone de danger</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-gray-600 mb-3">Supprimer définitivement ce créneau de disponibilité. Cette action est irréversible.</p>
+                    <form method="post" action="{{ path('medecin_disponibilite_delete', {id: disponibilite.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce créneau ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ disponibilite.id) }}">
+                        <button type="submit" class="btn btn-danger btn-block">
+                            <i class="fas fa-trash mr-1"></i> Supprimer ce créneau
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

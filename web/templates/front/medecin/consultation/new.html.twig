@@ -1,0 +1,50 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Nouvelle Consultation | Clinic360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-plus-circle mr-2"></i>Nouvelle Consultation</h1>
+        <a href="{{ path('medecin_consultation_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Retour
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-file-medical mr-2"></i>Détails de la consultation</h6>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_widget(form) }}
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('medecin_consultation_index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times mr-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-check mr-1"></i> Créer la consultation
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-info"><i class="fas fa-info-circle mr-1"></i> Aide</h6>
+                    <p class="text-muted small mb-2">Remplissez les informations de la consultation puis cliquez sur <strong>Créer</strong>.</p>
+                    <p class="text-muted small mb-0">Le statut sera automatiquement défini à <strong>Planifiée</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

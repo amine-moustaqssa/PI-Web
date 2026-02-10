@@ -1,0 +1,47 @@
+{# templates/admin/dossier_clinique/edit_modal.html.twig #}
+
+<div class="modal-header">
+    <h5 class="modal-title">Modifier le dossier de {{ profil.nom }} {{ profil.prenom }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    {# ⚡ Formulaire avec action explicite pour AJAX #}
+    {{ form_start(form, {
+        'attr': {'id': 'editForm'},
+        'action': path('admin_dossier_clinique_edit', {'id': profil.id}),
+        'method': 'POST'
+    }) }}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+    {{ form_end(form) }}
+</div>
+
+<script>
+$(document).ready(function() {
+    // Soumission du formulaire via AJAX
+    $('#editForm').on('submit', function(e) {
+        e.preventDefault();
+        let form = $(this);
+
+        $.ajax({
+            url: form.attr('action'),
+            type: form.attr('method'),
+            data: form.serialize(),
+            success: function(response) {
+                $('#editModal').modal('hide');
+                $('#profilTable').DataTable().ajax.reload(null, false); // Reload DataTable
+
+                if(response && response.message) {
+                    alert(response.message); // ⚡ Affiche correctement le message
+                } else {
+                    alert('Dossier mis à jour');
+                }
+            },
+            error: function() {
+                alert('Erreur lors de la mise à jour du dossier.');
+            }
+        });
+    });
+});
+</script>

@@ -1,0 +1,60 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Mes Factures{% endblock %}
+
+{% block body %}
+    <h1>Mes Factures</h1>
+
+    <table class="table">
+        <thead>
+    <tr>
+        <th>ID</th>
+        <th>Référence</th>
+        <th>Montant</th>
+        <th>Statut</th>
+        <th>Actions</th>
+    </tr>
+</thead>
+<tbody>
+    {% for facture in factures %}
+        <tr>
+            <td>{{ facture.id }}</td>
+            <td>{{ facture.reference }}</td>
+            <td>{{ facture.montantTotal }} DT</td>
+            <td>
+                {% if facture.statut == 'PAYEE' %}
+                    <span class="badge badge-success">Payée</span>
+                {% elseif facture.statut == 'EN_ATTENTE' %}
+                    <span class="badge badge-warning">En attente</span>
+                {% else %}
+                    <span class="badge badge-danger">{{ facture.statut }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ path('app_admin_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-sm">
+                    <i class="fas fa-eye"></i> Voir
+                </a>
+                <a href="{{ path('app_admin_facture_edit', {'id': facture.id}) }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <form method="post" action="{{ path('app_admin_facture_delete', {'id': facture.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette facture ?');" style="display:inline-block;">
+             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ facture.id) }}">
+                <button class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+            </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="5" class="text-center">Aucune facture trouvée</td>
+        </tr>
+    {% endfor %}
+</tbody>
+    </table>
+    <div class="mt-4">
+        <a href="{{ path('app_admin_facture_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Créer une nouvelle facture
+        </a>
+    </div>
+{% endblock %}

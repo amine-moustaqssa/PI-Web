@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -20,6 +23,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     "PERSONNEL" => Utilisateur::class, // Mapped to self for now (until you create Personnel.php)
     "MEDECIN" => Medecin::class
 ])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -55,6 +59,20 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     // Matches column 'code_postal'
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $codePostal = null;
+
+    /**
+     * @var Collection<int, ProfilMedical>
+     */
+    #[ORM\OneToMany(targetEntity: ProfilMedical::class, mappedBy: 'titulaire')]
+    private Collection $profilsMedicaux;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
+
+    public function __construct()
+    {
+        $this->profilsMedicaux = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -174,6 +192,60 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCodePostal(?string $codePostal): static
     {
         $this->codePostal = $codePostal;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProfilMedical>
+     */
+    public function getProfilsMedicaux(): Collection
+    {
+        return $this->profilsMedicaux;
+    }
+
+    public function addProfilsMedicaux(ProfilMedical $profilsMedicaux): static
+    {
+        if (!$this->profilsMedicaux->contains($profilsMedicaux)) {
+            $this->profilsMedicaux->add($profilsMedicaux);
+            $profilsMedicaux->setTitulaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfilsMedicaux(ProfilMedical $profilsMedicaux): static
+    {
+        if ($this->profilsMedicaux->removeElement($profilsMedicaux)) {
+            // set the owning side to null (unless already changed)
+            if ($profilsMedicaux->getTitulaire() === $this) {
+                $profilsMedicaux->setTitulaire(null);
+            }
+        }
+
+        return $this;
+    }
+    public function __debugInfo(): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'roles' => $this->roles,
+            // We intentionally DO NOT return 'profilsMedicaux' here.
+            // This stops the infinite loop at the source.
+        ];
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
         return $this;
     }
 }

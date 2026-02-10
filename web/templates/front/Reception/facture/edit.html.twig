@@ -1,0 +1,13 @@
+{% extends 'front/Patient/base_patient.html.twig' %}
+
+{% block title %}Modifier Facture{% endblock %}
+
+{% block body %}
+    <h1>Modifier la Facture #{{ facture.id }}</h1>
+
+    {{ include('front/reception/facture/_form.html.twig') }}
+
+    <div class="mt-3">
+<a href="{{ path('app_reception_facture_index') }}" class="btn btn-secondary">Retour</a>        {{ include('front/reception/facture/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

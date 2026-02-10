@@ -1,0 +1,52 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Dossier Clinique{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">
+        Dossier Clinique – {{ profil.nom }} {{ profil.prenom }}
+    </h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+
+            {% if dossier %}
+                <p>
+                    <strong>Antécédents :</strong><br>
+                    {{ dossier.antecedents ?: 'Aucun antécédent enregistré' }}
+                </p>
+
+                <p>
+                    <strong>Allergies :</strong><br>
+                    {% if dossier.allergies %}
+                        {{ dossier.allergies|join(', ') }}
+                    {% else %}
+                        Aucune allergie enregistrée
+                    {% endif %}
+                </p>
+            {% else %}
+                <div class="alert alert-warning">
+                    Ce profil n’a pas encore de dossier clinique.
+                </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <a href="{{ path('medecin_dossier_edit', {id: profil.id}) }}"
+                   class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    {{ dossier ? 'Modifier' : 'Créer' }} le dossier
+                </a>
+
+                <a href="{{ path('medecin_profils_list') }}"
+                   class="btn btn-secondary ml-2">
+                    Retour à la liste
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

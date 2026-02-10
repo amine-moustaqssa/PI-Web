@@ -1,0 +1,61 @@
+{# templates/admin/dossier_clinique/show.html.twig #}
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Voir Dossier Clinique{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Profil Médical & Dossier Clinique</h1>
+
+    <div class="row">
+        {# ---------------- Card Profil Médical ---------------- #}
+        <div class="col-md-5">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Profil Médical</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nom :</strong> {{ profilMedical.nom }}</p>
+                    <p><strong>Prénom :</strong> {{ profilMedical.prenom }}</p>
+                    <p><strong>Date de naissance :</strong> {{ profilMedical.dateNaissance ? profilMedical.dateNaissance|date('d/m/Y') : 'Non renseignée' }}</p>
+                    <p><strong>Contact d'urgence :</strong> {{ profilMedical.contactUrgence }}</p>
+                </div>
+            </div>
+        </div>
+
+        {# ---------------- Card Dossier Clinique ---------------- #}
+        <div class="col-md-7">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-success">Dossier Clinique</h6>
+                </div>
+                <div class="card-body">
+                    {% if profilMedical.dossierClinique %}
+                        <p><strong>Antécédents :</strong> {{ profilMedical.dossierClinique.antecedents ?: 'Non renseigné' }}</p>
+
+                        <p><strong>Allergies :</strong>
+                            {% if profilMedical.dossierClinique.allergies %}
+                                {{ profilMedical.dossierClinique.allergies|join(', ') }}
+                            {% else %}
+                                Aucune
+                            {% endif %}
+                        </p>
+
+                        <p><strong>Nombre de rapports :</strong> {{ profilMedical.dossierClinique.rapportsMedicaux|length }}</p>
+
+                        <a href="{{ path('admin_dossier_clinique_reports', {'id': profilMedical.dossierClinique.id}) }}" class="btn btn-info mt-2">
+                            Voir les rapports
+                        </a>
+                    {% else %}
+                        <p>Ce profil n'a pas encore de dossier clinique.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ path('admin_dossier_clinique_index') }}" class="btn btn-secondary mt-3">
+        Retour 
+    </a>
+</div>
+{% endblock %}

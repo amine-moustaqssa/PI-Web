@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Espace Titulaire{% endblock %}
+
+{# --- STYLES FOR MODAL & UI --- #}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Modern Modal Styles */
+        .modal-content-modern { border: none; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .modal-header-modern { border-bottom: none; padding-bottom: 0; background-color: white; border-radius: 12px 12px 0 0; }
+        .modal-title-modern { font-weight: 700; color: #1a1f36; font-size: 1.1rem; }
+        .modal-subtitle { font-size: 0.85rem; color: #697386; margin-top: 4px; }
+        .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #3c4257; margin-bottom: 6px; display: block; }
+        .form-group-modern { margin-bottom: 1.25rem; }
+        .form-control-modern { border-radius: 6px; border: 1px solid #e3e8ee; padding: 10px 12px; font-size: 0.9rem; color: #1a1f36; transition: all 0.2s; width: 100%; }
+        .form-control-modern:focus { border-color: #3c4257; box-shadow: 0 0 0 2px rgba(60, 66, 87, 0.1); }
+        .btn-ghost-modern { background: transparent; border: 1px solid #e3e8ee; color: #3c4257; font-weight: 600; border-radius: 6px; padding: 8px 16px; }
+        .btn-ghost-modern:hover { background: #f7f9fc; }
+        .btn-primary-modern { background-color: #2e3b55; border: none; color: white; font-weight: 600; border-radius: 6px; padding: 8px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-primary-modern:hover { background-color: #1a1f36; }
+        .required-star { color: #e51c00; }
+    </style>
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'titulaire/_partials/_sidebar.html.twig' %}
+{% endblock %}
+
+{% block topbar %}{% endblock %}
+
+{% block body %}
+    
+    <div class="mt-4">
+        
+        {# --- HEADER & PROFILE SWITCHER --- #}
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div>
+                {% if activeProfil %}
+                    <div class="d-flex align-items-center">
+                        {# --- ICÔNE STATIQUE AJOUTÉE ICI --- #}
+                        <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mr-3" style="width: 48px; height: 48px;">
+                            <i class="fas fa-user fa-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="h3 mb-0 text-gray-800 font-weight-bold">{{ activeProfil.prenom }} {{ activeProfil.nom }}</h1>
+                            <span class="badge badge-success shadow-sm mt-1">Profil Actif</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="h3 mb-0 text-gray-800">Bienvenue</h1>
+                    <span class="badge badge-warning shadow-sm">Aucun profil</span>
+                {% endif %}
+            </div>
+            
+            <div class="dropdown no-arrow mb-1">
+                <button class="btn btn-primary dropdown-toggle shadow-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-exchange-alt fa-sm text-white-50 mr-2"></i> Changer de profil
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuButton">
+                    <h6 class="dropdown-header">Sélectionner un profil :</h6>
+                    {% for profil in allProfils %}
+                        <a class="dropdown-item {% if activeProfil and profil.id == activeProfil.id %}active{% endif %}" 
+                           href="{{ path('app_titulaire_dashboard_profil', {'id': profil.id}) }}">
+                            {{ profil.prenom }} {{ profil.nom }}
+                        </a>
+                    {% endfor %}
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-primary font-weight-bold" href="#" data-toggle="modal" data-target="#addProfilModal">
+                        <i class="fas fa-plus-circle mr-2"></i> Ajouter un profil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# --- MAIN CONTENT --- #}
+        {% if activeProfil %}
+            
+            {# 1. General Info Card #}
+            {% include 'titulaire/_partials/_general_info.html.twig' %}
+
+            {# 2. Clinical Dossier (Tabs) #}
+            {% include 'titulaire/_partials/_dossier_clinique.html.twig' %}
+
+        {% else %}
+            
+            {# Empty State #}
+            {% include 'titulaire/_partials/_empty_state.html.twig' %}
+
+        {% endif %}
+
+        {# --- ADD PROFILE MODAL (Always included) --- #}
+        {% include 'titulaire/_partials/_add_profil_modal.html.twig' %}
+        
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Re-open modal if there are validation errors
+            if ($('#addProfilModal').find('.is-invalid, .invalid-feedback').length > 0) {
+                $('#addProfilModal').modal('show');
+            }
+        });
+    </script>
+{% endblock %}

@@ -10,60 +10,81 @@
 
     <title>{% block title %}SB Admin 2 - Dashboard{% endblock %}</title>
 
+    {# FontAwesome #}
     <link href="{{ asset('backoffice/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+
+    {# Google Fonts #}
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
+    {# SB Admin 2 CSS #}
     <link href="{{ asset('backoffice/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    {# DataTables CSS (CDN) #}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    {% block stylesheets %}{% endblock %}
 </head>
 
 <body id="page-top">
 
-    <div id="wrapper">
+<div id="wrapper">
 
-        {{ include('admin/_partials/_sidebar.html.twig') }}
-        <div id="content-wrapper" class="d-flex flex-column">
+    {{ include('admin/_partials/_sidebar.html.twig') }}
 
-            <div id="content">
+    <div id="content-wrapper" class="d-flex flex-column">
 
-                {{ include('admin/_partials/_topbar.html.twig') }}
-                <div class="container-fluid">
-                    
-                    {# Flash Messages for Success/Error alerts #}
-                    {% for label, messages in app.flashes %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        {% endfor %}
+        <div id="content">
+            {{ include('admin/_partials/_topbar.html.twig') }}
+
+            <div class="container-fluid">
+
+                {# Flash messages #}
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     {% endfor %}
+                {% endfor %}
 
-                    {# This is where specific page content will be injected #}
-                    {% block body %}{% endblock %}
-
-                </div>
-                </div>
-            {{ include('admin/_partials/_footer.html.twig') }}
+                {# Page content #}
+                {% block body %}{% endblock %}
             </div>
+
         </div>
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
 
-    {{ include('admin/_partials/_logout_modal.html.twig') }}
+        {{ include('admin/_partials/_footer.html.twig') }}
+    </div>
+</div>
 
-    <script src="{{ asset('backoffice/vendor/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('backoffice/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
 
-    <script src="{{ asset('backoffice/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+{{ include('admin/_partials/_logout_modal.html.twig') }}
 
-    <script src="{{ asset('backoffice/js/sb-admin-2.min.js') }}"></script>
+{# jQuery (obligatoire pour DataTables) #}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    {% block javascripts %}
-        <script src="{{ asset('backoffice/vendor/chart.js/Chart.min.js') }}"></script>
-        {% endblock %}
+{# Bootstrap Bundle JS #}
+<script src="{{ asset('backoffice/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+{# jQuery Easing #}
+<script src="{{ asset('backoffice/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+
+{# SB Admin 2 JS #}
+<script src="{{ asset('backoffice/js/sb-admin-2.min.js') }}"></script>
+
+{# Chart.js si nécessaire #}
+<script src="{{ asset('backoffice/vendor/chart.js/Chart.min.js') }}"></script>
+
+{# DataTables JS (CDN) #}
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block javascripts %}{% endblock %}
 
 </body>
 </html>
