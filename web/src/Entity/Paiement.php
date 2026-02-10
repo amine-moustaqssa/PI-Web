@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PaiementRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PaiementRepository::class)]
 #[ORM\Table(name: 'Paiement')]
@@ -28,14 +29,9 @@ class Paiement
 
     #[ORM\ManyToOne(targetEntity: Facture::class, inversedBy: 'paiements')]
     #[ORM\JoinColumn(nullable: false)]
-<<<<<<< Updated upstream
-    private ?Facture $facture = null;
-
-=======
     #[Assert\NotNull(message: "Le paiement doit être rattaché à une facture.")]
     private ?Facture $facture = null;
-    
->>>>>>> Stashed changes
+
     public function getId(): ?int
     {
         return $this->id;
