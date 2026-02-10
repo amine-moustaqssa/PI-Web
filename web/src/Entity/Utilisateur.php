@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[ORM\Table(name: 'Utilisateur')]
@@ -32,6 +33,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\NotBlank(message: "L'email est obligatoire.")]
+    #[Assert\Email(message: "L'email '{{ value }}' n'est pas un email valide.")]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -41,9 +44,23 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le prénom doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le prénom ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $prenom = null;
 
     // --- MAPPING THE EXISTING DB COLUMNS ---
@@ -58,6 +75,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     // Matches column 'code_postal'
     #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Length(max: 10, maxMessage: 'Le code postal ne doit pas dépasser {{ limit }} caractères.')]
+    #[Assert\Regex(pattern: '/^\d{4,10}$/', message: 'Le code postal doit contenir uniquement des chiffres (4 à 10).')]
     private ?string $codePostal = null;
 
     /**

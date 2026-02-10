@@ -20,6 +20,7 @@ class ConstanteVitale
     // Mapping vers 'consultation_id' en base de données
     #[ORM\ManyToOne(targetEntity: Consultation::class)]
     #[ORM\JoinColumn(name: "consultation_id", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: "La consultation est obligatoire.")]
     private ?Consultation $consultation_id = null;
 
     #[ORM\Column(name: "date_prise", type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -35,6 +36,7 @@ class ConstanteVitale
 
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20, maxMessage: "L'unité ne doit pas dépasser {{ limit }} caractères.")]
     private ?string $unite = null;
 
     #[Assert\NotBlank(message: "La valeur est obligatoire")]
