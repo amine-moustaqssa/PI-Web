@@ -12,6 +12,7 @@ class ConsultationMedecinType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('rdv_id')
             ->add('statut')
             ->add('notes_privees');
     }

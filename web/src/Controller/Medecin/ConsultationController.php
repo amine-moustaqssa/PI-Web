@@ -27,20 +27,22 @@ final class ConsultationController extends AbstractController
     {
         $consultation = new Consultation();
 
-        $form = $this->createForm(ConsultationMedecinType::class, $consultation);
-        $form->handleRequest($request);
+// Récupérer le médecin connecté et l'affecter automatiquement
+    $medecinConnecte = $this->getUser(); // suppose que l'entité Medecin est l'utilisateur
+    $consultation->setMedecin($medecinConnecte);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($consultation);
-            $em->flush();
+    $form = $this->createForm(ConsultationMedecinType::class, $consultation);
+    $form->handleRequest($request);
 
-            return $this->redirectToRoute('medecin_consultation_index');
-        }
-
-        return $this->render('medecin/consultation/new.html.twig', [
-            'form' => $form,
-        ]);
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($consultation);
+        $em->flush();
+        return $this->redirectToRoute('medecin_consultation_index');
     }
+    return $this->render('medecin/consultation/new.html.twig', [
+        'form' => $form,
+    ]);
+}
 
     #[Route('/{id}', name: 'medecin_consultation_show', methods: ['GET'])]
     public function show(Consultation $consultation): Response
@@ -58,6 +60,7 @@ final class ConsultationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+
             return $this->redirectToRoute('medecin_consultation_index');
         }
 

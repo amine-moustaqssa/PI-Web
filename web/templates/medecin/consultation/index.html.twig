@@ -9,6 +9,7 @@
     <thead>
         <tr>
             <th>Id</th>
+            <th>Rdv_id</th> {# <-- ajout de Rdv_id #}
             <th>Date</th>
             <th>Statut</th>
             <th>Notes</th>
@@ -19,6 +20,7 @@
     {% for consultation in consultations %}
         <tr>
             <td>{{ consultation.id }}</td>
+            <td>{{ consultation.rdvId }}</td> {# <-- affichage de Rdv_id #}
             <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('Y-m-d H:i:s') : '' }}</td>
             <td>{{ consultation.statut }}</td>
             <td>{{ consultation.notesPrivees }}</td>
@@ -28,7 +30,7 @@
             </td>
         </tr>
     {% else %}
-        <tr><td colspan="5">No records found</td></tr>
+        <tr><td colspan="6">No records found</td></tr>
     {% endfor %}
     </tbody>
 </table>
