@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FactureRepository::class)]
 #[ORM\Table(name: 'Facture')]
@@ -32,23 +33,15 @@ class Facture
     #[Assert\Choice(choices: ["Payée", "En attente", "Annulée"], message: "Statut invalide.")]
     private ?string $statut = null;
 
-<<<<<<< Updated upstream
     /**
      * @var Collection<int, Paiement>
      */
     #[ORM\OneToMany(targetEntity: Paiement::class, mappedBy: 'facture', cascade: ['persist', 'remove'])]
     private Collection $paiements;
 
-   #[ORM\OneToOne(targetEntity: Consultation::class, cascade: ['persist'])]
-    #[ORM\JoinColumn(nullable: false)]
-=======
-    #[ORM\OneToMany(targetEntity: Paiement::class, mappedBy: 'facture', cascade: ['persist', 'remove'])]
-    private Collection $paiements;
-
     #[ORM\OneToOne(targetEntity: Consultation::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "Une facture doit être liée à une consultation.")]
->>>>>>> Stashed changes
     private ?Consultation $consultation = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
