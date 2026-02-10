@@ -30,7 +30,7 @@ class RendezVous
     #[ORM\Column(length: 60, nullable: true)]
     private ?string $motif = null;
 
-    #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
+    #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVous')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
     private ?ProfilMedical $profil = null;
 
