@@ -5,15 +5,23 @@ namespace App\Entity;
 use App\Repository\MedecinRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MedecinRepository::class)]
 class Medecin extends Utilisateur
 {
     #[ORM\Column(length: 50, nullable: true)]
-    private ?string $matricule = null; // Matches 'matricule'
+    #[Assert\Length(
+        min: 3,
+        max: 50,
+        minMessage: 'Le matricule doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le matricule ne doit pas dépasser {{ limit }} caractères.'
+    )]
+    private ?string $matricule = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $tarif_consultation = null; // Matches 'tarif_consultation'
+    #[Assert\Positive(message: 'Le tarif de consultation doit être un nombre positif.')]
+    private ?string $tarif_consultation = null;
 
     #[ORM\ManyToOne(inversedBy: 'medecins')]
     // FORCE DOCTRINE TO USE YOUR EXISTING COLUMN 'specialite_id'

@@ -29,6 +29,7 @@ class Consultation
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\NotBlank(message: 'Les notes sont obligatoires')]
+    #[Assert\Length(max: 5000, maxMessage: 'Les notes ne doivent pas dépasser {{ limit }} caractères.')]
     private ?string $notesPrivees = null;
 
     #[ORM\Column(nullable: true)]

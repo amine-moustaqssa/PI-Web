@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RendezVousRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RendezVousRepository::class)]
 #[ORM\Table(name: "RendezVous")]
@@ -16,6 +17,7 @@ class RendezVous
     private ?string $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\NotNull(message: 'La date de début est obligatoire.')]
     private ?\DateTimeInterface $date_debut = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -28,10 +30,12 @@ class RendezVous
     private ?string $type = null;
 
     #[ORM\Column(length: 60, nullable: true)]
+    #[Assert\Length(max: 60, maxMessage: 'Le motif ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $motif = null;
 
-    #[ORM\ManyToOne(targetEntity: ProfilMedical::class)]
+    #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
+    #[Assert\NotNull(message: 'Le profil médical est obligatoire.')]
     private ?ProfilMedical $profil = null;
 
     public function getId(): ?string

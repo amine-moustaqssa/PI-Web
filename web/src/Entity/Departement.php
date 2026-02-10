@@ -6,6 +6,7 @@ use App\Repository\DepartementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DepartementRepository::class)]
 #[ORM\Table(name: 'Departement')]
@@ -17,9 +18,23 @@ class Departement
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom du département est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Le code du département est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 20,
+        minMessage: 'Le code doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le code ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $code = null;
 
     #[ORM\OneToMany(mappedBy: 'departement', targetEntity: Specialite::class, orphanRemoval: true)]

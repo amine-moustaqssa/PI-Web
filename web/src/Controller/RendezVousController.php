@@ -12,6 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+// --- AJOUTS POUR LE MAIL ---
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 class RendezVousController extends AbstractController
 {
@@ -21,25 +24,21 @@ class RendezVousController extends AbstractController
         RendezVousRepository $rendezVousRepository,
         ProfilMedicalRepository $profilRepo,
         SpecialiteRepository $specRepo,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer // --- INJECTION DU MAILER ---
     ): Response {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
-        // --- FORMULAIRE D'AJOUT ---
         $rendezVous = new RendezVous();
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // 1. Get the ID from the request
             $specialiteId = $request->request->get('specialite_id');
 
-            // 2. CRITICAL SECURITY CHECK: Prevent crash if ID is missing
             if (!$specialiteId) {
                 $this->addFlash('danger', 'Veuillez sélectionner une spécialité avant de confirmer.');
-                // Re-render the page with errors (do not redirect)
-                // We fetch the data again to render the view correctly
                 return $this->render('rendez_vous/index_client.html.twig', [
                     'rendez_vous' => $rendezVousRepository->findBy(['profil' => $profilRepo->findBy(['titulaire' => $user])], ['date_debut' => 'DESC']),
                     'form'        => $form->createView(),
@@ -63,20 +62,30 @@ class RendezVousController extends AbstractController
             $entityManager->persist($rendezVous);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Rendez-vous ajouté avec succès !');
+            // --- LOGIQUE D'ENVOI D'EMAIL ---
+            $email = (new Email())
+                ->from('no-reply@clinique.tn')
+                ->to($user->getUserIdentifier()) // Utilise l'email de l'utilisateur connecté
+                ->subject('Confirmation de votre demande de rendez-vous')
+                ->html("
+                    <h3>Bonjour " . $user->getUserIdentifier() . ",</h3>
+                    <p>Votre demande de rendez-vous pour <strong>" . $rendezVous->getType() . "</strong> a bien été enregistrée.</p>
+                    <p>Date : " . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . "</p>
+                    <p>Statut : En attente de confirmation par le médecin.</p>
+                ");
+
+            $mailer->send($email);
+
+            $this->addFlash('success', 'Rendez-vous ajouté ! Un email de confirmation vous a été envoyé.');
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
-        // --- LISTE DES RENDEZ-VOUS ---
         $profilsFamille = $profilRepo->findBy(['titulaire' => $user]);
-        $mesRendezVous = $rendezVousRepository->findBy(
-            ['profil' => $profilsFamille],
-            ['date_debut' => 'DESC']
-        );
+        $mesRendezVous = $rendezVousRepository->findBy(['profil' => $profilsFamille], ['date_debut' => 'DESC']);
 
         return $this->render('rendez_vous/index_client.html.twig', [
             'rendez_vous' => $mesRendezVous,
-            'form'        => $form->createView(),
+            'form'         => $form->createView(),
             'specialites' => $specRepo->findAll(),
         ]);
     }
@@ -85,7 +94,6 @@ class RendezVousController extends AbstractController
     public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        // Vérification de sécurité
         if ($rendezVous->getProfil()->getTitulaire() !== $user && $rendezVous->getProfil()->getTitulaireId() != 7) {
             throw $this->createAccessDeniedException();
         }
@@ -104,7 +112,6 @@ class RendezVousController extends AbstractController
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
-        // Check if this is an AJAX request
         if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
             return $this->render('rendez_vous/_edit_modal.html.twig', [
                 'form' => $form->createView(),
