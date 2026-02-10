@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FactureRepository::class)]
 #[ORM\Table(name: 'Facture')]
@@ -18,41 +19,44 @@ class Facture
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "La référence ne peut pas être vide.")]
+    #[Assert\Length(min: 5, max: 20, minMessage: "La référence doit faire au moins {{ limit }} caractères.")]
     private ?string $reference = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Assert\NotBlank(message: "Le montant total est obligatoire.")]
+    #[Assert\Positive(message: "Le montant doit être un nombre positif.")]
     private ?string $montantTotal = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le statut est obligatoire.")]
+    #[Assert\Choice(choices: ["Payée", "En attente", "Annulée"], message: "Statut invalide.")]
     private ?string $statut = null;
 
     /**
-     * @var Collection<int, Paiment>
+     * @var Collection<int, Paiement>
      */
-    #[ORM\OneToMany(mappedBy: 'idFacture', targetEntity: Paiement::class)] // Assure-toi qu'il y a un E ici
+    #[ORM\OneToMany(targetEntity: Paiement::class, mappedBy: 'facture', cascade: ['persist', 'remove'])]
     private Collection $paiements;
-    #[ORM\OneToOne(targetEntity: Consultation::class, inversedBy: 'facture', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)] // Set to true if a facture can exist without a consultation
+
+    #[ORM\OneToOne(targetEntity: Consultation::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "Une facture doit être liée à une consultation.")]
     private ?Consultation $consultation = null;
+
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "Le titulaire est obligatoire.")]
     private ?Utilisateur $titulaire = null;
 
     public function __construct()
     {
-        $this->paiments = new ArrayCollection();
+        $this->paiements = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getReference(): ?string
@@ -63,7 +67,6 @@ class Facture
     public function setReference(string $reference): static
     {
         $this->reference = $reference;
-
         return $this;
     }
 
@@ -75,7 +78,6 @@ class Facture
     public function setMontantTotal(string $montantTotal): static
     {
         $this->montantTotal = $montantTotal;
-
         return $this;
     }
 
@@ -87,39 +89,36 @@ class Facture
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
-
         return $this;
     }
 
     /**
-     * @return Collection<int, Paiment>
+     * @return Collection<int, Paiement>
      */
-    public function getPaiments(): Collection
+    public function getPaiements(): Collection
     {
-        return $this->paiments;
+        return $this->paiements;
     }
 
-    public function addPaiment(Paiment $paiment): static
+    public function addPaiement(Paiement $paiement): static
     {
-        if (!$this->paiments->contains($paiment)) {
-            $this->paiments->add($paiment);
-            $paiment->setIdFacture($this);
+        if (!$this->paiements->contains($paiement)) {
+            $this->paiements->add($paiement);
+            $paiement->setFacture($this);
         }
-
         return $this;
     }
 
-    public function removePaiment(Paiment $paiment): static
+    public function removePaiement(Paiement $paiement): static
     {
-        if ($this->paiments->removeElement($paiment)) {
-            // set the owning side to null (unless already changed)
-            if ($paiment->getIdFacture() === $this) {
-                $paiment->setIdFacture(null);
+        if ($this->paiements->removeElement($paiement)) {
+            if ($paiement->getFacture() === $this) {
+                $paiement->setFacture(null);
             }
         }
-
         return $this;
     }
+
     public function getConsultation(): ?Consultation
     {
         return $this->consultation;
@@ -128,18 +127,17 @@ class Facture
     public function setConsultation(Consultation $consultation): static
     {
         $this->consultation = $consultation;
-
         return $this;
     }
-    public function getTitulaire(): ?Titulaire
-{
-    return $this->titulaire;
-}
 
-public function setTitulaire(?Titulaire $titulaire): static
-{
-    $this->titulaire = $titulaire;
-    return $this;
-}
+    public function getTitulaire(): ?Utilisateur
+    {
+        return $this->titulaire;
+    }
 
+    public function setTitulaire(?Utilisateur $titulaire): static
+    {
+        $this->titulaire = $titulaire;
+        return $this;
+    }
 }

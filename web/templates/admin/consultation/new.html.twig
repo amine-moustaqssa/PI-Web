@@ -1,11 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer une consultation (Admin){% endblock %}
+{% block title %}Nouvelle consultation{% endblock %}
 
 {% block body %}
-<h1>Créer une nouvelle consultation</h1>
+    <h1>Nouvelle consultation</h1>
 
-{{ include('admin/consultation/_form.html.twig', {'button_label': 'Créer'}) }}
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-success">Créer</button>
+    {{ form_end(form) }}
 
-<a href="{{ path('admin_consultation_index') }}">Retour à la liste</a>
+    <a href="{{ path('admin_consultation_index') }}">Retour</a>
 {% endblock %}

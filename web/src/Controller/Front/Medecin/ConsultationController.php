@@ -15,37 +15,44 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ConsultationController extends AbstractController
 {
     #[Route('/', name: 'medecin_consultation_index', methods: ['GET'])]
-    public function index(ConsultationRepository $repository): Response
+    public function index(Request $request, ConsultationRepository $repository): Response
     {
-        return $this->render('medecin/consultation/index.html.twig', [
-            'consultations' => $repository->findAll(),
-        ]);
-    }
+        $medecin = $this->getUser();
+        $statut = $request->query->get('statut');
 
-    #[Route('/new', name: 'medecin_consultation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
-        $consultation = new Consultation();
-
-        $form = $this->createForm(ConsultationMedecinType::class, $consultation);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($consultation);
-            $em->flush();
-
-            return $this->redirectToRoute('medecin_consultation_index');
+        if ($statut && in_array($statut, ['en_cours', 'terminée', 'planifiée', 'annulée'], true)) {
+            $consultations = $repository->findByMedecinAndStatut($medecin, $statut);
+        } else {
+            $consultations = $repository->findByMedecin($medecin);
+            $statut = null;
         }
 
-        return $this->render('medecin/consultation/new.html.twig', [
-            'form' => $form,
+        // Count by status for the filter cards
+        $allConsultations = $repository->findByMedecin($medecin);
+        $counts = ['total' => count($allConsultations), 'en_cours' => 0, 'terminée' => 0, 'planifiée' => 0, 'annulée' => 0];
+        foreach ($allConsultations as $c) {
+            $s = $c->getStatut();
+            if (isset($counts[$s])) {
+                $counts[$s]++;
+            }
+        }
+
+        return $this->render('front/medecin/consultation/index.html.twig', [
+            'consultations' => $consultations,
+            'counts' => $counts,
+            'currentStatut' => $statut,
         ]);
     }
 
     #[Route('/{id}', name: 'medecin_consultation_show', methods: ['GET'])]
     public function show(Consultation $consultation): Response
     {
-        return $this->render('medecin/consultation/show.html.twig', [
+        // Security: only the owning doctor can view
+        if ($consultation->getMedecin()->getId() !== $this->getUser()->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('front/medecin/consultation/show.html.twig', [
             'consultation' => $consultation,
         ]);
     }
@@ -53,15 +60,21 @@ final class ConsultationController extends AbstractController
     #[Route('/{id}/edit', name: 'medecin_consultation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Consultation $consultation, EntityManagerInterface $em): Response
     {
+        // Security: only the owning doctor can edit
+        if ($consultation->getMedecin()->getId() !== $this->getUser()->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(ConsultationMedecinType::class, $consultation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+            $this->addFlash('success', 'Consultation mise à jour.');
             return $this->redirectToRoute('medecin_consultation_index');
         }
 
-        return $this->render('medecin/consultation/edit.html.twig', [
+        return $this->render('front/medecin/consultation/edit.html.twig', [
             'form' => $form,
             'consultation' => $consultation,
         ]);

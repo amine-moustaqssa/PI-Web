@@ -15,29 +15,82 @@ class ConsultationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Consultation::class);
     }
+    // src/Repository/ConsultationRepository.php
+    public function countTodayByMedecin($medecin): int
+    {
+        $start = new \DateTime('today 00:00:00');
+        $end = new \DateTime('today 23:59:59');
 
-//    /**
-//     * @return Consultation[] Returns an array of Consultation objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->andWhere('c.medecin = :medecin')
+            ->andWhere('c.date_effectuee BETWEEN :start AND :end')
+            ->setParameter('medecin', $medecin)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
-//    public function findOneBySomeField($value): ?Consultation
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * Find all consultations for a specific doctor, ordered by date desc.
+     *
+     * @return Consultation[]
+     */
+    public function findByMedecin($medecin): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.medecin = :medecin')
+            ->setParameter('medecin', $medecin)
+            ->orderBy('c.date_effectuee', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find consultations for a specific doctor filtered by statut.
+     *
+     * @return Consultation[]
+     */
+    public function findByMedecinAndStatut($medecin, string $statut): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.medecin = :medecin')
+            ->andWhere('c.statut = :statut')
+            ->setParameter('medecin', $medecin)
+            ->setParameter('statut', $statut)
+            ->orderBy('c.date_effectuee', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Recherche multicritère des consultations selon medecin, date et statut
+     *
+     * @param int|null $medecinId
+     * @param \DateTimeInterface|null $date
+     * @param string|null $statut
+     * @return Consultation[]
+     */
+    public function searchConsultations(?int $medecinId, ?\DateTimeInterface $date, ?string $statut): array
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        if ($medecinId !== null) {
+            $qb->andWhere('c.medecin = :medecinId')
+                ->setParameter('medecinId', $medecinId);
+        }
+
+        if ($date !== null) {
+            $qb->andWhere('c.date_effectuee = :date')
+                ->setParameter('date', $date->format('Y-m-d'));
+        }
+
+        if ($statut !== null && $statut !== '') {
+            $qb->andWhere('c.statut = :statut')
+                ->setParameter('statut', $statut);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

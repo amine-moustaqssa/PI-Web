@@ -1,16 +1,16 @@
-<?php
+<?php 
 
-namespace App\Form;
+namespace App\Form; 
 
-use App\Entity\ConstanteVitale;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use App\Entity\ConstanteVitale; 
+use Symfony\Component\Form\AbstractType; 
+use Symfony\Component\Form\FormBuilderInterface; 
+use Symfony\Component\OptionsResolver\OptionsResolver; 
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType; 
 
-class ConstanteVitaleInfirmierType extends AbstractType
+class ConstanteVitaleInfirmierType extends AbstractType 
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options): void 
     {
         $builder
             ->add('type')
@@ -22,7 +22,7 @@ class ConstanteVitaleInfirmierType extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver): void 
     {
         $resolver->setDefaults([
             'data_class' => ConstanteVitale::class,

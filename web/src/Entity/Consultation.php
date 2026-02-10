@@ -3,8 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\ConsultationRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: ConsultationRepository::class)]
 #[ORM\Table(name: 'Consultation')]
@@ -15,59 +16,44 @@ class Consultation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::BIGINT, nullable: true)]
-    private ?string $rdv_id = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateEffectuee = null;
 
-    #[ORM\ManyToOne(targetEntity: Medecin::class)]
-    #[ORM\JoinColumn(name: 'medecin_id', referencedColumnName: 'id', nullable: false)]
-    private ?Medecin $medecin = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $date_effectuee = null;
-
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'Le statut est obligatoire')]
+    #[Assert\Choice(
+        choices: ['en cours', 'planifié', 'terminé'],
+        message: "Le statut doit être : 'en cours', 'planifié' ou 'terminé'"
+    )]
     private ?string $statut = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $notes_privees = null;
+    #[Assert\NotBlank(message: 'Les notes sont obligatoires')]
+    private ?string $notesPrivees = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $rdvId = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Le medecin_id est obligatoire')]
+    private ?Medecin $medecin = null;
+
+    // ---------------- GETTERS / SETTERS ----------------
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getRdvId(): ?string
+    public function getDateEffectuee(): ?\DateTimeInterface
     {
-        return $this->rdv_id;
+        return $this->dateEffectuee;
     }
 
-    public function setRdvId(string $rdv_id): static
+    public function setDateEffectuee(?\DateTimeInterface $dateEffectuee): static
     {
-        $this->rdv_id = $rdv_id;
-
-        return $this;
-    }
-
-    public function getMedecin(): ?Medecin
-{
-    return $this->medecin;
-    }
-
-    public function setMedecin(?Medecin $medecin): static
-    {
-        $this->medecin = $medecin;
-        return $this;
-    }
-
-    public function getDateEffectuee(): ?\DateTimeImmutable
-    {
-        return $this->date_effectuee;
-    }
-
-    public function setDateEffectuee(\DateTimeImmutable $date_effectuee): static
-    {
-        $this->date_effectuee = $date_effectuee;
-
+        $this->dateEffectuee = $dateEffectuee;
         return $this;
     }
 
@@ -79,19 +65,39 @@ class Consultation
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
-
         return $this;
     }
 
     public function getNotesPrivees(): ?string
     {
-        return $this->notes_privees;
+        return $this->notesPrivees;
     }
 
-    public function setNotesPrivees(?string $notes_privees): static
+    public function setNotesPrivees(?string $notesPrivees): static
     {
-        $this->notes_privees = $notes_privees;
+        $this->notesPrivees = $notesPrivees;
+        return $this;
+    }
 
+    public function getRdvId(): ?int
+    {
+        return $this->rdvId;
+    }
+
+    public function setRdvId(?int $rdvId): static
+    {
+        $this->rdvId = $rdvId;
+        return $this;
+    }
+
+    public function getMedecin(): ?Medecin
+    {
+        return $this->medecin;
+    }
+
+    public function setMedecin(?Medecin $medecin): static
+    {
+        $this->medecin = $medecin;
         return $this;
     }
 }

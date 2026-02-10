@@ -2,9 +2,12 @@
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
         <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
-        </div>
-        <div class="sidebar-brand-text mx-3">Clinique <sup>2.0</sup></div>
+        <img src="{{ asset('logoApp.png') }}"
+                 alt="Clinic360 Logo"
+                 height="70"
+                 class="d-inline-block align-text-top rounded-circle">        
+                 </div>
+        <div class="sidebar-brand-text mx-3">Clinique <sup>360</sup></div>
     </a>
 
     <hr class="sidebar-divider my-0">
@@ -30,8 +33,9 @@
         <div id="collapseUsers" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Comptes:</h6>
-                <a class="collapse-item" href="{{ path('app_medecin_index') }}">Médecins</a>                <a class="collapse-item" href="#">Patients</a>
-                <a class="collapse-item" href="#">Personnel</a>
+                <a class="collapse-item" href="{{ path('admin_medecin_index') }}">Médecins</a>
+                <a class="collapse-item" href="{{ path('admin_titulaire_index') }}">Clients</a>
+                <a class="collapse-item" href="{{ path('admin_personnel_index') }}">Personnel</a>
             </div>
         </div>
     </li>
@@ -59,7 +63,20 @@
         <span>Spécialité & Département</span>
     </a>
 </li>
-
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_facture_index') }}">
+        <i class="fas fa-file-alt"></i>
+        <span>Facture</span>
+    </a>
+</li>
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_paiement_index') }}">
+        <i class="fas fa-dollar-sign"></i>
+        <span>paiement</span>
+    </a>
+</li>
 
     <hr class="sidebar-divider d-none d-md-block">
 
@@ -68,3 +85,4 @@
     </div>
 
 </ul>
+

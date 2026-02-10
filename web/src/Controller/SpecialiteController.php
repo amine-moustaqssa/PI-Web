@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/specialite')]
+#[Route('/admin/specialite')]
 final class SpecialiteController extends AbstractController
 {
     #[Route(name: 'app_specialite_index', methods: ['GET'])]
@@ -71,7 +71,7 @@ final class SpecialiteController extends AbstractController
     #[Route('/{id}', name: 'app_specialite_delete', methods: ['POST'])]
     public function delete(Request $request, Specialite $specialite, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$specialite->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $specialite->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($specialite);
             $entityManager->flush();
         }

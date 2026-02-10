@@ -1,79 +1,144 @@
 {% extends 'front/medecin/base_medecin.html.twig' %}
 
-{% block title %}Tableau de Bord{% endblock %}
+{% block title %}Aperçu du Dashboard | Clinic360{% endblock %}
 
 {% block body %}
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Tableau de Bord</h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-download fa-sm text-white-50"></i> Générer un rapport
-        </a>
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-dark">Bonjour, Dr. {{ app.user.nom }}</h1>
+            <p class="text-muted small">Voici un résumé de votre activité pour aujourd'hui.</p>
+        </div>
+        <div class="text-white bg-primary p-2 rounded shadow-sm">
+            <i class="fas fa-calendar-day mr-2"></i>
+            {{ "now"|date("d/m/Y") }}
+        </div>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+
+        <!-- Consultations Today -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 bg-dark-card border-left-primary">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        File d'attente (Patient)
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        {{ consultsToday ?? 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dossiers Count -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 bg-dark-card border-left-info">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                        Dossiers mis à jour
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        {{ dossiersCount ?? 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RDV Today -->
+        <div class="col-xl-4 col-md-12 mb-4">
+            <div class="card shadow h-100 py-2 bg-dark-card border-left-warning">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        Rendez-vous prévus
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        {{ rdvsToday ?? 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Planning Section -->
     <div class="row">
+        <div class="col-12">
+            <div class="card shadow bg-dark-card">
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Rendez-vous (Mensuel)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">40</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+                <div class="card-header py-3 bg-transparent border-secondary-custom">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Planning de la journée
+                    </h6>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Revenu (Annuel)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">215,000 TND</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Demandes en attente</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    {% if todayRdvs is defined and todayRdvs|length > 0 %}
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Bienvenue dans l'Admin</h6>
-                </div>
-                <div class="card-body">
-                    <p>L'intégration du template est terminée ! Vous pouvez maintenant commencer à créer vos pages CRUD pour gérer les utilisateurs, les rendez-vous et les départements.</p>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Heure</th>
+                                        <th>Patient</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rdv in todayRdvs %}
+                                        <tr>
+                                            <td>{{ rdv.dateDebut|date('H:i') }}</td>
+                                            <td>{{ rdv.profil ? rdv.profil.nom ~ ' ' ~ rdv.profil.prenom : '—' }}</td>
+                                            <td>
+                                                {% if rdv.statut == 'confirmé' or rdv.statut == 'Confirmé' %}
+                                                    <span class="badge badge-success">Confirmé</span>
+                                                {% elseif rdv.statut == 'annulé' or rdv.statut == 'Annulé' %}
+                                                    <span class="badge badge-danger">Annulé</span>
+                                                {% else %}
+                                                    <span class="badge badge-primary">{{ rdv.statut|default('Prévu') }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+                            <img src="{{ asset('front/assets/calendar-date.svg') }}"
+                                 width="50"
+                                 class="mb-3"
+                                 style="opacity:0.2;">
+                            <p class="text-muted">
+                                Aucun rendez-vous planifié pour aujourd'hui.
+                            </p>
+                        </div>
+
+                    {% endif %}
+
                 </div>
             </div>
         </div>
     </div>
+
+</div>
+
+<style>
+.bg-dark-card {
+    background-color: #242731 !important;
+    border: 1px solid #2d303e;
+}
+.border-left-primary { border-left: 4px solid #4e73df !important; }
+.border-left-info { border-left: 4px solid #36b9cc !important; }
+.border-left-warning { border-left: 4px solid #f6c23e !important; }
+.border-secondary-custom { border-bottom: 1px solid #2d303e !important; }
+.text-white { color: #ffffff !important; }
+</style>
+
 {% endblock %}

@@ -6,6 +6,9 @@ use App\Entity\Consultation;
 use App\Entity\Medecin;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,15 +17,26 @@ class ConsultationAdminType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('rdv_id')
-            ->add('date_effectuee', null, [
-                'widget' => 'single_text'
+            ->add('rdvId')
+            ->add('dateEffectuee', DateTimeType::class, [
+                'widget' => 'single_text',
+                'required' => false,
             ])
-            ->add('statut')
-            ->add('notes_privees')
+            ->add('statut', ChoiceType::class, [
+                'choices' => [
+                    'En cours' => 'en cours',
+                    'Planifié' => 'planifié',
+                    'Terminé' => 'terminé',
+                ],
+                'required' => true,
+            ])
+            ->add('notesPrivees', TextareaType::class, [
+                'required' => true,
+            ])
             ->add('medecin', EntityType::class, [
                 'class' => Medecin::class,
                 'choice_label' => 'id',
+                'required' => false,
             ]);
     }
 

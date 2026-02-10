@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-#[Route('/disponibilite')]
+#[Route('/admin/disponibilite')]
 class DisponibiliteController extends AbstractController
 {
     #[Route('/', name: 'app_disponibilite_index', methods: ['GET'])]
@@ -22,8 +22,7 @@ class DisponibiliteController extends AbstractController
 
         if ($this->isGranted('ROLE_MEDECIN') && !$this->isGranted('ROLE_ADMIN')) {
             $disponibilites = $disponibiliteRepository->findBy(['medecin' => $user]);
-        } 
-        else {
+        } else {
             $disponibilites = $disponibiliteRepository->findAll();
         }
 
@@ -102,7 +101,7 @@ class DisponibiliteController extends AbstractController
             }
         }
 
-        if ($this->isCsrfTokenValid('delete'.$disponibilite->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $disponibilite->getId(), $request->request->get('_token'))) {
             $entityManager->remove($disponibilite);
             $entityManager->flush();
         }

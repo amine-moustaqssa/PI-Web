@@ -156,5 +156,17 @@ class ProfilMedical
         $this->dossierClinique = $dossierClinique;
         return $this;
     }
-    
+    public function getTitulaireId(): ?int
+{
+    return $this->titulaire ? $this->titulaire->getId() : null;
 }
+    public function __debugInfo(): array
+    {
+        return [
+            'id' => $this->id,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            // We intentionally leave out 'titulaire' and 'dossierClinique' to stop the loop
+        ];
+    }
+} // End of class
