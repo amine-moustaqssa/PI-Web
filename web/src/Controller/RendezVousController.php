@@ -23,7 +23,7 @@ class RendezVousController extends AbstractController
         SpecialiteRepository $specRepo,
         EntityManagerInterface $entityManager
     ): Response {
-        $user = $this->getUser(); 
+        $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
         // --- FORMULAIRE D'AJOUT ---
@@ -32,7 +32,21 @@ class RendezVousController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 1. Get the ID from the request
             $specialiteId = $request->request->get('specialite_id');
+
+            // 2. CRITICAL SECURITY CHECK: Prevent crash if ID is missing
+            if (!$specialiteId) {
+                $this->addFlash('danger', 'Veuillez sélectionner une spécialité avant de confirmer.');
+                // Re-render the page with errors (do not redirect)
+                // We fetch the data again to render the view correctly
+                return $this->render('rendez_vous/index_client.html.twig', [
+                    'rendez_vous' => $rendezVousRepository->findBy(['profil' => $profilRepo->findBy(['titulaire' => $user])], ['date_debut' => 'DESC']),
+                    'form'        => $form->createView(),
+                    'specialites' => $specRepo->findAll(),
+                ]);
+            }
+
             $specialite = $specRepo->find($specialiteId);
             $profil = $rendezVous->getProfil();
 
@@ -41,7 +55,6 @@ class RendezVousController extends AbstractController
             $rendezVous->setType($profil->getNom() . ' ' . $profil->getPrenom() . ' [' . $specName . ']');
 
             if ($rendezVous->getDateDebut() instanceof \DateTimeInterface) {
-                // Correction définitive pour l'erreur "modify"
                 $dateFin = \DateTime::createFromInterface($rendezVous->getDateDebut());
                 $dateFin->modify('+30 minutes');
                 $rendezVous->setDateFin($dateFin);
@@ -72,9 +85,9 @@ class RendezVousController extends AbstractController
     public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        // Vérification de sécurité (Helper ID 7 pour test ou User courant)
+        // Vérification de sécurité
         if ($rendezVous->getProfil()->getTitulaire() !== $user && $rendezVous->getProfil()->getTitulaireId() != 7) {
-             throw $this->createAccessDeniedException();
+            throw $this->createAccessDeniedException();
         }
 
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
@@ -91,6 +104,14 @@ class RendezVousController extends AbstractController
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
+        // Check if this is an AJAX request
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('rendez_vous/_edit_modal.html.twig', [
+                'form' => $form->createView(),
+                'rendezVous' => $rendezVous
+            ]);
+        }
+
         return $this->render('rendez_vous/edit.html.twig', [
             'form' => $form->createView(),
             'rendezVous' => $rendezVous
@@ -101,7 +122,6 @@ class RendezVousController extends AbstractController
     public function cancel(RendezVous $rendezVous, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        // Vérification de propriété corrigée
         if ($rendezVous->getProfil()->getTitulaire() === $user || $rendezVous->getProfil()->getTitulaireId() == 7) {
             $rendezVous->setStatut('annulé');
             $entityManager->flush();
