@@ -75,4 +75,60 @@ class RendezVousRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Find all rendez-vous for a collection of medical profiles (i.e. a doctor's patients).
+     *
+     * @param iterable $profils  Collection of ProfilMedical
+     * @return RendezVous[]
+     */
+    public function findByProfils(iterable $profils): array
+    {
+        $profilIds = [];
+        foreach ($profils as $p) {
+            $profilIds[] = $p->getId();
+        }
+
+        if (empty($profilIds)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.profil', 'p')
+            ->addSelect('p')
+            ->andWhere('r.profil IN (:profils)')
+            ->setParameter('profils', $profilIds)
+            ->orderBy('r.date_debut', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find rendez-vous for a collection of profiles, filtered by statut.
+     *
+     * @param iterable $profils
+     * @return RendezVous[]
+     */
+    public function findByProfilsAndStatut(iterable $profils, string $statut): array
+    {
+        $profilIds = [];
+        foreach ($profils as $p) {
+            $profilIds[] = $p->getId();
+        }
+
+        if (empty($profilIds)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.profil', 'p')
+            ->addSelect('p')
+            ->andWhere('r.profil IN (:profils)')
+            ->andWhere('r.statut = :statut')
+            ->setParameter('profils', $profilIds)
+            ->setParameter('statut', $statut)
+            ->orderBy('r.date_debut', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

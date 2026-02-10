@@ -29,9 +29,8 @@
         </a>
     </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="#">
-        <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
+    <li class="nav-item {{ app.request.get('_route') starts with 'medecin_rdv' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('medecin_rdv_index') }}">
             <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14">
             <span>Rendez-vous</span>
         </a>
