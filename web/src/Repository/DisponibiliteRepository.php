@@ -39,7 +39,7 @@ class DisponibiliteRepository extends ServiceEntityRepository
 
         if ($excludeId !== null) {
             $qb->andWhere('d.id != :excludeId')
-               ->setParameter('excludeId', $excludeId);
+                ->setParameter('excludeId', $excludeId);
         }
 
         return $qb->getQuery()->getResult();
