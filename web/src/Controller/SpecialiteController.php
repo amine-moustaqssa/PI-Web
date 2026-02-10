@@ -71,7 +71,7 @@ final class SpecialiteController extends AbstractController
     #[Route('/{id}', name: 'app_specialite_delete', methods: ['POST'])]
     public function delete(Request $request, Specialite $specialite, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$specialite->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $specialite->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($specialite);
             $entityManager->flush();
         }
