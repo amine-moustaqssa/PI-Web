@@ -7,44 +7,125 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Mes Factures</h1>
+<div class="container-fluid">
 
-    <table class="table">
-        <thead>
-    <tr>
-        <th>ID</th>
-        <th>Référence</th>
-        <th>Montant</th>
-        <th>Statut</th>
-        <th>Actions</th>
-    </tr>
-</thead>
-<tbody>
-    {% for facture in factures %}
-        <tr>
-            <td>{{ facture.id }}</td>
-            <td>{{ facture.reference }}</td>
-            <td>{{ facture.montantTotal }} DT</td>
-            <td>
-                {% if facture.statut == 'PAYEE' %}
-                    <span class="badge badge-success">Payée</span>
-                {% elseif facture.statut == 'EN_ATTENTE' %}
-                    <span class="badge badge-warning">En attente</span>
-                {% else %}
-                    <span class="badge badge-danger">{{ facture.statut }}</span>
-                {% endif %}
-            </td>
-            <td>
-                <a href="{{ path('app_patient_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-sm">
-                    <i class="fas fa-eye"></i> Voir
-                </a>
-            </td>
-        </tr>
-    {% else %}
-        <tr>
-            <td colspan="5" class="text-center">Aucune facture trouvée</td>
-        </tr>
-    {% endfor %}
-</tbody>
-    </table>
+    {# Page Heading #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-file-invoice-dollar mr-2"></i>Mes Factures</h1>
+    </div>
+
+    {# Stats Cards #}
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total factures</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ factures|length }}</div>
+                    </div>
+                    <i class="fas fa-file-invoice fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Payées</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ factures|filter(f => f.statut == 'PAYEE')|length }}</div>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">En attente</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ factures|filter(f => f.statut == 'EN_ATTENTE')|length }}</div>
+                    </div>
+                    <i class="fas fa-clock fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Table Card #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Liste de mes factures</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle" id="factureTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th>Référence</th>
+                            <th class="text-center">Montant</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center" style="width: 15%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for facture in factures %}
+                        <tr>
+                            <td class="text-muted small">{{ facture.id }}</td>
+                            <td>
+                                <span class="font-weight-bold text-gray-800">{{ facture.reference }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="font-weight-bold">{{ facture.montantTotal }} DT</span>
+                            </td>
+                            <td class="text-center">
+                                {% if facture.statut == 'PAYEE' %}
+                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Payée</span>
+                                {% elseif facture.statut == 'EN_ATTENTE' %}
+                                    <span class="badge badge-warning px-3 py-2"><i class="fas fa-clock mr-1"></i>En attente</span>
+                                {% else %}
+                                    <span class="badge badge-danger px-3 py-2">{{ facture.statut }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ path('app_patient_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-circle btn-sm" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if facture.statut == 'EN_ATTENTE' %}
+                                    <a href="{{ path('app_patient_paiement_new') }}" class="btn btn-success btn-circle btn-sm" title="Payer">
+                                        <i class="fas fa-credit-card"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-file-invoice fa-3x text-gray-300 mb-3 d-block"></i>
+                                <h6 class="text-gray-500">Aucune facture trouvée</h6>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $('#factureTable').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
+                },
+                pageLength: 10,
+                order: [[0, 'desc']]
+            });
+        });
+    </script>
 {% endblock %}
