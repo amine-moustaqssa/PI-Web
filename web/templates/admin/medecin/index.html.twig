@@ -1,53 +1,197 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Medecin index{% endblock %}
+{% block title %}Gestion des Médecins{% endblock %}
 
 {% block body %}
-    <h1>Medecin index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>NiveauAcces</th>
-                <th>Adresse</th>
-                <th>CodePostal</th>
-                <th>Matricule</th>
-                <th>Tarif_consultation</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for medecin in medecins %}
-            <tr>
-                <td>{{ medecin.id }}</td>
-                <td>{{ medecin.email }}</td>
-                <td>{{ medecin.roles ? medecin.roles|json_encode : '' }}</td>
-                <td>{{ medecin.password }}</td>
-                <td>{{ medecin.nom }}</td>
-                <td>{{ medecin.prenom }}</td>
-                <td>{{ medecin.niveauAcces }}</td>
-                <td>{{ medecin.adresse }}</td>
-                <td>{{ medecin.codePostal }}</td>
-                <td>{{ medecin.matricule }}</td>
-                <td>{{ medecin.tarifConsultation }}</td>
-                <td>
-                    <a href="{{ path('app_medecin_show', {'id': medecin.id}) }}">show</a>
-                    <a href="{{ path('app_medecin_edit', {'id': medecin.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="12">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{# Page Heading #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Gestion des Médecins</h1>
+    <a href="{{ path('admin_medecin_new') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-user-plus fa-sm text-white-50 mr-1"></i> Ajouter un médecin
+    </a>
+</div>
 
-    <a href="{{ path('app_medecin_new') }}">Create new</a>
+{# Stats Cards #}
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Médecins</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ medecins|length }}</div>
+                </div>
+                <i class="fas fa-user-md fa-2x text-gray-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Avec spécialité</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        {{ medecins|filter(m => m.specialite is not null)|length }}
+                    </div>
+                </div>
+                <i class="fas fa-stethoscope fa-2x text-gray-300"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Data Table Card #}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Liste des médecins</h6>
+        <form method="get" class="d-flex" style="max-width: 350px;">
+            <input type="text" name="q" class="form-control form-control-sm mr-2"
+                   placeholder="Rechercher..." value="{{ search_query|default('') }}">
+            <button type="submit" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle" id="medecinTable" width="100%" cellspacing="0">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th>Médecin</th>
+                        <th>E-mail</th>
+                        <th>Matricule</th>
+                        <th>Spécialité</th>
+                        <th class="text-center">Tarif</th>
+                        <th class="text-center" style="width: 15%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for medecin in medecins %}
+                    <tr>
+                        <td class="text-muted small">{{ medecin.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3"
+                                     style="width: 38px; height: 38px; font-size: 0.85rem; flex-shrink: 0;">
+                                    {{ medecin.prenom|first|upper }}{{ medecin.nom|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold text-gray-800">Dr. {{ medecin.prenom }} {{ medecin.nom }}</div>
+                                    {% if medecin.adresse %}
+                                        <div class="small text-muted">{{ medecin.adresse }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="small">{{ medecin.email }}</span></td>
+                        <td>
+                            {% if medecin.matricule %}
+                                <span class="badge badge-light border">{{ medecin.matricule }}</span>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if medecin.specialite %}
+                                <span class="badge badge-info px-2 py-1">{{ medecin.specialite.nom }}</span>
+                            {% else %}
+                                <span class="text-muted small">Non assignée</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if medecin.tarifConsultation %}
+                                <span class="font-weight-bold">{{ medecin.tarifConsultation }} TND</span>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ path('admin_medecin_show', {id: medecin.id}) }}" 
+                               class="btn btn-info btn-circle btn-sm" title="Détails">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ path('admin_medecin_edit', {id: medecin.id}) }}" 
+                               class="btn btn-warning btn-circle btn-sm" title="Modifier">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <button class="btn btn-danger btn-circle btn-sm btn-delete-medecin"
+                                    data-id="{{ medecin.id }}"
+                                    data-name="Dr. {{ medecin.prenom }} {{ medecin.nom }}"
+                                    title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-user-md fa-3x text-gray-300 mb-3 d-block"></i>
+                            <h6 class="text-gray-500">Aucun médecin trouvé</h6>
+                            <a href="{{ path('admin_medecin_new') }}" class="btn btn-primary btn-sm mt-2">
+                                <i class="fas fa-plus mr-1"></i> Ajouter un médecin
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# Delete Confirmation Modal #}
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold text-gray-800">Confirmer la suppression</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer <strong id="deleteMedecinName"></strong> ?
+                <br><small class="text-danger">Cette action est irréversible.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post">
+                    <input type="hidden" name="_token" id="deleteToken">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash mr-1"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $('#medecinTable').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
+                },
+                pageLength: 10,
+                searching: false,
+                order: [[1, 'asc']]
+            });
+
+            $('.btn-delete-medecin').on('click', function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                $('#deleteMedecinName').text(name);
+                $('#deleteForm').attr('action', '/admin/medecin/' + id + '/supprimer');
+                $('#deleteToken').val('delete' + id);
+                $('#deleteModal').modal('show');
+            });
+        });
+    </script>
 {% endblock %}

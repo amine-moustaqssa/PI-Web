@@ -1,9 +1,101 @@
-{% if consultation.rapportMedical %}
-    <a href="{{ path('medecin_rapport_modifier', {id: consultation.rapportMedical.id}) }}" class="btn btn-primary">
-        Ouvrir le rapport médical
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Dr. {{ medecin.prenom }} {{ medecin.nom }}{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <a href="{{ path('admin_medecin_index') }}" class="text-decoration-none text-gray-400 mr-2">
+            <i class="fas fa-arrow-left fa-sm"></i>
+        </a>
+        Fiche Médecin
+    </h1>
+    <a href="{{ path('admin_medecin_edit', {id: medecin.id}) }}" class="btn btn-sm btn-warning shadow-sm">
+        <i class="fas fa-pen fa-sm mr-1"></i> Modifier
     </a>
-{% else %}
-    <a href="{{ path('app_consultation_start', {id: consultation.id}) }}" class="btn btn-success">
-        Démarrer consultation
-    </a>
-{% endif %}
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-body text-center py-5">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+                     style="width: 80px; height: 80px; font-size: 1.6rem;">
+                    {{ medecin.prenom|first|upper }}{{ medecin.nom|first|upper }}
+                </div>
+                <h5 class="font-weight-bold text-gray-800 mb-1">Dr. {{ medecin.prenom }} {{ medecin.nom }}</h5>
+                <p class="text-muted small mb-3">{{ medecin.email }}</p>
+                {% if medecin.specialite %}
+                    <span class="badge badge-info px-3 py-2">{{ medecin.specialite.nom }}</span>
+                {% else %}
+                    <span class="badge badge-secondary px-3 py-2">Aucune spécialité</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-id-card mr-1"></i> Informations détaillées</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Matricule</div>
+                    <div class="col-sm-8">
+                        {% if medecin.matricule %}
+                            <span class="badge badge-light border">{{ medecin.matricule }}</span>
+                        {% else %}
+                            <span class="text-muted">Non renseigné</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Tarif consultation</div>
+                    <div class="col-sm-8">
+                        {% if medecin.tarifConsultation %}
+                            <span class="font-weight-bold text-success">{{ medecin.tarifConsultation }} TND</span>
+                        {% else %}
+                            <span class="text-muted">Non renseigné</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Adresse</div>
+                    <div class="col-sm-8">
+                        {{ medecin.adresse|default('Non renseignée') }}
+                        {% if medecin.codePostal %} — {{ medecin.codePostal }}{% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Spécialité</div>
+                    <div class="col-sm-8">
+                        {% if medecin.specialite %}
+                            {{ medecin.specialite.nom }}
+                            {% if medecin.specialite.departement %}
+                                <span class="text-muted small">— Département : {{ medecin.specialite.departement.nom }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">Non assignée</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Rôles</div>
+                    <div class="col-sm-8">
+                        {% for role in medecin.roles %}
+                            <span class="badge badge-primary mr-1">{{ role }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
