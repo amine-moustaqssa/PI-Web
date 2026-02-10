@@ -32,6 +32,38 @@ public function countTodayByMedecin($medecin): int
         ->getSingleScalarResult();
 }
 
+    /**
+     * Find all consultations for a specific doctor, ordered by date desc.
+     *
+     * @return Consultation[]
+     */
+    public function findByMedecin($medecin): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.medecin = :medecin')
+            ->setParameter('medecin', $medecin)
+            ->orderBy('c.date_effectuee', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find consultations for a specific doctor filtered by statut.
+     *
+     * @return Consultation[]
+     */
+    public function findByMedecinAndStatut($medecin, string $statut): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.medecin = :medecin')
+            ->andWhere('c.statut = :statut')
+            ->setParameter('medecin', $medecin)
+            ->setParameter('statut', $statut)
+            ->orderBy('c.date_effectuee', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 
 //    /**
 //     * @return Consultation[] Returns an array of Consultation objects

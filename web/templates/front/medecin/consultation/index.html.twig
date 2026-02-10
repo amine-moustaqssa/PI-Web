@@ -1,37 +1,158 @@
-{% extends 'base.html.twig' %}
+{% extends 'front/medecin/base_medecin.html.twig' %}
 
-{% block title %}Consultations Médecin{% endblock %}
+{% block title %}Mes Consultations | Clinic360{% endblock %}
 
 {% block body %}
-<h1>Consultations</h1>
+<div class="container-fluid py-4">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Date</th>
-            <th>Statut</th>
-            <th>Notes</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for consultation in consultations %}
-        <tr>
-            <td>{{ consultation.id }}</td>
-            <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('Y-m-d H:i:s') : '' }}</td>
-            <td>{{ consultation.statut }}</td>
-            <td>{{ consultation.notesPrivees }}</td>
-            <td>
-                <a href="{{ path('medecin_consultation_show', {'id': consultation.id}) }}">show</a>
-                <a href="{{ path('medecin_consultation_edit', {'id': consultation.id}) }}">edit</a>
-            </td>
-        </tr>
-    {% else %}
-        <tr><td colspan="5">No records found</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+    {# Page Heading #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-stethoscope mr-2"></i>Mes Consultations</h1>
+    </div>
 
-<a href="{{ path('medecin_consultation_new') }}">Create new</a>
+    {# Filter Cards #}
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <a href="{{ path('medecin_consultation_index') }}" class="text-decoration-none">
+                <div class="card border-left-primary shadow h-100 py-2 {{ currentStatut is null ? 'border border-primary' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Toutes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts.total }}</div>
+                        </div>
+                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <a href="{{ path('medecin_consultation_index', {statut: 'en_cours'}) }}" class="text-decoration-none">
+                <div class="card border-left-warning shadow h-100 py-2 {{ currentStatut == 'en_cours' ? 'border border-warning' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">En cours</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts.en_cours }}</div>
+                        </div>
+                        <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <a href="{{ path('medecin_consultation_index', {statut: 'planifiée'}) }}" class="text-decoration-none">
+                <div class="card border-left-info shadow h-100 py-2 {{ currentStatut == 'planifiée' ? 'border border-info' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Planifiées</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['planifiée'] }}</div>
+                        </div>
+                        <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <a href="{{ path('medecin_consultation_index', {statut: 'terminée'}) }}" class="text-decoration-none">
+                <div class="card border-left-success shadow h-100 py-2 {{ currentStatut == 'terminée' ? 'border border-success' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Terminées</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['terminée'] }}</div>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    {# Table Card #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if currentStatut %}
+                    Consultations — {{ currentStatut|replace({'_': ' '})|capitalize }}
+                {% else %}
+                    Toutes les consultations
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle" id="consultationTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width:5%;">#</th>
+                            <th>Date</th>
+                            <th class="text-center">Statut</th>
+                            <th>Notes</th>
+                            <th class="text-center" style="width:15%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for consultation in consultations %}
+                        <tr>
+                            <td class="text-muted small">{{ consultation.id }}</td>
+                            <td>
+                                <i class="fas fa-calendar-day text-gray-400 mr-1"></i>
+                                {{ consultation.dateEffectuee ? consultation.dateEffectuee|date('d/m/Y à H:i') : '—' }}
+                            </td>
+                            <td class="text-center">
+                                {% if consultation.statut == 'en_cours' %}
+                                    <span class="badge badge-warning px-3 py-2"><i class="fas fa-spinner mr-1"></i>En cours</span>
+                                {% elseif consultation.statut == 'terminée' %}
+                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Terminée</span>
+                                {% elseif consultation.statut == 'planifiée' %}
+                                    <span class="badge badge-info px-3 py-2"><i class="fas fa-calendar mr-1"></i>Planifiée</span>
+                                {% elseif consultation.statut == 'annulée' %}
+                                    <span class="badge badge-danger px-3 py-2"><i class="fas fa-times mr-1"></i>Annulée</span>
+                                {% else %}
+                                    <span class="badge badge-secondary px-3 py-2">{{ consultation.statut }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if consultation.notesPrivees %}
+                                    <span class="text-muted small">{{ consultation.notesPrivees|length > 60 ? consultation.notesPrivees|slice(0, 60) ~ '…' : consultation.notesPrivees }}</span>
+                                {% else %}
+                                    <span class="text-muted small"><em>Aucune note</em></span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ path('medecin_consultation_show', {id: consultation.id}) }}" class="btn btn-info btn-circle btn-sm" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('medecin_consultation_edit', {id: consultation.id}) }}" class="btn btn-warning btn-circle btn-sm" title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-stethoscope fa-3x text-gray-300 mb-3 d-block"></i>
+                                <h6 class="text-gray-500">Aucune consultation trouvée</h6>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof $ !== 'undefined' && $.fn.DataTable) {
+            $('#consultationTable').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
+                },
+                pageLength: 10,
+                order: [[1, 'desc']]
+            });
+        }
+    });
+</script>
 {% endblock %}

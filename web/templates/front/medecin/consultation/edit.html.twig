@@ -1,11 +1,49 @@
-{% extends 'base.html.twig' %}
+{% extends 'front/medecin/base_medecin.html.twig' %}
 
-{% block title %}Modifier Consultation{% endblock %}
+{% block title %}Modifier Consultation #{{ consultation.id }} | Clinic360{% endblock %}
 
 {% block body %}
-<h1>Modifier la consultation</h1>
+<div class="container-fluid py-4">
 
-{{ include('medecin/consultation/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-pen mr-2"></i>Modifier la Consultation #{{ consultation.id }}</h1>
+        <a href="{{ path('medecin_consultation_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Retour
+        </a>
+    </div>
 
-<a href="{{ path('medecin_consultation_index') }}">Retour à la liste</a>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-edit mr-2"></i>Modifier les informations</h6>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_widget(form) }}
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('medecin_consultation_show', {id: consultation.id}) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times mr-1"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="fas fa-save mr-1"></i> Mettre à jour
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-info"><i class="fas fa-info-circle mr-1"></i> Aide</h6>
+                    <p class="text-muted small mb-0">Modifiez les champs souhaités puis cliquez sur <strong>Mettre à jour</strong> pour enregistrer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
