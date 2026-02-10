@@ -20,9 +20,7 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
+    public function __construct(private EmailVerifier $emailVerifier) {}
 
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
@@ -38,11 +36,16 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
+            // assign ROLE_TITULAIRE to registered users
+            $user->setRoles(['ROLE_TITULAIRE']);
+
             $entityManager->persist($user);
             $entityManager->flush();
 
             // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+            $this->emailVerifier->sendEmailConfirmation(
+                'app_verify_email',
+                $user,
                 (new TemplatedEmail())
                     ->from(new Address('no-reply@localhost.com', 'Clinique 360 Mail'))
                     ->to((string) $user->getEmail())
