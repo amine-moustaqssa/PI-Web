@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Consultation;
 use App\Entity\Facture;
+use App\Entity\Utilisateur; // <--- VÉRIFIEZ CETTE LIGNE (Entity, pas Form)
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,11 +23,9 @@ class FactureType extends AbstractType
                 'choice_label' => 'id',
             ])
             ->add('titulaire', EntityType::class, [
-        'class' => Titulaire::class,
-        'choice_label' => 'id', // or name if exists
-        ]);
-        
-        
+                'class' => Utilisateur::class, // Utilise la classe importée plus haut
+                'choice_label' => 'nom', 
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

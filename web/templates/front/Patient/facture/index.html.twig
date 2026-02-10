@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'front/Patient/base_patient.html.twig' %}
 
 {% block title %}Mes Factures{% endblock %}
 
@@ -7,28 +7,40 @@
 
     <table class="table">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>Montant</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for facture in factures %}
-            <tr>
-                <td>{{ facture.id }}</td>
-                <td>{{ facture.montant }} DT</td>
-                <td>{{ facture.date ? facture.date|date('Y-m-d') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_patient_facture_show', {'id': facture.id}) }}" class="btn btn-info">Voir</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">Aucune facture trouvée.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
+    <tr>
+        <th>ID</th>
+        <th>Référence</th>
+        <th>Montant</th>
+        <th>Statut</th>
+        <th>Actions</th>
+    </tr>
+</thead>
+<tbody>
+    {% for facture in factures %}
+        <tr>
+            <td>{{ facture.id }}</td>
+            <td>{{ facture.reference }}</td>
+            <td>{{ facture.montantTotal }} DT</td>
+            <td>
+                {% if facture.statut == 'PAYEE' %}
+                    <span class="badge badge-success">Payée</span>
+                {% elseif facture.statut == 'EN_ATTENTE' %}
+                    <span class="badge badge-warning">En attente</span>
+                {% else %}
+                    <span class="badge badge-danger">{{ facture.statut }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ path('app_patient_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-sm">
+                    <i class="fas fa-eye"></i> Voir
+                </a>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="5" class="text-center">Aucune facture trouvée</td>
+        </tr>
+    {% endfor %}
+</tbody>
     </table>
 {% endblock %}

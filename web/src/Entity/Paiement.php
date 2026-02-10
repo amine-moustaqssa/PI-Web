@@ -21,20 +21,13 @@ class Paiement
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $montant = null;
 
-#[ORM\ManyToOne(inversedBy: 'paiements')]
-#[ORM\JoinColumn(nullable: false)] // Optionnel : si un paiement doit forcément avoir une facture
-private ?Facture $facture = null;
+    #[ORM\ManyToOne(targetEntity: Facture::class, inversedBy: 'paiements')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Facture $facture = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getDatePaiement(): ?\DateTime
@@ -45,7 +38,6 @@ private ?Facture $facture = null;
     public function setDatePaiement(\DateTime $datePaiement): static
     {
         $this->datePaiement = $datePaiement;
-
         return $this;
     }
 
@@ -57,20 +49,17 @@ private ?Facture $facture = null;
     public function setMontant(string $montant): static
     {
         $this->montant = $montant;
-
         return $this;
     }
 
-   public function getFacture(): ?Facture
-{
-    return $this->facture; // Il faut utiliser $this->facture ici
-}
+    public function getFacture(): ?Facture
+    {
+        return $this->facture;
+    }
 
-// 3. Corrige le Setter
-public function setFacture(?Facture $facture): static
-{
-    $this->facture = $facture; // Et ici aussi
-
-    return $this;
-}
+    public function setFacture(?Facture $facture): static
+    {
+        $this->facture = $facture;
+        return $this;
+    }
 }

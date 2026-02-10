@@ -12,18 +12,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/Reception/facture')]
+#[Route('/reception/facture')]
 final class FactureController extends AbstractController
 {
-    #[Route(name: 'app_facture_index', methods: ['GET'])]
+    #[Route('/', name: 'app_reception_facture_index', methods: ['GET'])]
     public function index(FactureRepository $factureRepository): Response
     {
-        return $this->render('facture/index.html.twig', [
+        return $this->render('front/Reception/facture/index.html.twig', [
             'factures' => $factureRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_facture_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_reception_facture_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $facture = new Facture();
@@ -34,24 +34,24 @@ final class FactureController extends AbstractController
             $entityManager->persist($facture);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_facture_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_reception_facture_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('facture/new.html.twig', [
+        return $this->render('front/Reception/facture/new.html.twig', [
             'facture' => $facture,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_facture_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_reception_facture_show', methods: ['GET'])]
     public function show(Facture $facture): Response
     {
-        return $this->render('facture/show.html.twig', [
+        return $this->render('front/Reception/facture/show.html.twig', [
             'facture' => $facture,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_facture_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_reception_facture_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Facture $facture, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(FactureType::class, $facture);
@@ -60,16 +60,16 @@ final class FactureController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_facture_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_reception_facture_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('facture/edit.html.twig', [
+        return $this->render('front/Reception/facture/edit.html.twig', [
             'facture' => $facture,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_facture_delete', methods: ['POST'])]
+#[Route('/{id}/delete', name: 'app_reception_facture_delete', methods: ['POST'])]
     public function delete(Request $request, Facture $facture, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$facture->getId(), $request->getPayload()->getString('_token'))) {
@@ -77,6 +77,6 @@ final class FactureController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_facture_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_reception_facture_index', [], Response::HTTP_SEE_OTHER);
     }
 }
