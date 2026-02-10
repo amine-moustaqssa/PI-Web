@@ -5,46 +5,81 @@
 {% block body %}
 <div class="container-fluid">
 
-    <h1 class="h3 mb-4 text-gray-800">
-        Dossier Clinique – {{ profil.nom }} {{ profil.prenom }}
-    </h1>
+    <!-- Titre + bouton retour -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ path('medecin_profils_list') }}"
+           class="btn btn-sm btn-light shadow-sm mr-3"
+           title="Retour à la liste">
+            <i class="fas fa-arrow-left"></i>
+        </a>
 
-    <div class="card shadow mb-4">
-        <div class="card-body">
+        <h1 class="h3 text-gray-800 mb-0">
+            Dossier Clinique – {{ profil.nom }} {{ profil.prenom }}
+        </h1>
+    </div>
 
-            {% if dossier %}
-                <p>
-                    <strong>Antécédents :</strong><br>
-                    {{ dossier.antecedents ?: 'Aucun antécédent enregistré' }}
-                </p>
+    <div class="row">
+        <!-- Carte Dossier Clinique -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    {% if dossier %}
+                        <p>
+                            <strong>Antécédents :</strong><br>
+                            {{ dossier.antecedents ?: 'Aucun antécédent enregistré' }}
+                        </p>
 
-                <p>
-                    <strong>Allergies :</strong><br>
-                    {% if dossier.allergies %}
-                        {{ dossier.allergies|join(', ') }}
+                        <p>
+                            <strong>Allergies :</strong><br>
+                            {% if dossier.allergies %}
+                                {{ dossier.allergies|join(', ') }}
+                            {% else %}
+                                Aucune allergie enregistrée
+                            {% endif %}
+                        </p>
+
+                        <div class="mt-4">
+                            <!-- Modifier dossier -->
+                            <a href="{{ path('medecin_dossier_edit', { id: profil.id }) }}"
+                               class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Modifier le dossier
+                            </a>
+
+                            <!-- Historique des rapports -->
+                            <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}"
+                               class="btn btn-info ml-2">
+                                <i class="fas fa-history"></i> Historique des rapports
+                            </a>
+                        </div>
                     {% else %}
-                        Aucune allergie enregistrée
+                        <div class="alert alert-warning">
+                            Ce profil n’a pas encore de dossier clinique.
+                        </div>
                     {% endif %}
-                </p>
-            {% else %}
-                <div class="alert alert-warning">
-                    Ce profil n’a pas encore de dossier clinique.
                 </div>
-            {% endif %}
-
-            <div class="mt-4">
-                <a href="{{ path('medecin_dossier_edit', {id: profil.id}) }}"
-                   class="btn btn-primary">
-                    <i class="fas fa-edit"></i>
-                    {{ dossier ? 'Modifier' : 'Créer' }} le dossier
-                </a>
-
-                <a href="{{ path('medecin_profils_list') }}"
-                   class="btn btn-secondary ml-2">
-                    Retour à la liste
-                </a>
             </div>
+        </div>
 
+        <!-- Carte Infos Profil -->
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <strong>Informations du profil</strong>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nom :</strong> {{ profil.nom }}</p>
+                    <p><strong>Prénom :</strong> {{ profil.prenom }}</p>
+                    <p><strong>Email :</strong> {{ profil.titulaire ? profil.titulaire.email : 'Non renseigné' }}</p>
+                    <p><strong>Âge :</strong>
+                        {% if profil.dateNaissance %}
+                            {{ (date()|date('Y') - profil.dateNaissance|date('Y')) }}
+                        {% else %}
+                            Non renseigné
+                        {% endif %}
+                    </p>
+                    <p><strong>Contact d’urgence :</strong> {{ profil.contactUrgence ?: 'Non renseigné' }}</p>
+                </div>
+            </div>
         </div>
     </div>
 

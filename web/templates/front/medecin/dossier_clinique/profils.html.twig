@@ -9,31 +9,57 @@
 
     <div class="card shadow">
         <div class="card-body">
-            <table class="table table-bordered table-hover">
+
+            <!-- Barre de recherche -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher par nom ou prénom...">
+                </div>
+            </div>
+
+            <table id="profilTable" class="table table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
                         <th>Nom</th>
                         <th>Prénom</th>
-                        <th class="text-center">Action</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for profil in profils %}
                         <tr>
-                            <td>{{ profil.nom }}</td>
-                            <td>{{ profil.prenom }}</td>
+                            <td class="nom">{{ profil.nom }}</td>
+                            <td class="prenom">{{ profil.prenom }}</td>
                             <td class="text-center">
-                                <a href="{{ path('medecin_dossier_show', { id: profil.id }) }}"
-                                   class="btn btn-sm btn-primary">
-                                    Voir dossier
-                                </a>
 
                                 {% if profil.dossierClinique %}
-                                    <a href="{{ path('medecin_dossier_edit', { id: profil.id }) }}"
-                                       class="btn btn-sm btn-warning ml-2">
-                                        Modifier dossier
+
+                                    {# Bouton Voir dossier - bleu, icône œil #}
+                                    <a href="{{ path('medecin_dossier_show', { id: profil.id }) }}"
+                                       class="btn btn-sm btn-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
                                     </a>
+
+                                    {# Bouton Modifier dossier - vert, icône crayon #}
+                                    <a href="{{ path('medecin_dossier_edit', { id: profil.id }) }}"
+                                       class="btn btn-sm btn-success ml-1" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    {# Formulaire pour suppression SweetAlert2 #}
+                                    <form method="post"
+                                          action="{{ path('medecin_dossier_delete', { id: profil.dossierClinique.id }) }}"
+                                          style="display:inline-block;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ profil.dossierClinique.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-secondary ml-1 delete-btn" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+
+                                {% else %}
+                                    <span class="text-muted">Aucun dossier</span>
                                 {% endif %}
+
                             </td>
                         </tr>
                     {% else %}
@@ -49,4 +75,73 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+
+        // ----------------------
+        // Recherche dynamique
+        // ----------------------
+        $('#searchInput').on('keyup', function() {
+            const search = $(this).val().toLowerCase();
+
+            $('#profilTable tbody tr').each(function() {
+                const nom = $(this).find('.nom').text().toLowerCase();
+                const prenom = $(this).find('.prenom').text().toLowerCase();
+
+                if (nom.includes(search) || prenom.includes(search)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // ----------------------
+        // Confirmation suppression SweetAlert2
+        // ----------------------
+        $('.delete-btn').on('click', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Cette action est irréversible !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#6c757d', // gris neutre
+                cancelButtonColor: '#adb5bd',  // gris clair
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        // ----------------------
+        // Toast pour les flash messages Symfony
+        // ----------------------
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: '{{ type }}' == 'success' ? 'info' : 'error',
+                    title: '{{ message|e('js') }}',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            {% endfor %}
+        {% endfor %}
+
+    });
+</script>
 {% endblock %}

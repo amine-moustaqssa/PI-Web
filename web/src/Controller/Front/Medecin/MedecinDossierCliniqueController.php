@@ -41,44 +41,58 @@ final class MedecinDossierCliniqueController extends AbstractController
     }
 
     // ✅ Création / modification d’un dossier clinique
-    #[Route('/profil/{id}/edit', name: 'medecin_dossier_edit')]
-    public function edit(
-        ProfilMedical $profil,
-        DossierCliniqueRepository $dossierRepo,
-        EntityManagerInterface $em,
-        Request $request
-    ): Response {
-        $dossier = $dossierRepo->findOneBy([
-            'profilMedical' => $profil,
-        ]);
+  #[Route('/profil/{id}/edit', name: 'medecin_dossier_edit')]
+public function edit(
+    ProfilMedical $profil,
+    DossierCliniqueRepository $dossierRepo,
+    EntityManagerInterface $em,
+    Request $request
+): Response {
+    $dossier = $dossierRepo->findOneBy([
+        'profilMedical' => $profil,
+    ]);
 
-        if (!$dossier) {
-            $dossier = new DossierClinique();
-            $dossier->setProfilMedical($profil);
+    if (!$dossier) {
+        $this->addFlash('warning', 'Ce profil n’a pas encore de dossier clinique.');
+        return $this->redirectToRoute('medecin_profils_list');
+    }
+
+    if ($request->isMethod('POST')) {
+        $antecedents = $request->request->get('antecedents', null);
+        $dossier->setAntecedents($antecedents ?: null);
+
+        // ✅ Récupération sécurisée des checkboxes allergies
+        $allergies = $request->request->all('allergies'); // tableau ou vide
+        if (!is_array($allergies)) {
+            $allergies = [];
         }
+        $dossier->setAllergies($allergies ?: null);
 
-        if ($request->isMethod('POST')) {
-            $allergies = $request->request->get('allergies');
-            $antecedents = $request->request->get('antecedents');
+        $em->persist($dossier);
+        $em->flush();
 
-            $dossier->setAllergies(
-                $allergies ? array_map('trim', explode(',', $allergies)) : null
-            );
-            $dossier->setAntecedents($antecedents ?: null);
+        $this->addFlash('success', 'Dossier clinique mis à jour avec succès.');
 
-            $em->persist($dossier);
-            $em->flush();
-
-            $this->addFlash('success', 'Dossier clinique enregistré avec succès');
-
-            return $this->redirectToRoute('medecin_dossier_show', [
-                'id' => $profil->getId(),
-            ]);
-        }
-
-        return $this->render('front/medecin/dossier_clinique/edit.html.twig', [
-            'profil' => $profil,
-            'dossier' => $dossier,
+        return $this->redirectToRoute('medecin_dossier_show', [
+            'id' => $profil->getId(),
         ]);
     }
+
+    return $this->render('front/medecin/dossier_clinique/edit.html.twig', [
+        'profil' => $profil,
+        'dossier' => $dossier,
+    ]);
+}
+
+    #[Route('/profil/dossier/{id}/delete', name: 'medecin_dossier_delete', methods: ['POST','GET'])]
+public function delete(DossierClinique $dossier, EntityManagerInterface $em): Response
+{
+    $em->remove($dossier);
+    $em->flush();
+
+    $this->addFlash('success', 'Dossier clinique supprimé avec succès.');
+
+    return $this->redirectToRoute('medecin_profils_list');
+}
+
 }
