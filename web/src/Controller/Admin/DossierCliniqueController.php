@@ -355,6 +355,8 @@ public function data(Request $request, ProfilMedicalRepository $profilRepo): Jso
 
 
 
+
+
 }
 
 
