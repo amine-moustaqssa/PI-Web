@@ -1,23 +1,96 @@
-{% extends 'base.html.twig' %}
+{% extends 'front/base_front.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Inscription{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+<section class="py-5">
+    <div class="container px-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow rounded-3 overflow-hidden">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bolder">Créer un compte</h2>
+                            <p class="lead fw-normal text-muted mb-0">Rejoignez Clinique 360</p>
+                        </div>
 
-    <h1>Register</h1>
+                        {% for flash_error in app.flashes('verify_email_error') %}
+                            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                        {% endfor %}
 
-    {{ form_errors(registrationForm) }}
+                        {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+                            {{ form_errors(registrationForm) }}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control'}}) }}
+                                        <label for="{{ registrationForm.nom.vars.id }}">Nom</label>
+                                        {{ form_errors(registrationForm.nom) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        {{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control'}}) }}
+                                        <label for="{{ registrationForm.prenom.vars.id }}">Prénom</label>
+                                        {{ form_errors(registrationForm.prenom) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                                <label for="{{ registrationForm.email.vars.id }}">Adresse email</label>
+                                {{ form_errors(registrationForm.email) }}
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                                <label for="{{ registrationForm.plainPassword.vars.id }}">Mot de passe</label>
+                                {{ form_errors(registrationForm.plainPassword) }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-floating mb-3">
+                                        {{ form_widget(registrationForm.adresse, {'attr': {'class': 'form-control', 'style': 'height: auto;'}}) }}
+                                        <label for="{{ registrationForm.adresse.vars.id }}">Adresse <small class="text-muted">(optionnel)</small></label>
+                                        {{ form_errors(registrationForm.adresse) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        {{ form_widget(registrationForm.codePostal, {'attr': {'class': 'form-control'}}) }}
+                                        <label for="{{ registrationForm.codePostal.vars.id }}">Code postal</label>
+                                        {{ form_errors(registrationForm.codePostal) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                                    <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+                                        J'accepte les conditions d'utilisation
+                                    </label>
+                                    {{ form_errors(registrationForm.agreeTerms) }}
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-lg" type="submit">S'inscrire</button>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <a href="{{ path('app_login') }}" class="small">Déjà un compte ? Connectez-vous</a>
+                            </div>
+
+                        {{ form_end(registrationForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
