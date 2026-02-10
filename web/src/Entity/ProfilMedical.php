@@ -124,9 +124,9 @@ class ProfilMedical
     }
 
     public function getContactUrgence(): ?string
-{
-    return $this->contact_urgence;
-}
+    {
+        return $this->contact_urgence;
+    }
 
 
     public function setContactUrgence(string $contact_urgence): static
@@ -180,9 +180,9 @@ class ProfilMedical
         return $this;
     }
     public function getTitulaireId(): ?int
-{
-    return $this->titulaire ? $this->titulaire->getId() : null;
-}
+    {
+        return $this->titulaire ? $this->titulaire->getId() : null;
+    }
     public function __debugInfo(): array
     {
         return [

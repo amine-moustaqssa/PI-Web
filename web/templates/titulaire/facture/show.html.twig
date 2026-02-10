@@ -44,7 +44,7 @@
                         </tr>
                         <tr>
                             <th>Titulaire</th>
-                            <td>{{ facture.titulaire.nom }} {{ facture.titulaire.prenom }}</td>
+                            <td>{{ facture.titulaire ? facture.titulaire.nom ~ ' ' ~ facture.titulaire.prenom : 'Non assigné' }}</td>
                         </tr>
                     </table>
                 </div>

@@ -23,11 +23,11 @@ class TitulaireController extends AbstractController
 
         // --- 1. HANDLE ADD PROFILE FORM (Moved here for Modal) ---
         $newProfil = new ProfilMedical();
+        $newProfil->setTitulaire($user);
         $form = $this->createForm(ProfilMedicalType::class, $newProfil);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newProfil->setTitulaire($user);
 
             // Create default Dossier Clinique
             $dossier = new DossierClinique();

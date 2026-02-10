@@ -21,28 +21,19 @@ class RendezVous
     private ?\DateTimeInterface $date_debut = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: 'La date de fin est obligatoire.')]
-    #[Assert\GreaterThan(propertyPath: 'date_debut', message: 'La date de fin doit être après la date de début.')]
     private ?\DateTimeInterface $date_fin = null;
 
     #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
-    #[Assert\Choice(
-        choices: ['confirmé', 'annulé', 'en attente', 'Confirmé', 'Annulé', 'En attente'],
-        message: 'Le statut est invalide.'
-    )]
     private ?string $statut = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Le type de rendez-vous est obligatoire.')]
-    #[Assert\Length(max: 100, maxMessage: 'Le type ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $type = null;
 
     #[ORM\Column(length: 60, nullable: true)]
     #[Assert\Length(max: 60, maxMessage: 'Le motif ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $motif = null;
 
-    #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVous')]
+    #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
     #[Assert\NotNull(message: 'Le profil médical est obligatoire.')]
     private ?ProfilMedical $profil = null;

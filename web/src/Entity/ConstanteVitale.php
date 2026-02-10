@@ -28,8 +28,8 @@ class ConstanteVitale
 
     #[Assert\NotBlank(message: "Le type de la constante est obligatoire")]
     #[Assert\Length(
-    max: 50,
-    maxMessage: "Le type ne doit pas dépasser {{ limit }} caractères"
+        max: 50,
+        maxMessage: "Le type ne doit pas dépasser {{ limit }} caractères"
     )]
     #[ORM\Column(length: 50)]
     private ?string $type = null;
@@ -40,9 +40,9 @@ class ConstanteVitale
     private ?string $unite = null;
 
     #[Assert\NotBlank(message: "La valeur est obligatoire")]
-#[Assert\Positive(message: "La valeur doit être positive")]
-#[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-private ?string $valeur = null;
+    #[Assert\Positive(message: "La valeur doit être positive")]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $valeur = null;
 
     // ---------- Getters & Setters ----------
 
