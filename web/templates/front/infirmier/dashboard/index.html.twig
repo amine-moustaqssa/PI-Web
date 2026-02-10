@@ -1,0 +1,243 @@
+{% extends 'front/infirmier/base_infirmier.html.twig' %}
+
+{% block title %}Tableau de bord Infirmier | Clinique 360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Header #}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-dark">Bonjour, {{ app.user.nom ?? 'Infirmier' }}</h1>
+            <p class="text-muted small">Voici un résumé de l'activité clinique pour aujourd'hui.</p>
+        </div>
+        <div class="text-white bg-info p-2 rounded shadow-sm">
+            <i class="fas fa-calendar-day mr-2"></i>
+            {{ "now"|date("d/m/Y") }}
+        </div>
+    </div>
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {# Stats Cards #}
+    <div class="row mb-4">
+
+        {# Consultations en cours #}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 bg-dark-card border-left-success">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        Consultations en cours
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        {{ activeCount ?? 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Consultations planifiées #}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2 bg-dark-card border-left-primary">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        Consultations planifiées
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        {{ plannedCount ?? 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Constantes relevées aujourd'hui #}
+        <div class="col-xl-4 col-md-12 mb-4">
+            <div class="card shadow h-100 py-2 bg-dark-card border-left-warning">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        Constantes relevées aujourd'hui
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-white">
+                        {{ todayConstantes ?? 0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# Active Consultations Table #}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow bg-dark-card">
+
+                <div class="card-header py-3 bg-transparent border-secondary-custom d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-heartbeat mr-2"></i>Consultations en cours
+                    </h6>
+                </div>
+
+                <div class="card-body">
+                    {% if activeConsultations is defined and activeConsultations|length > 0 %}
+
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover align-middle" id="activeConsultationsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Médecin</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for consultation in activeConsultations %}
+                                        <tr>
+                                            <td>{{ consultation.id }}</td>
+                                            <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('d/m/Y H:i') : '—' }}</td>
+                                            <td>
+                                                {% if consultation.medecin %}
+                                                    Dr. {{ consultation.medecin.nom ?? '' }} {{ consultation.medecin.prenom ?? '' }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-success">En cours</span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('infirmier_constante_index', {'id': consultation.id}) }}"
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fas fa-thermometer-half mr-1"></i> Constantes
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+                            <i class="fas fa-stethoscope fa-3x mb-3" style="opacity:0.2; color:#ccc;"></i>
+                            <p class="text-muted">Aucune consultation en cours pour le moment.</p>
+                        </div>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# All Consultations Table #}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow bg-dark-card">
+
+                <div class="card-header py-3 bg-transparent border-secondary-custom">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list mr-2"></i>Toutes les consultations
+                    </h6>
+                </div>
+
+                <div class="card-body">
+                    {% if allConsultations is defined and allConsultations|length > 0 %}
+
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover align-middle" id="allConsultationsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Médecin</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for consultation in allConsultations %}
+                                        <tr>
+                                            <td>{{ consultation.id }}</td>
+                                            <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('d/m/Y H:i') : '—' }}</td>
+                                            <td>
+                                                {% if consultation.medecin %}
+                                                    Dr. {{ consultation.medecin.nom ?? '' }} {{ consultation.medecin.prenom ?? '' }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if consultation.statut == 'en cours' %}
+                                                    <span class="badge badge-success">En cours</span>
+                                                {% elseif consultation.statut == 'planifié' %}
+                                                    <span class="badge badge-primary">Planifié</span>
+                                                {% elseif consultation.statut == 'terminé' %}
+                                                    <span class="badge badge-secondary">Terminé</span>
+                                                {% else %}
+                                                    <span class="badge badge-light">{{ consultation.statut }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('infirmier_constante_index', {'id': consultation.id}) }}"
+                                                   class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-thermometer-half mr-1"></i> Constantes
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+                            <p class="text-muted">Aucune consultation trouvée.</p>
+                        </div>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.bg-dark-card {
+    background-color: #242731 !important;
+    border: 1px solid #2d303e;
+}
+.border-left-primary { border-left: 4px solid #4e73df !important; }
+.border-left-success { border-left: 4px solid #1cc88a !important; }
+.border-left-warning { border-left: 4px solid #f6c23e !important; }
+.border-secondary-custom { border-bottom: 1px solid #2d303e !important; }
+.text-white { color: #ffffff !important; }
+</style>
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $('#allConsultationsTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+                },
+                order: [[0, 'desc']],
+                pageLength: 10
+            });
+        });
+    </script>
+{% endblock %}
+
+{% endblock %}

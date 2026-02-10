@@ -44,6 +44,9 @@ security:
     # Protect Doctor Area
     - { path: ^/medecin, roles: ROLE_MEDECIN }
 
+    # Protect Infirmier Area
+    - { path: ^/infirmier, roles: ROLE_PERSONNEL }
+
     # 3. CRITICAL: Protect the Titulaire Dashboard!
     # Do NOT set this to PUBLIC_ACCESS, or login is useless.
     - { path: ^/titulaire, roles: ROLE_TITULAIRE }
