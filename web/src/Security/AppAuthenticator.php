@@ -59,6 +59,11 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($this->urlGenerator->generate('medecin_dashboard', ['id' => $user->getId()]));
         }
 
+        // Redirect infirmiers to infirmier dashboard
+        if (in_array('ROLE_PERSONNEL', $roles, true) && method_exists($user, 'getNiveauAcces') && $user->getNiveauAcces() === 'INFIRMIER') {
+            return new RedirectResponse($this->urlGenerator->generate('infirmier_dashboard'));
+        }
+
         // 4. Default Redirect: Send Titulaires/Patients to their dashboard
         return new RedirectResponse($this->urlGenerator->generate('app_titulaire_dashboard'));
     }

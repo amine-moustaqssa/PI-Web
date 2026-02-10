@@ -1,0 +1,86 @@
+{% extends 'front/infirmier/base_infirmier.html.twig' %}
+
+{% block title %}Ajouter une Constante Vitale | Clinique 360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-transparent p-0 m-0">
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_dashboard') }}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_consultation_index') }}">Consultations</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_constante_index', {'id': consultation.id}) }}">Consultation #{{ consultation.id }}</a></li>
+            <li class="breadcrumb-item active">Ajouter</li>
+        </ol>
+    </nav>
+
+    <h1 class="h3 mb-4 text-dark">
+        <i class="fas fa-plus-circle text-success mr-2"></i>
+        Ajouter une Constante Vitale
+    </h1>
+
+    <div class="card shadow bg-dark-card">
+        <div class="card-header py-3 bg-transparent border-secondary-custom">
+            <h6 class="m-0 font-weight-bold text-success">
+                Consultation #{{ consultation.id }}
+                {% if consultation.medecin %}
+                    — Dr. {{ consultation.medecin.nom ?? '' }} {{ consultation.medecin.prenom ?? '' }}
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.type) }}</label>
+                    {{ form_widget(form.type, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
+                    {{ form_errors(form.type) }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.valeur) }}</label>
+                    {{ form_widget(form.valeur, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
+                    {{ form_errors(form.valeur) }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.unite) }}</label>
+                    {{ form_widget(form.unite, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
+                    {{ form_errors(form.unite) }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.date_prise) }}</label>
+                    {{ form_widget(form.date_prise, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
+                    {{ form_errors(form.date_prise) }}
+                </div>
+            </div>
+
+            {{ form_rest(form) }}
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ path('infirmier_constante_index', {'id': consultation.id}) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save mr-1"></i> Enregistrer
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+</div>
+
+<style>
+.bg-dark-card {
+    background-color: #242731 !important;
+    border: 1px solid #2d303e;
+}
+.border-secondary-custom { border-bottom: 1px solid #2d303e !important; }
+.bg-dark { background-color: #1a1c2e !important; }
+</style>
+{% endblock %}

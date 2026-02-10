@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProfilMedicalRepository::class)]
 #[ORM\Table(name: "ProfilMedical")]
@@ -19,18 +20,40 @@ class ProfilMedical
 
     #[ORM\ManyToOne(inversedBy: 'profilsMedicaux')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Le titulaire est obligatoire.')]
     private ?Utilisateur $titulaire = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le prénom doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le prénom ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $prenom = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: 'La date de naissance est obligatoire.')]
+    #[Assert\LessThan('today', message: 'La date de naissance doit être dans le passé.')]
     private ?\DateTimeInterface $date_naissance = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le contact d\'urgence est obligatoire.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le contact d\'urgence ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $contact_urgence = null;
 
     /**
@@ -101,9 +124,9 @@ class ProfilMedical
     }
 
     public function getContactUrgence(): ?string
-{
-    return $this->contact_urgence;
-}
+    {
+        return $this->contact_urgence;
+    }
 
 
     public function setContactUrgence(string $contact_urgence): static
@@ -157,9 +180,9 @@ class ProfilMedical
         return $this;
     }
     public function getTitulaireId(): ?int
-{
-    return $this->titulaire ? $this->titulaire->getId() : null;
-}
+    {
+        return $this->titulaire ? $this->titulaire->getId() : null;
+    }
     public function __debugInfo(): array
     {
         return [

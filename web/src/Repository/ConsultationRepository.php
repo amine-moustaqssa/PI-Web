@@ -24,7 +24,7 @@ class ConsultationRepository extends ServiceEntityRepository
         return (int) $this->createQueryBuilder('c')
             ->select('COUNT(c.id)')
             ->andWhere('c.medecin = :medecin')
-            ->andWhere('c.date_effectuee BETWEEN :start AND :end')
+            ->andWhere('c.dateEffectuee BETWEEN :start AND :end')
             ->setParameter('medecin', $medecin)
             ->setParameter('start', $start)
             ->setParameter('end', $end)
@@ -42,7 +42,7 @@ class ConsultationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('c')
             ->andWhere('c.medecin = :medecin')
             ->setParameter('medecin', $medecin)
-            ->orderBy('c.date_effectuee', 'DESC')
+            ->orderBy('c.dateEffectuee', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -59,7 +59,7 @@ class ConsultationRepository extends ServiceEntityRepository
             ->andWhere('c.statut = :statut')
             ->setParameter('medecin', $medecin)
             ->setParameter('statut', $statut)
-            ->orderBy('c.date_effectuee', 'DESC')
+            ->orderBy('c.dateEffectuee', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -82,7 +82,7 @@ class ConsultationRepository extends ServiceEntityRepository
         }
 
         if ($date !== null) {
-            $qb->andWhere('c.date_effectuee = :date')
+            $qb->andWhere('c.dateEffectuee = :date')
                 ->setParameter('date', $date->format('Y-m-d'));
         }
 

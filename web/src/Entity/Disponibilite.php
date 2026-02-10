@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\DisponibiliteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DisponibiliteRepository::class)]
 #[ORM\Table(name: 'Disponibilite')]
@@ -17,19 +18,29 @@ class Disponibilite
 
     // 1 = Monday, 7 = Sunday
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Le jour de la semaine est obligatoire.')]
+    #[Assert\Range(
+        min: 1,
+        max: 7,
+        notInRangeMessage: 'Le jour doit être compris entre {{ min }} (lundi) et {{ max }} (dimanche).'
+    )]
     private ?int $jourSemaine = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[Assert\NotNull(message: "L'heure de début est obligatoire.")]
     private ?\DateTimeInterface $heureDebut = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[Assert\NotNull(message: "L'heure de fin est obligatoire.")]
     private ?\DateTimeInterface $heureFin = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Le champ récurrent est obligatoire.')]
     private ?bool $estRecurrent = null;
 
     #[ORM\ManyToOne(targetEntity: Medecin::class, inversedBy: 'disponibilites')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Le médecin est obligatoire.')]
     private ?Utilisateur $medecin = null;
 
     public function getId(): ?int

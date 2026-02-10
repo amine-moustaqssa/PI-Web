@@ -6,6 +6,7 @@ use App\Repository\SpecialiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SpecialiteRepository::class)]
 #[ORM\Table(name: 'Specialite')]
@@ -17,13 +18,22 @@ class Specialite
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom de la spécialité est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20, maxMessage: 'La couleur ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $couleur = null;
 
     #[ORM\ManyToOne(inversedBy: 'specialites')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Le département est obligatoire.')]
     private ?Departement $departement = null;
 
     #[ORM\OneToMany(mappedBy: 'specialite', targetEntity: Medecin::class)]
