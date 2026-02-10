@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin; // Fixed Namespace
+namespace App\Controller\Admin;
 
 use App\Entity\Facture;
 use App\Form\FactureType;
@@ -10,17 +10,50 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-// src/Controller/Admin/FactureController.php
 
 #[Route('/admin/facture')]
 final class FactureController extends AbstractController
 {
-    #[Route(name: 'app_admin_facture_index', methods: ['GET'])]
-    public function index(FactureRepository $factureRepository): Response
+    #[Route('/', name: 'app_admin_facture_index', methods: ['GET'])]
+    public function index(Request $request, FactureRepository $factureRepository): Response
     {
-        // On utilise 'admin/...' en minuscules pour correspondre au dossier
+        // Check if it's an AJAX request
+        if ($request->isXmlHttpRequest() && $request->query->get('ajax') === '1') {
+            $searchTerm = $request->query->get('search', '');
+            $status = $request->query->get('status', '');
+            
+            $factures = $factureRepository->searchFactures($searchTerm, $status);
+            
+            return $this->render('admin/facture/_table_rows.html.twig', [
+                'factures' => $factures,
+            ]);
+        }
+        
+        // Normal page load
+        $factures = $factureRepository->findAll();
+
         return $this->render('admin/facture/index.html.twig', [
-            'factures' => $factureRepository->findAll(),
+            'factures' => $factures,
+        ]);
+    }
+
+    // IMPORTANT: /search must come BEFORE /{id}
+    #[Route('/search', name: 'app_admin_facture_search', methods: ['GET'])]
+    public function search(Request $request, FactureRepository $factureRepository): Response
+    {
+        // Check if it's an AJAX request
+        if (!$request->isXmlHttpRequest()) {
+            return $this->redirectToRoute('app_admin_facture_index');
+        }
+
+        $searchTerm = $request->query->get('search', '');
+        $status = $request->query->get('status', '');
+
+        // Search factures
+        $factures = $factureRepository->searchFactures($searchTerm, $status);
+
+        return $this->render('admin/facture/_table_rows.html.twig', [
+            'factures' => $factures,
         ]);
     }
 
@@ -37,7 +70,7 @@ final class FactureController extends AbstractController
             return $this->redirectToRoute('app_admin_facture_index');
         }
 
-        return $this->render('admin/facture/new.html.twig', [ // Corrigé ici
+        return $this->render('admin/facture/new.html.twig', [
             'facture' => $facture,
             'form' => $form,
         ]);
@@ -46,7 +79,7 @@ final class FactureController extends AbstractController
     #[Route('/{id}', name: 'app_admin_facture_show', methods: ['GET'])]
     public function show(Facture $facture): Response
     {
-        return $this->render('admin/facture/show.html.twig', [ // Corrigé ici
+        return $this->render('admin/facture/show.html.twig', [
             'facture' => $facture,
         ]);
     }
@@ -62,13 +95,13 @@ final class FactureController extends AbstractController
             return $this->redirectToRoute('app_admin_facture_index');
         }
 
-        return $this->render('admin/facture/edit.html.twig', [ // Corrigé ici
+        return $this->render('admin/facture/edit.html.twig', [
             'facture' => $facture,
             'form' => $form,
         ]);
     }
     
-#[Route('/{id}/delete', name: 'app_admin_facture_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_admin_facture_delete', methods: ['POST'])]
     public function delete(Request $request, Facture $facture, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$facture->getId(), $request->getPayload()->getString('_token'))) {
