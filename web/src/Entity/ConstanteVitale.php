@@ -6,6 +6,7 @@ use App\Repository\ConstanteVitaleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Consultation;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ConstanteVitaleRepository::class)]
 #[ORM\Table(name: 'ConstanteVitale')]
@@ -24,14 +25,22 @@ class ConstanteVitale
     #[ORM\Column(name: "date_prise", type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_prise = null;
 
+    #[Assert\NotBlank(message: "Le type de la constante est obligatoire")]
+    #[Assert\Length(
+    max: 50,
+    maxMessage: "Le type ne doit pas dépasser {{ limit }} caractères"
+    )]
     #[ORM\Column(length: 50)]
     private ?string $type = null;
+
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $unite = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $valeur = null;
+    #[Assert\NotBlank(message: "La valeur est obligatoire")]
+#[Assert\Positive(message: "La valeur doit être positive")]
+#[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+private ?string $valeur = null;
 
     // ---------- Getters & Setters ----------
 

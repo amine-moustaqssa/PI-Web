@@ -1,20 +1,20 @@
-<?php
+<?php 
 
-namespace App\Controller\Infirmier;
+namespace App\Controller\Infirmier; 
 
-use App\Entity\ConstanteVitale;
-use App\Entity\Consultation;
-use App\Form\ConstanteVitaleInfirmierType;
-use App\Repository\ConstanteVitaleRepository;
-use App\Repository\ConsultationRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\ConstanteVitale; 
+use App\Entity\Consultation; 
+use App\Form\ConstanteVitaleInfirmierType; 
+use App\Repository\ConstanteVitaleRepository; 
+use App\Repository\ConsultationRepository; 
+use Doctrine\ORM\EntityManagerInterface; 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController; 
+use Symfony\Component\HttpFoundation\Request; 
+use Symfony\Component\HttpFoundation\Response; 
+use Symfony\Component\Routing\Attribute\Route; 
 
 #[Route('/infirmier/consultation/{id}/constantes')]
-class ConstanteVitaleInfirmierController extends AbstractController
+class ConstanteVitaleInfirmierController extends AbstractController 
 {
     #[Route('', name: 'infirmier_constante_index', methods: ['GET'])]
     public function index(
@@ -48,7 +48,6 @@ class ConstanteVitaleInfirmierController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($constante);
             $em->flush();
-
             return $this->redirectToRoute('infirmier_constante_index', ['id' => $consultation->getId()]);
         }
 
