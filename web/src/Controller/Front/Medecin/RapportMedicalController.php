@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Front\Medecin;
 
 use App\Entity\DossierClinique;
 use App\Entity\RapportMedical;
@@ -24,7 +24,7 @@ class RapportMedicalController extends AbstractController
         ]);
     }
 
-    // Ajouter un rapport médical
+    // Ajouter un rapport médical 
     #[Route('/ajouter/{id}', name: 'medecin_rapport_ajouter')]
     public function ajouter(DossierClinique $dossier, Request $request, EntityManagerInterface $em): Response
     {

@@ -1,0 +1,42 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Modifier Dossier Clinique{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">
+        Modifier le dossier – {{ profil.nom }} {{ profil.prenom }}
+    </h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+
+            <form method="post">
+                <div class="form-group">
+                    <label>Antécédents</label>
+                    <textarea name="antecedents" class="form-control" rows="4">{{ dossier.antecedents }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Allergies (séparées par des virgules)</label>
+                    <textarea name="allergies" class="form-control" rows="3">
+{{ dossier.allergies ? dossier.allergies|join(', ') : '' }}
+                    </textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+
+                <a href="{{ path('medecin_dossier_show', {id: profil.id}) }}"
+                   class="btn btn-secondary ml-2">
+                    Annuler
+                </a>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

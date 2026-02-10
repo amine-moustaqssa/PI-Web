@@ -22,9 +22,7 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
-    {
-    }
+    public function __construct(private UrlGeneratorInterface $urlGenerator) {}
 
     public function authenticate(Request $request): Passport
     {
@@ -44,13 +42,25 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        // 1. If the user tried to access a protected page before logging in, send them back there.
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
 
-        // For example:
-        // return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+        // 2. Get the User roles to decide where to send them
+        $user = $token->getUser();
+        $roles = $user->getRoles();
+
+        // 3. Future-proofing: Admin & Doctor redirects (Commented out for now)
+        // if (in_array('ROLE_ADMIN', $roles, true)) {
+        //     return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+        // }
+        // if (in_array('ROLE_MEDECIN', $roles, true)) {
+        //     return new RedirectResponse($this->urlGenerator->generate('doctor_dashboard'));
+        // }
+
+        // 4. Default Redirect: Send Titulaires/Patients to their dashboard
+        return new RedirectResponse($this->urlGenerator->generate('app_titulaire_dashboard'));
     }
 
     protected function getLoginUrl(Request $request): string

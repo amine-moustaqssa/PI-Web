@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: ProfilMedicalRepository::class)]
 #[ORM\Table(name: "ProfilMedical")]
@@ -19,6 +20,7 @@ class ProfilMedical
 
     #[ORM\ManyToOne(inversedBy: 'profilsMedicaux')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Ignore]
     private ?Utilisateur $titulaire = null;
 
     #[ORM\Column(length: 100)]
@@ -37,14 +39,14 @@ class ProfilMedical
      * @var Collection<int, RendezVous>
      */
     #[ORM\OneToMany(targetEntity: RendezVous::class, mappedBy: 'profil')]
-    private Collection $rendezVouses;
+    private Collection $rendezVous;
 
     #[ORM\OneToOne(mappedBy: 'profilMedical', cascade: ['persist', 'remove'])]
     private ?DossierClinique $dossierClinique = null;
 
     public function __construct()
     {
-        $this->rendezVouses = new ArrayCollection();
+        $this->rendezVous = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -52,8 +54,7 @@ class ProfilMedical
         return $this->id;
     }
 
-    // --- Association: Titulaire (Utilisateur) ---
-
+    // --- Titulaire (Utilisateur) ---
     public function getTitulaire(): ?Utilisateur
     {
         return $this->titulaire;
@@ -65,8 +66,7 @@ class ProfilMedical
         return $this;
     }
 
-    // --- Standard Fields ---
-
+    // --- Champs standards ---
     public function getNom(): ?string
     {
         return $this->nom;
@@ -102,7 +102,7 @@ class ProfilMedical
 
     public function getContactUrgence(): ?string
     {
-        return $this;
+        return $this->contact_urgence;
     }
 
     public function setContactUrgence(string $contact_urgence): static
@@ -111,37 +111,35 @@ class ProfilMedical
         return $this;
     }
 
-    // --- Association: RendezVous (OneToMany) ---
-
+    // --- RendezVous (OneToMany) ---
     /**
      * @return Collection<int, RendezVous>
      */
-    public function getRendezVouses(): Collection
+    public function getRendezVous(): Collection
     {
-        return $this->rendezVouses;
+        return $this->rendezVous;
     }
 
-    public function addRendezVouse(RendezVous $rendezVouse): static
+    public function addRendezVous(RendezVous $rendezV): static
     {
-        if (!$this->rendezVouses->contains($rendezVouse)) {
-            $this->rendezVouses->add($rendezVouse);
-            $rendezVouse->setProfil($this);
+        if (!$this->rendezVous->contains($rendezV)) {
+            $this->rendezVous->add($rendezV);
+            $rendezV->setProfil($this);
         }
         return $this;
     }
 
-    public function removeRendezVouse(RendezVous $rendezVouse): static
+    public function removeRendezVous(RendezVous $rendezV): static
     {
-        if ($this->rendezVouses->removeElement($rendezVouse)) {
-            if ($rendezVouse->getProfil() === $this) {
-                $rendezVouse->setProfil(null);
+        if ($this->rendezVous->removeElement($rendezV)) {
+            if ($rendezV->getProfil() === $this) {
+                $rendezV->setProfil(null);
             }
         }
         return $this;
     }
 
-    // --- Association: DossierClinique (OneToOne) ---
-
+    // --- DossierClinique (OneToOne) ---
     public function getDossierClinique(): ?DossierClinique
     {
         return $this->dossierClinique;
@@ -155,4 +153,17 @@ class ProfilMedical
         $this->dossierClinique = $dossierClinique;
         return $this;
     }
+    public function getTitulaireId(): ?int
+{
+    return $this->titulaire ? $this->titulaire->getId() : null;
 }
+    public function __debugInfo(): array
+    {
+        return [
+            'id' => $this->id,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            // We intentionally leave out 'titulaire' and 'dossierClinique' to stop the loop
+        ];
+    }
+} // End of class
