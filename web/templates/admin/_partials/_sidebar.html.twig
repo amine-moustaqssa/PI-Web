@@ -62,7 +62,20 @@
         <span>Spécialité & Département</span>
     </a>
 </li>
-
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_facture_index') }}">
+        <i class="fas fa-file-alt"></i>
+        <span>Facture</span>
+    </a>
+</li>
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_paiement_index') }}">
+        <i class="fas fa-dollar-sign"></i>
+        <span>paiement</span>
+    </a>
+</li>
 
     <hr class="sidebar-divider d-none d-md-block">
 

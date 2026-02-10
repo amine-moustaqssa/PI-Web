@@ -15,13 +15,34 @@ class RendezVousRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, RendezVous::class);
     }
-/**
-     * Recherche les rendez-vous par mot clé (Nom médecin, spécialité ou patient)
+
+    /**
+     * Counts appointments for a specific medical profile for the current day.
+     * Useful for dashboard statistics.
+     */
+    public function countTodayByProfil($profilMedical): int
+    {
+        $start = new \DateTime('today 00:00:00');
+        $end = new \DateTime('today 23:59:59');
+
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.profil = :profil')
+            ->andWhere('r.date_debut BETWEEN :start AND :end')
+            ->setParameter('profil', $profilMedical)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Search for appointments by keyword (Type, Patient Name, or Patient Surname)
      */
     public function findBySearchQuery(?string $query)
     {
         $qb = $this->createQueryBuilder('r')
-            ->leftJoin('r.profil', 'p') // On joint le profil pour chercher aussi par nom de patient
+            ->leftJoin('r.profil', 'p') // Join profile to search by patient details
             ->addSelect('p')
             ->orderBy('r.date_debut', 'DESC');
 
@@ -32,28 +53,6 @@ class RendezVousRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
-    //    /**
-    //     * @return RendezVous[] Returns an array of RendezVous objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('r.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
 
-    //    public function findOneBySomeField($value): ?RendezVous
-    //    {
-    //        return $this->createQueryBuilder('r')
-    //            ->andWhere('r.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    // Example methods can be kept commented out or removed for production cleanliness
 }

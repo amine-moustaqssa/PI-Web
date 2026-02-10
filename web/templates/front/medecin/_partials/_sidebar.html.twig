@@ -1,8 +1,6 @@
 <ul class="navbar-nav bg-dark-sidebar sidebar sidebar-dark accordion" id="accordionSidebar">
 
-    {# Logo #}
-    <a class="sidebar-brand d-flex align-items-center justify-content-center"
-       href="{{ path('medecin_dashboard') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('medecin_dashboard') }}">
         <img class="img-profile rounded-circle"
              src="{{ asset('front/assets/logo.png') }}" width="50">
         <div class="sidebar-brand-text mx-3">Clinic360</div>
@@ -13,7 +11,7 @@
     {# Dashboard #}
     <li class="nav-item {{ app.request.get('_route') == 'medecin_dashboard' ? 'active' : '' }}">
         <a class="nav-link" href="{{ path('medecin_dashboard') }}">
-            <img src="{{ asset('front/assets/chart.svg') }}" width="14">
+                        <img src="{{ asset('front/assets/chart.svg') }}" width="14" alt="Remove User">
             <span>Tableau de bord</span>
         </a>
     </li>
@@ -24,7 +22,6 @@
         Activité Médicale
     </div>
 
-    {# Consultation (placeholder) #}
     <li class="nav-item">
         <a class="nav-link" href="#">
             <img src="{{ asset('front/assets/user-minus.svg') }}" width="14">
@@ -32,14 +29,13 @@
         </a>
     </li>
 
-    {# Rendez-vous (placeholder) #}
     <li class="nav-item">
         <a class="nav-link" href="#">
+        <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
             <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14">
             <span>Rendez-vous</span>
         </a>
     </li>
-
     {# ✅ Dossier Clinique #}
     <li class="nav-item {{ app.request.get('_route') starts with 'medecin_dossier' or app.request.get('_route') == 'medecin_profils_list' ? 'active' : '' }}">
 <a class="nav-link" href="{{ path('medecin_profils_list') }}">
