@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RapportMedicalRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: "RapportMedical")]
 #[ORM\Entity(repositoryClass: RapportMedicalRepository::class)]
@@ -18,21 +19,41 @@ class RapportMedical
     // Relation ManyToOne avec DossierClinique
     #[ORM\ManyToOne(inversedBy: 'rapportsMedicaux')]
     #[ORM\JoinColumn(name: 'dossier_id', referencedColumnName: 'id', nullable: false)]
+    #[Assert\NotNull(message: "Le dossier clinique est obligatoire.")]
     private ?DossierClinique $dossierClinique = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "Le contenu du rapport est obligatoire.")]
+    #[Assert\Length(
+        min: 10,
+        max: 5000,
+        minMessage: "Le contenu doit comporter au moins {{ limit }} caractères.",
+        maxMessage: "Le contenu ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $contenu = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "La conclusion est obligatoire.")]
+    #[Assert\Length(
+        min: 5,
+        max: 2000,
+        minMessage: "La conclusion doit comporter au moins {{ limit }} caractères.",
+        maxMessage: "La conclusion ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $conclusion = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Url(message: "L'URL du PDF doit être valide.")]
     private ?string $url_pdf = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "La date de création est obligatoire.")]
+    #[Assert\Type(\DateTime::class)]
     private ?\DateTime $date_creation = null;
 
-    // --- Getters et Setters ---
+    // ------------------------
+    // Getters & Setters
+    // ------------------------
 
     public function getId(): ?int
     {
@@ -93,4 +114,8 @@ class RapportMedical
         $this->date_creation = $date_creation;
         return $this;
     }
+
+
+
+    
 }

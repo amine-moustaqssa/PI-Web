@@ -3,46 +3,113 @@
 {% block title %}Rapports médicaux{% endblock %}
 
 {% block body %}
-<h1>Rapports médicaux de {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <!-- Bouton retour -->
+        <a href="{{ path('admin_dossier_clinique_index') }}" class="btn btn-sm btn-light shadow-sm mr-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
 
-{% if rapports|length > 0 %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Contenu</th>
-            <th>Conclusion</th>
-            <th>PDF</th>
-            <th>Date de création</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for rapport in rapports %}
-        <tr>
-            <td>{{ rapport.contenu }}</td>
-            <td>{{ rapport.conclusion }}</td>
-            <td>
-                {% if rapport.urlPdf %}
-                    <a href="{{ asset('uploads/' ~ rapport.urlPdf) }}" target="_blank">Voir PDF</a>
-                {% else %}
-                    -
-                {% endif %}
-            </td>
-            <td>{{ rapport.dateCreation|date('d/m/Y H:i') }}</td>
-            <td>
-                <a href="{{ path('admin_rapport_modifier', {'id': rapport.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
-                <a href="{{ path('admin_rapport_supprimer', {'id': rapport.id}) }}" class="btn btn-danger btn-sm"
-                   onclick="return confirm('Voulez-vous vraiment supprimer ce rapport ?')">Supprimer</a>
-            </td>
-        </tr>
+        <h1 class="h3 mb-0 text-gray-800">
+            Rapports médicaux de {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}
+        </h1>
+    </div>
+
+    <a href="{{ path('admin_rapport_ajouter', {'id': dossier.id}) }}" class="btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Ajouter un rapport médical
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Liste des rapports</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            {% if rapports|length > 0 %}
+            <table class="table table-bordered" id="rapportTable">
+                <thead>
+                    <tr>
+                        <th>Contenu</th>
+                        <th>Conclusion</th>
+                        <th>PDF</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rapport in rapports %}
+                    <tr>
+                        <td>{{ rapport.contenu }}</td>
+                        <td>{{ rapport.conclusion }}</td>
+                        <td>
+                            {% if rapport.urlPdf %}
+                                <a href="{{ asset('uploads/' ~ rapport.urlPdf) }}" target="_blank" class="btn btn-sm btn-info">
+                                    <i class="fas fa-file-pdf"></i> Voir PDF
+                                </a>
+                            {% else %}
+                                <span class="btn btn-sm btn-light disabled">Pas de PDF</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ rapport.dateCreation|date('d/m/Y H:i') }}</td>
+                        <td>
+                            <a href="{{ path('admin_rapport_modifier', {'id': rapport.id}) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-edit"></i> 
+                            </a>
+                            <button class="btn btn-sm btn-secondary delete-btn" data-url="{{ path('admin_rapport_supprimer', {'id': rapport.id}) }}">
+                                <i class="fas fa-trash"></i> 
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>Aucun rapport médical pour ce dossier.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+    // Supprimer avec SweetAlert2
+    $('.delete-btn').on('click', function(e) {
+        e.preventDefault();
+        let url = $(this).data('url');
+        Swal.fire({
+            title: 'Êtes-vous sûr ?',
+            text: "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6c757d',
+            cancelButtonColor: '#adb5bd',
+            confirmButtonText: 'Oui, supprimer !',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if(result.isConfirmed){
+                window.location.href = url;
+            }
+        });
+    });
+
+    // Toast pour messages flash
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: '{{ type }}' == 'success' ? 'info' : 'error',
+                title: '{{ message|e('js') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
         {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>Aucun rapport médical pour ce dossier.</p>
-{% endif %}
-
-<a href="{{ path('admin_rapport_ajouter', {'id': dossier.id}) }}" class="btn btn-success mt-3">
-    Ajouter un rapport médical
-</a>
+    {% endfor %}
+});
+</script>
 {% endblock %}

@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Ignore;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: "DossierClinique")]
 #[ORM\Entity(repositoryClass: DossierCliniqueRepository::class)]
@@ -21,13 +21,17 @@ class DossierClinique
     // Relation OneToOne avec ProfilMedical
     #[ORM\OneToOne(inversedBy: 'dossierClinique', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
-    #[Ignore]
+    #[Assert\NotNull(message: "Le profil médical est obligatoire.")]
     private ?ProfilMedical $profilMedical = null;
 
     #[ORM\Column(type: 'json', nullable: true)]
     private array $allergies = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 1000,
+        maxMessage: "Les antécédents ne peuvent pas dépasser {{ limit }} caractères."
+    )]
     private ?string $antecedents = null;
 
     /**
@@ -66,7 +70,6 @@ class DossierClinique
         return $this->allergies ?? [];
     }
 
-
     public function setAllergies(?array $allergies): self
     {
         $this->allergies = $allergies ?? [];
@@ -98,7 +101,6 @@ class DossierClinique
             $this->rapportsMedicaux->add($rapportsMedicaux);
             $rapportsMedicaux->setDossierClinique($this);
         }
-
         return $this;
     }
 
@@ -109,15 +111,6 @@ class DossierClinique
                 $rapportsMedicaux->setDossierClinique(null);
             }
         }
-
         return $this;
     }
-    public function __debugInfo(): array
-    {
-        return [
-            'id' => $this->id,
-            'antecedents' => $this->antecedents,
-            // We intentionally leave out 'profilMedical' to stop the loop
-        ];
-    }
-} // End of class
+}

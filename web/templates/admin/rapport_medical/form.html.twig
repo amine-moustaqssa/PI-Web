@@ -3,12 +3,47 @@
 {% block title %}{{ action }} rapport médical{% endblock %}
 
 {% block body %}
-<h1>{{ action }} rapport médical pour {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center">
+        <!-- Bouton retour avec flèche -->
+        <a href="{{ path('admin_dossier_clinique_reports', {'id': dossier.id}) }}" class="btn btn-sm btn-light shadow-sm mr-3">
+            <i class="fas fa-arrow-left"></i> 
+        </a>
 
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn btn-primary mt-3">{{ action }}</button>
-{{ form_end(form) }}
+        <h1 class="h3 mb-0 text-gray-800">{{ action }} rapport médical pour {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+    </div>
+</div>
 
-<a href="{{ path('admin_dossier_clinique_reports', {'id': dossier.id}) }}" class="btn btn-secondary mt-2">Retour aux rapports</a>
+<div class="card shadow mb-4 p-3">
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <!-- Bouton bleu un peu foncé -->
+        <button class="btn btn-sm btn-primary mt-3">
+            {{ action }}
+        </button>
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+    // Toast pour les messages flash Symfony
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: '{{ type }}' == 'success' ? 'success' : 'error',
+                title: '{{ message|e('js') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        {% endfor %}
+    {% endfor %}
+});
+</script>
 {% endblock %}

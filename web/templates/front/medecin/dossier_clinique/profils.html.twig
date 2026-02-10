@@ -1,6 +1,6 @@
 {% extends 'front/medecin/base_medecin.html.twig' %}
 
-{% block title %}Dossier Clinique{% endblock %}
+{% block title %}Liste des Profils Médicaux{% endblock %}
 
 {% block body %}
 <div class="container-fluid">
@@ -27,6 +27,13 @@
                                    class="btn btn-sm btn-primary">
                                     Voir dossier
                                 </a>
+
+                                {% if profil.dossierClinique %}
+                                    <a href="{{ path('medecin_dossier_edit', { id: profil.id }) }}"
+                                       class="btn btn-sm btn-warning ml-2">
+                                        Modifier dossier
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% else %}
