@@ -51,13 +51,13 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
         $user = $token->getUser();
         $roles = $user->getRoles();
 
-        // 3. Future-proofing: Admin & Doctor redirects (Commented out for now)
-        // if (in_array('ROLE_ADMIN', $roles, true)) {
-        //     return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
-        // }
-        // if (in_array('ROLE_MEDECIN', $roles, true)) {
-        //     return new RedirectResponse($this->urlGenerator->generate('doctor_dashboard'));
-        // }
+        // 3. Role-based redirects
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+            return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+        }
+        if (in_array('ROLE_MEDECIN', $roles, true)) {
+            return new RedirectResponse($this->urlGenerator->generate('medecin_dashboard', ['id' => $user->getId()]));
+        }
 
         // 4. Default Redirect: Send Titulaires/Patients to their dashboard
         return new RedirectResponse($this->urlGenerator->generate('app_titulaire_dashboard'));

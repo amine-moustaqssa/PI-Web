@@ -48,11 +48,31 @@ class RendezVousRepository extends ServiceEntityRepository
 
         if ($query) {
             $qb->andWhere('r.type LIKE :term OR p.nom LIKE :term OR p.prenom LIKE :term')
-               ->setParameter('term', '%' . $query . '%');
+                ->setParameter('term', '%' . $query . '%');
         }
 
         return $qb->getQuery()->getResult();
     }
 
-    // Example methods can be kept commented out or removed for production cleanliness
+    /**
+     * Fetches today's appointments for a specific medical profile, ordered by time.
+     * Used for the planning table on the medecin dashboard.
+     *
+     * @return RendezVous[]
+     */
+    public function findTodayByProfil($profilMedical): array
+    {
+        $start = new \DateTime('today 00:00:00');
+        $end = new \DateTime('today 23:59:59');
+
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.profil = :profil')
+            ->andWhere('r.date_debut BETWEEN :start AND :end')
+            ->setParameter('profil', $profilMedical)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->orderBy('r.date_debut', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

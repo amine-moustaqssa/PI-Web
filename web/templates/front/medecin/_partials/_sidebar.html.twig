@@ -1,6 +1,6 @@
 <ul class="navbar-nav bg-dark-sidebar sidebar sidebar-dark accordion" id="accordionSidebar">
 
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('medecin_dashboard') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('medecin_dashboard', {id: app.user.id}) }}">
         <img class="img-profile rounded-circle"
              src="{{ asset('front/assets/logo.png') }}" width="50">
         <div class="sidebar-brand-text mx-3">Clinic360</div>
@@ -10,7 +10,7 @@
 
     {# Dashboard #}
     <li class="nav-item {{ app.request.get('_route') == 'medecin_dashboard' ? 'active' : '' }}">
-        <a class="nav-link" href="{{ path('medecin_dashboard') }}">
+        <a class="nav-link" href="{{ path('medecin_dashboard', {id: app.user.id}) }}">
                         <img src="{{ asset('front/assets/chart.svg') }}" width="14" alt="Remove User">
             <span>Tableau de bord</span>
         </a>
