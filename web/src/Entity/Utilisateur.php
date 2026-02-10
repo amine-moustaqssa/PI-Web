@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -22,6 +23,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     "PERSONNEL" => Utilisateur::class, // Mapped to self for now (until you create Personnel.php)
     "MEDECIN" => Medecin::class
 ])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -63,6 +65,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: ProfilMedical::class, mappedBy: 'titulaire')]
     private Collection $profilsMedicaux;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
 
     public function __construct()
     {
@@ -230,5 +235,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             // We intentionally DO NOT return 'profilsMedicaux' here.
             // This stops the infinite loop at the source.
         ];
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
     }
 }
