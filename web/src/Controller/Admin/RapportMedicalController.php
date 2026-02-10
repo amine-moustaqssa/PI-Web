@@ -89,4 +89,7 @@ class RapportMedicalController extends AbstractController
         $this->addFlash('success', 'Rapport supprimé.');
         return $this->redirectToRoute('admin_dossier_clinique_reports', ['id' => $dossierId]);
     }
+
+
+    
 }

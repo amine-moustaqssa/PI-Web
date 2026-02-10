@@ -1,0 +1,53 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}{{ action }} rapport médical{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <!-- Retour + titre -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}" class="btn btn-sm btn-light shadow-sm mr-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0 text-gray-800">{{ action }} rapport médical pour {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+
+            {{ form_start(form) }}
+
+            <div class="form-group">
+                {{ form_label(form.contenu) }}
+                {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+                {{ form_errors(form.contenu) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.conclusion) }}
+                {{ form_widget(form.conclusion, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                {{ form_errors(form.conclusion) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.url_pdf) }}
+                {{ form_widget(form.url_pdf, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.url_pdf) }}
+            </div>
+
+            <!-- Bouton Ajouter / Modifier sans icône -->
+            <button type="submit" class="btn btn-primary mt-3">
+                {{ action }}
+            </button>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% endblock %}

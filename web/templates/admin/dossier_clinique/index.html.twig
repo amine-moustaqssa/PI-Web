@@ -5,8 +5,8 @@
 {% block body %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Dossiers Cliniques</h1>
-    <a href="{{ path('admin_dossier_clinique_new') }}" class="btn btn-sm btn-success shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Ajouter un dossier clinique
+    <a href="{{ path('admin_dossier_clinique_new') }}" class="btn btn-sm btn-primary shadow-sm">
+        Ajouter un dossier clinique
     </a>
 </div>
 
@@ -40,26 +40,26 @@
     </div>
 </div>
 
-{# Modal unique pour modifier #}
+<!-- Modal unique pour modifier -->
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="editModalContent">
-            {# Le contenu du formulaire sera chargé via AJAX #}
-        </div>
+        <div class="modal-content" id="editModalContent"></div>
     </div>
 </div>
 {% endblock %}
 
 {% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
+    // ----------------------
+    // DataTable avec filtre multi-critères
+    // ----------------------
     let table = $('#profilTable').DataTable({
         "processing": true,
         "serverSide": true,
-        "ajax": {
-            "url": "{{ path('admin_dossier_clinique_data') }}",
-            "type": "GET"
-        },
+        "ajax": "{{ path('admin_dossier_clinique_data') }}",
         "columns": [
             { "data": "id" },
             { "data": "nom" },
@@ -76,14 +76,84 @@ $(document).ready(function() {
         table.column(index).search(this.value).draw();
     });
 
-    // Ouvrir modal et charger formulaire via AJAX
+    // ----------------------
+    // Modifier dossier via modal AJAX
+    // ----------------------
     $('#profilTable').on('click', '.edit-btn', function() {
         let profilId = $(this).data('id');
         $.get("{{ path('admin_dossier_clinique_edit', {'id': 0}) }}".replace('0', profilId), function(data) {
             $('#editModalContent').html(data);
             $('#editModal').modal('show');
+
+            // Soumission AJAX du formulaire
+            $('#editForm').on('submit', function(e) {
+                e.preventDefault();
+                let form = $(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(response) {
+                        $('#editModal').modal('hide');
+                        table.ajax.reload(null, false);
+                        if(response && response.message) Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info', // couleur neutre
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    },
+                    error: function() {
+                        Swal.fire('Erreur', 'Impossible de mettre à jour le dossier.', 'error');
+                    }
+                });
+            });
         });
     });
+
+    // ----------------------
+    // Confirmation suppression SweetAlert2
+    // ----------------------
+    $('#profilTable').on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
+
+        Swal.fire({
+            title: 'Êtes-vous sûr ?',
+            text: "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6c757d', // gris neutre pour confirmer
+            cancelButtonColor: '#adb5bd',  // gris clair pour annuler
+            confirmButtonText: 'Oui, supprimer !',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+    // ----------------------
+    // Toast pour les flash messages Symfony
+    // ----------------------
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: '{{ type }}' == 'success' ? 'info' : 'error', // bleu neutre pour succès
+                title: '{{ message|e('js') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        {% endfor %}
+    {% endfor %}
 });
 </script>
 {% endblock %}

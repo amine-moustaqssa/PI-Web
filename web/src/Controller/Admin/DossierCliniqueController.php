@@ -252,41 +252,68 @@ public function edit(
 
 
 
-    #[Route('/ajax', name: 'admin_dossier_clinique_ajax')]
-public function ajax(Request $request, ProfilMedicalRepository $profilRepo): JsonResponse
+    #[Route('/data', name: 'admin_dossier_clinique_data')]
+public function data(Request $request, ProfilMedicalRepository $profilRepo): JsonResponse
 {
-    $draw = (int) $request->query->get('draw', 1);
-    $start = (int) $request->query->get('start', 0);
-    $length = (int) $request->query->get('length', 10);
+    $params = $request->query->all();
 
-    $searchValue = $request->query->get('search')['value'] ?? '';
+    $draw = (int) ($params['draw'] ?? 1);
+    $start = (int) ($params['start'] ?? 0);
+    $length = (int) ($params['length'] ?? 10);
+    $searchValue = $params['search']['value'] ?? '';
 
-    // Colonnes pour DataTables
-    $columns = ['id', 'nom', 'prenom', 'dateNaissance'];
+    // Colonnes : utiliser exactement les propriétés de l'entité
+    $columns = ['id', 'nom', 'prenom', 'date_naissance'];
 
-    $orderColumnIndex = $request->query->get('order')[0]['column'] ?? 0;
-    $orderColumn = $columns[$orderColumnIndex] ?? 'id';
-    $orderDir = $request->query->get('order')[0]['dir'] ?? 'asc';
-
-    // Création QueryBuilder
     $qb = $profilRepo->createQueryBuilder('p');
 
-    // Filtrage par recherche
+    // ----------------------
+    // Filtrage global
+    // ----------------------
     if ($searchValue) {
-        $qb->andWhere('p.nom LIKE :search OR p.prenom LIKE :search');
-        $qb->setParameter('search', '%'.$searchValue.'%');
+        $qb->andWhere('p.nom LIKE :search OR p.prenom LIKE :search')
+           ->setParameter('search', '%'.$searchValue.'%');
     }
 
-    // Total filtré
-    $totalFiltered = count($qb->getQuery()->getResult());
+    // ----------------------
+    // Filtrage par colonnes
+    // ----------------------
+    foreach ($columns as $index => $column) {
+        $colSearch = $params['columns'][$index]['search']['value'] ?? null;
+        if ($colSearch) {
+            if ($column === 'date_naissance') {
+                // Filtrage date : format dd/mm/yyyy
+                $date = \DateTime::createFromFormat('d/m/Y', $colSearch);
+                if ($date) {
+                    $startOfDay = (clone $date)->setTime(0, 0, 0);
+                    $endOfDay = (clone $date)->setTime(23, 59, 59);
+                    $qb->andWhere('p.date_naissance BETWEEN :start' . $index . ' AND :end' . $index)
+                       ->setParameter('start' . $index, $startOfDay)
+                       ->setParameter('end' . $index, $endOfDay);
+                }
+            } else {
+                $qb->andWhere("p.$column LIKE :colSearch$index")
+                   ->setParameter("colSearch$index", "%$colSearch%");
+            }
+        }
+    }
 
-    // Tri et pagination
+    // ----------------------
+    // Tri
+    // ----------------------
+    $orderColumnIndex = $params['order'][0]['column'] ?? 0;
+    $orderDir = $params['order'][0]['dir'] ?? 'asc';
+    $orderColumn = $columns[$orderColumnIndex] ?? 'id';
+
     $qb->orderBy('p.' . $orderColumn, $orderDir)
        ->setFirstResult($start)
        ->setMaxResults($length);
 
     $profils = $qb->getQuery()->getResult();
 
+    // ----------------------
+    // Construction des données
+    // ----------------------
     $data = [];
     foreach ($profils as $profil) {
         $dossier = $profil->getDossierClinique();
@@ -300,66 +327,20 @@ public function ajax(Request $request, ProfilMedicalRepository $profilRepo): Jso
             'score' => $score,
             'actions' => $this->renderView('admin/dossier_clinique/_actions.html.twig', [
                 'profil' => $profil,
-                'dossier' => $dossier,
-            ]),
-        ];
-    }
-
-    return new JsonResponse([
-        'draw' => $draw,
-        'recordsTotal' => count($profilRepo->findAll()),
-        'recordsFiltered' => $totalFiltered,
-        'data' => $data,
-    ]);
-}
-
-#[Route('/data', name: 'admin_dossier_clinique_data')]
-public function data(Request $request, ProfilMedicalRepository $profilRepo): JsonResponse
-{
-    // Paramètres envoyés par DataTables
-    $params = $request->query->all();
-
-    $draw = (int) ($params['draw'] ?? 1);
-    $start = (int) ($params['start'] ?? 0);
-    $length = (int) ($params['length'] ?? 10);
-    $searchValue = $params['search']['value'] ?? '';
-
-    // Récupérer tous les profils
-    $profils = $profilRepo->findAll();
-
-    $data = [];
-    foreach ($profils as $profil) {
-        $dossier = $profil->getDossierClinique();
-        $score = $dossier ? $this->calculator->calculate($dossier) : null;
-
-        // Filtrage global (recherche dans nom / prénom)
-        if ($searchValue) {
-            if (
-                stripos($profil->getNom(), $searchValue) === false &&
-                stripos($profil->getPrenom(), $searchValue) === false
-            ) {
-                continue;
-            }
-        }
-
-        $data[] = [
-            'id' => $profil->getId(),
-            'nom' => $profil->getNom(),
-            'prenom' => $profil->getPrenom(),
-            'dateNaissance' => $profil->getDateNaissance() ? $profil->getDateNaissance()->format('d/m/Y') : 'N/A',
-            'score' => $score ? $score['level'] : 'N/A',
-            'actions' => $this->renderView('admin/dossier_clinique/_actions.html.twig', [
-                'profil' => $profil,
                 'dossier' => $dossier
             ])
         ];
     }
 
-    $recordsTotal = count($profils);
-    $recordsFiltered = count($data);
+    // ----------------------
+    // Comptage total et filtré
+    // ----------------------
+    $recordsTotal = count($profilRepo->findAll());
 
-    // Pagination
-    $data = array_slice($data, $start, $length);
+    // Pour filtré : clone QueryBuilder sans pagination
+    $qbFiltered = clone $qb;
+    $qbFiltered->setFirstResult(null)->setMaxResults(null);
+    $recordsFiltered = count($qbFiltered->getQuery()->getResult());
 
     return new JsonResponse([
         'draw' => $draw,
@@ -368,6 +349,11 @@ public function data(Request $request, ProfilMedicalRepository $profilRepo): Jso
         'data' => $data
     ]);
 }
+
+
+
+
+
 
 
 
