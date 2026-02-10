@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/specialite')]
+#[Route('/admin/specialite')]
 final class SpecialiteController extends AbstractController
 {
     #[Route(name: 'app_specialite_index', methods: ['GET'])]

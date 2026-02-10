@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-#[Route('/disponibilite')]
+#[Route('/admin/disponibilite')]
 class DisponibiliteController extends AbstractController
 {
     #[Route('/', name: 'app_disponibilite_index', methods: ['GET'])]

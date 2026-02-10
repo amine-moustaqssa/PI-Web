@@ -1,0 +1,138 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier - {{ personnel.prenom }} {{ personnel.nom }}{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <a href="{{ path('admin_personnel_index') }}" class="text-decoration-none text-gray-400 mr-2">
+            <i class="fas fa-arrow-left fa-sm"></i>
+        </a>
+        Modifier : {{ personnel.prenom }} {{ personnel.nom }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-edit mr-1"></i> Informations du personnel
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.nom) }}
+                                {{ form_widget(form.nom) }}
+                                {{ form_errors(form.nom) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.prenom) }}
+                                {{ form_widget(form.prenom) }}
+                                {{ form_errors(form.prenom) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.email) }}
+                                {{ form_widget(form.email) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.plainPassword) }}
+                                {{ form_widget(form.plainPassword) }}
+                                {{ form_errors(form.plainPassword) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.niveauAcces) }}
+                                {{ form_widget(form.niveauAcces) }}
+                                {{ form_errors(form.niveauAcces) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.adresse) }}
+                                {{ form_widget(form.adresse) }}
+                                {{ form_errors(form.adresse) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.codePostal) }}
+                                {{ form_widget(form.codePostal) }}
+                                {{ form_errors(form.codePostal) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_personnel_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check mr-1"></i> Enregistrer les modifications
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-gray-800">Profil actuel</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3"
+                     style="width: 64px; height: 64px; font-size: 1.3rem;">
+                    {{ personnel.prenom|first|upper }}{{ personnel.nom|first|upper }}
+                </div>
+                <h6 class="font-weight-bold text-gray-800">{{ personnel.prenom }} {{ personnel.nom }}</h6>
+                <p class="small text-muted mb-1">{{ personnel.email }}</p>
+                {% if personnel.niveauAcces %}
+                    <span class="badge badge-info">{{ personnel.niveauAcces }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-body">
+                <h6 class="font-weight-bold text-danger mb-3"><i class="fas fa-exclamation-triangle mr-1"></i> Zone de danger</h6>
+                <p class="small text-muted">Supprimer ce personnel supprimera également toutes ses données associées.</p>
+                <form method="post" action="{{ path('admin_personnel_delete', {id: personnel.id}) }}"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce personnel ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ personnel.id) }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm btn-block">
+                        <i class="fas fa-trash mr-1"></i> Supprimer ce personnel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

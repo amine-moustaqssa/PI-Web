@@ -22,6 +22,8 @@
         
         .step-section { display: none; }
         .step-section.active { display: block; }
+        .required-star { color: #e51c00; }
+        .modal-subtitle { font-size: 0.85rem; color: #697386; margin-top: 4px; }
     </style>
 {% endblock %}
 
@@ -47,6 +49,18 @@
                 <h6 class="m-0 font-weight-bold text-primary">Historique et gestion des consultations</h6>
             </div>
             <div class="card-body">
+                {# Display Flash Messages if any (especially the error we just added) #}
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
                 <div class="table-responsive">
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead class="bg-light">
@@ -108,6 +122,7 @@
         </div>
     </div>
 
+    {# --- MODAL NOUVEAU RDV --- #}
     <div class="modal fade" id="newRdvModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content modal-content-modern">
@@ -121,6 +136,8 @@
                     </button>
                 </div>
                 <div class="modal-body pt-4">
+                    
+                    {# STEP 1: SPECIALITES #}
                     <div id="step-specialite" class="step-section active">
                         <div class="row">
                             {% if specialites is defined %}
@@ -135,23 +152,27 @@
                             {% endif %}
                         </div>
                     </div>
+
+                    {# STEP 2: FORMULAIRE #}
                     <div id="step-form" class="step-section">
                         {% if form is defined %}
                             {{ form_start(form) }}
-                                <input type="hidden" name="specialite_id" id="selected_specialite_id">
+                                {# --- FIX: CHAMPS CACHÉ POUR L'ID SPECIALITE --- #}
+                                <input type="hidden" name="specialite_id" id="specialite_input" value="{{ app.request.get('specialite_id') }}">
+
                                 <div class="alert alert-info border-0 bg-light-primary text-primary small mb-4">
                                     <i class="fas fa-info-circle mr-1"></i> Réservation pour : <strong id="selected_spec_name">...</strong>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label class="form-label-modern">Patient concerné</label>
+                                            <label class="form-label-modern">Patient concerné <span class="required-star">*</span></label>
                                             {{ form_widget(form.profil, {'attr': {'class': 'form-control form-control-modern'}}) }}
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label class="form-label-modern">Date et Heure</label>
+                                            <label class="form-label-modern">Date et Heure <span class="required-star">*</span></label>
                                             {{ form_widget(form.date_debut, {'attr': {'class': 'form-control form-control-modern'}}) }}
                                         </div>
                                     </div>
@@ -173,6 +194,7 @@
         </div>
     </div>
 
+    {# --- MODAL EDIT RDV --- #}
     <div class="modal fade" id="editRdvModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content modal-content-modern">
@@ -183,7 +205,8 @@
                     </button>
                 </div>
                 <div class="modal-body pt-4" id="editRdvModalBody">
-                    </div>
+                    {# Content loaded via AJAX #}
+                </div>
             </div>
         </div>
     </div>
@@ -194,11 +217,16 @@
     {{ parent() }}
     <script>
         $(document).ready(function() {
-            // New RDV Error Handling
-            if ($('#newRdvModal').find('.is-invalid, .invalid-feedback').length > 0) {
-                $('#newRdvModal').modal('show');
-                $('#step-specialite').removeClass('active');
-                $('#step-form').addClass('active');
+            // Error Handling: If validation fails, reopen modal at Step 2
+            // Also check if we have a server-side flash error regarding the specialty
+            if ($('#newRdvModal').find('.is-invalid, .invalid-feedback').length > 0 || $('.alert-danger').length > 0) {
+                
+                // If there is a specialty ID already (from previous submit), go to step 2
+                if(document.getElementById('specialite_input').value) {
+                    $('#newRdvModal').modal('show');
+                    $('#step-specialite').removeClass('active');
+                    $('#step-form').addClass('active');
+                }
             }
 
             // --- EDIT BUTTON LOGIC ---
@@ -212,7 +240,6 @@
                 $.ajax({
                     url: url,
                     type: 'GET',
-                    // This Header is Vital for Symfony to treat this as AJAX
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     success: function(response) {
                         $('#editRdvModalBody').html(response);
@@ -225,8 +252,13 @@
         });
 
         function selectSpecialty(id, name) {
-            document.getElementById('selected_specialite_id').value = id;
+            // Visual Update
             document.getElementById('selected_spec_name').innerText = name;
+            
+            // --- FIX: Fill the hidden input for the controller ---
+            document.getElementById('specialite_input').value = id;
+
+            // Transition
             $('#step-specialite').fadeOut(200, function() {
                 $('#step-specialite').removeClass('active');
                 $('#step-form').fadeIn(200).addClass('active');

@@ -1,0 +1,139 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Ajouter un Médecin{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <a href="{{ path('admin_medecin_index') }}" class="text-decoration-none text-gray-400 mr-2">
+            <i class="fas fa-arrow-left fa-sm"></i>
+        </a>
+        Nouveau Médecin
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-plus mr-1"></i> Informations du médecin
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.nom) }}
+                                {{ form_widget(form.nom) }}
+                                {{ form_errors(form.nom) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.prenom) }}
+                                {{ form_widget(form.prenom) }}
+                                {{ form_errors(form.prenom) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.email) }}
+                                {{ form_widget(form.email) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.plainPassword) }}
+                                {{ form_widget(form.plainPassword) }}
+                                {{ form_errors(form.plainPassword) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.matricule) }}
+                                {{ form_widget(form.matricule) }}
+                                {{ form_errors(form.matricule) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.specialite) }}
+                                {{ form_widget(form.specialite) }}
+                                {{ form_errors(form.specialite) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.tarif_consultation) }}
+                                {{ form_widget(form.tarif_consultation) }}
+                                {{ form_errors(form.tarif_consultation) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                {{ form_label(form.adresse) }}
+                                {{ form_widget(form.adresse) }}
+                                {{ form_errors(form.adresse) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.codePostal) }}
+                                {{ form_widget(form.codePostal) }}
+                                {{ form_errors(form.codePostal) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_medecin_index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Créer le médecin
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4 border-left-info">
+            <div class="card-body">
+                <h6 class="font-weight-bold text-info mb-3"><i class="fas fa-info-circle mr-1"></i> Aide</h6>
+                <p class="small text-muted mb-2">
+                    Remplissez les informations pour créer un nouveau compte médecin.
+                </p>
+                <ul class="small text-muted pl-3">
+                    <li>Le <strong>matricule</strong> est l'identifiant interne du médecin.</li>
+                    <li>La <strong>spécialité</strong> détermine le département associé.</li>
+                    <li>Le <strong>tarif</strong> sera utilisé pour la facturation.</li>
+                    <li>Le mot de passe doit contenir au moins 6 caractères.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
