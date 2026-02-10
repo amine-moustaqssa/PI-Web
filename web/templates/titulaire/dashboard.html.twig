@@ -61,7 +61,7 @@
                     <h6 class="dropdown-header">Sélectionner un profil :</h6>
                     {% for profil in allProfils %}
                         <a class="dropdown-item {% if activeProfil and profil.id == activeProfil.id %}active{% endif %}" 
-                           href="{{ path('app_titulaire_dashboard', {'id': profil.id}) }}">
+                           href="{{ path('app_titulaire_dashboard_profil', {'id': profil.id}) }}">
                             {{ profil.prenom }} {{ profil.nom }}
                         </a>
                     {% endfor %}

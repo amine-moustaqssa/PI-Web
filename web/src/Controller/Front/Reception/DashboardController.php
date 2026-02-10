@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route; // <--- Check 2: Is this line here?
 
-#[Route('/{id}', name: 'reception_')]
+#[Route('/{id}', name: 'reception_', requirements: ['id' => '\d+'])]
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'dashboard')]
@@ -22,4 +22,3 @@ class DashboardController extends AbstractController
         return $this->render('front/reception/dashboard/index.html.twig');
     }
 }
-
