@@ -19,8 +19,7 @@ final class DisponibiliteController extends AbstractController
     #[Route('/', name: 'medecin_disponibilite_index', methods: ['GET'])]
     public function index(DisponibiliteRepository $repository): Response
     {
-        // Le médecin ne voit que SES disponibilités
-        return $this->render('medecin/disponibilite/index.html.twig', [
+        return $this->render('front/medecin/disponibilite/index.html.twig', [
             'disponibilites' => $repository->findBy(['medecin' => $this->getUser()]),
         ]);
     }
@@ -28,8 +27,10 @@ final class DisponibiliteController extends AbstractController
     #[Route('/new', name: 'medecin_disponibilite_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
     {
+        $medecin = $this->getUser();
+
         $disponibilite = new Disponibilite();
-        $disponibilite->setMedecin($this->getUser());
+        $disponibilite->setMedecin($medecin);
 
         $form = $this->createForm(DisponibiliteType::class, $disponibilite);
         $form->handleRequest($request);
@@ -46,7 +47,7 @@ final class DisponibiliteController extends AbstractController
 
             if (count($conflits) > 0) {
                 $this->addFlash('danger', 'Impossible : Ce créneau chevauche un horaire existant.');
-                return $this->render('medecin/disponibilite/new.html.twig', [
+                return $this->render('front/medecin/disponibilite/new.html.twig', [
                     'form' => $form,
                     'disponibilite' => $disponibilite,
                 ]);
@@ -59,7 +60,7 @@ final class DisponibiliteController extends AbstractController
             return $this->redirectToRoute('medecin_disponibilite_index');
         }
 
-        return $this->render('medecin/disponibilite/new.html.twig', [
+        return $this->render('front/medecin/disponibilite/new.html.twig', [
             'form' => $form,
             'disponibilite' => $disponibilite,
         ]);
@@ -68,8 +69,7 @@ final class DisponibiliteController extends AbstractController
     #[Route('/{id}/edit', name: 'medecin_disponibilite_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Disponibilite $disponibilite, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
     {
-        // Vérification propriétaire
-        if ($disponibilite->getMedecin() !== $this->getUser()) {
+        if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -89,7 +89,7 @@ final class DisponibiliteController extends AbstractController
 
             if (count($conflits) > 0) {
                 $this->addFlash('danger', 'Modification impossible : Chevauchement détecté.');
-                return $this->render('medecin/disponibilite/edit.html.twig', [
+                return $this->render('front/medecin/disponibilite/edit.html.twig', [
                     'form' => $form,
                     'disponibilite' => $disponibilite,
                 ]);
@@ -101,7 +101,7 @@ final class DisponibiliteController extends AbstractController
             return $this->redirectToRoute('medecin_disponibilite_index');
         }
 
-        return $this->render('medecin/disponibilite/edit.html.twig', [
+        return $this->render('front/medecin/disponibilite/edit.html.twig', [
             'form' => $form,
             'disponibilite' => $disponibilite,
         ]);
@@ -110,10 +110,10 @@ final class DisponibiliteController extends AbstractController
     #[Route('/{id}', name: 'medecin_disponibilite_show', methods: ['GET'])]
     public function show(Disponibilite $disponibilite): Response
     {
-         if ($disponibilite->getMedecin() !== $this->getUser()) {
+        if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
             throw $this->createAccessDeniedException();
         }
-        return $this->render('medecin/disponibilite/show.html.twig', [
+        return $this->render('front/medecin/disponibilite/show.html.twig', [
             'disponibilite' => $disponibilite,
         ]);
     }
@@ -121,7 +121,7 @@ final class DisponibiliteController extends AbstractController
     #[Route('/{id}', name: 'medecin_disponibilite_delete', methods: ['POST'])]
     public function delete(Request $request, Disponibilite $disponibilite, EntityManagerInterface $em): Response
     {
-        if ($disponibilite->getMedecin() !== $this->getUser()) {
+        if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
             throw $this->createAccessDeniedException();
         }
 

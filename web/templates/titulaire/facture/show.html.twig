@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 {% block title %}Détails Facture{% endblock %}
 
+{% block sidebar %}
+    {% include 'titulaire/_partials/_sidebar.html.twig' %}
+{% endblock %}
+
 {% block body %}
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">

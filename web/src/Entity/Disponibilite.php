@@ -28,9 +28,9 @@ class Disponibilite
     #[ORM\Column]
     private ?bool $estRecurrent = null;
 
-    #[ORM\ManyToOne(inversedBy: 'disponibilites')]
+    #[ORM\ManyToOne(targetEntity: Medecin::class, inversedBy: 'disponibilites')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Medecin $medecin = null;
+    private ?Utilisateur $medecin = null;
 
     public function getId(): ?int
     {
@@ -85,12 +85,12 @@ class Disponibilite
         return $this;
     }
 
-    public function getMedecin(): ?Medecin
+    public function getMedecin(): ?Utilisateur
     {
         return $this->medecin;
     }
 
-    public function setMedecin(?Medecin $medecin): static
+    public function setMedecin(?Utilisateur $medecin): static
     {
         $this->medecin = $medecin;
 

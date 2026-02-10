@@ -18,8 +18,7 @@ class DashboardController extends AbstractController
         RendezVousRepository $rdvRepo,
         DossierCliniqueRepository $dossierRepo,
         ConsultationRepository $consultRepo
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
         // Get the medical profiles collection
         $profilsMedicaux = $user->getProfilsMedicaux(); // This is a PersistentCollection
@@ -38,12 +37,13 @@ class DashboardController extends AbstractController
         $rdvsToday = $rdvRepo->countTodayByProfil($profilMedical);
         $consultsToday = $consultRepo->countTodayByMedecin($user);
         $dossiersCount = $dossierRepo->countByProfilMedical($profilMedical);
-
+        $todayRdvs = $rdvRepo->findTodayByProfil($profilMedical);
 
         return $this->render('front/medecin/dashboard/index.html.twig', [
             'rdvsToday' => $rdvsToday,
             'dossiersCount' => $dossiersCount,
             'consultsToday' => $consultsToday,
+            'todayRdvs' => $todayRdvs,
         ]);
     }
 }

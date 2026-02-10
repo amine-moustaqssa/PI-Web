@@ -11,10 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/titulaire')]
+#[Route('/espace-client')]
 class TitulaireController extends AbstractController
 {
-    #[Route('/dashboard/{id}', name: 'app_titulaire_dashboard', defaults: ['id' => null])]
+    #[Route('/dashboard', name: 'app_titulaire_dashboard')]
+    #[Route('/{id}/dashboard', name: 'app_titulaire_dashboard_profil')]
     public function index(Request $request, ?int $id, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
@@ -41,7 +42,7 @@ class TitulaireController extends AbstractController
             $this->addFlash('success', 'Nouveau profil ajouté avec succès !');
 
             // Redirect to self to show the new profile
-            return $this->redirectToRoute('app_titulaire_dashboard', ['id' => $newProfil->getId()]);
+            return $this->redirectToRoute('app_titulaire_dashboard_profil', ['id' => $newProfil->getId()]);
         }
 
         // --- 2. FETCH DASHBOARD DATA (Your existing logic) ---
