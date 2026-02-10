@@ -15,6 +15,24 @@ class FactureRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Facture::class);
     }
+    public function searchFactures(string $searchTerm = '', string $status = ''): array
+    {
+        $qb = $this->createQueryBuilder('f');
+
+        if (!empty($searchTerm)) {
+            $qb->andWhere('f.reference LIKE :search OR f.montantTotal LIKE :search')
+               ->setParameter('search', '%' . $searchTerm . '%');
+        }
+
+        if (!empty($status)) {
+            $qb->andWhere('f.statut = :status')
+               ->setParameter('status', $status);
+        }
+
+        return $qb->orderBy('f.id', 'DESC')
+                  ->getQuery()
+                  ->getResult();
+    }
 
     //    /**
     //     * @return Facture[] Returns an array of Facture objects
