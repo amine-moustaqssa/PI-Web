@@ -15,6 +15,16 @@ class DossierCliniqueRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, DossierClinique::class);
     }
+    public function countByProfilMedical($profilMedical): int
+{
+    return (int) $this->createQueryBuilder('d')
+        ->select('COUNT(d.id)')
+        ->andWhere('d.profilMedical = :profilMedical')
+        ->setParameter('profilMedical', $profilMedical)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
 
     //    /**
     //     * @return DossierClinique[] Returns an array of DossierClinique objects

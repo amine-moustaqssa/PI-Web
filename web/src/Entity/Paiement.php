@@ -16,15 +16,26 @@ class Paiement
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "La date de paiement est requise.")]
+    #[Assert\Type("\DateTimeInterface")]
+    #[Assert\LessThanOrEqual("now", message: "La date de paiement ne peut pas être dans le futur.")]
     private ?\DateTime $datePaiement = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Assert\NotBlank(message: "Le montant est obligatoire.")]
+    #[Assert\Positive(message: "Le montant doit être supérieur à 0.")]
     private ?string $montant = null;
 
     #[ORM\ManyToOne(targetEntity: Facture::class, inversedBy: 'paiements')]
     #[ORM\JoinColumn(nullable: false)]
+<<<<<<< Updated upstream
     private ?Facture $facture = null;
 
+=======
+    #[Assert\NotNull(message: "Le paiement doit être rattaché à une facture.")]
+    private ?Facture $facture = null;
+    
+>>>>>>> Stashed changes
     public function getId(): ?int
     {
         return $this->id;

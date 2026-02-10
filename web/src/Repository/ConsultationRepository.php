@@ -15,6 +15,23 @@ class ConsultationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Consultation::class);
     }
+    // src/Repository/ConsultationRepository.php
+public function countTodayByMedecin($medecin): int
+{
+    $start = new \DateTime('today 00:00:00');
+    $end = new \DateTime('today 23:59:59');
+
+    return (int) $this->createQueryBuilder('c')
+        ->select('COUNT(c.id)')
+        ->andWhere('c.medecin = :medecin')
+        ->andWhere('c.date_effectuee BETWEEN :start AND :end')
+        ->setParameter('medecin', $medecin)
+        ->setParameter('start', $start)
+        ->setParameter('end', $end)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
 
 //    /**
 //     * @return Consultation[] Returns an array of Consultation objects

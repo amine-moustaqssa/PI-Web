@@ -15,6 +15,23 @@ class RendezVousRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, RendezVous::class);
     }
+    // src/Repository/RendezVousRepository.php
+public function countTodayByProfil($profilMedical): int
+{
+    $start = new \DateTime('today 00:00:00');
+    $end = new \DateTime('today 23:59:59');
+
+    return (int) $this->createQueryBuilder('r')
+        ->select('COUNT(r.id)')
+        ->andWhere('r.profil = :profil')
+        ->andWhere('r.date_debut BETWEEN :start AND :end')
+        ->setParameter('profil', $profilMedical)
+        ->setParameter('start', $start)
+        ->setParameter('end', $end)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
 
     //    /**
     //     * @return RendezVous[] Returns an array of RendezVous objects

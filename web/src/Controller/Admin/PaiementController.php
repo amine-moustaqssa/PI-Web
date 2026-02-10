@@ -18,15 +18,15 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/paiement')]
 final class PaiementController extends AbstractController
 {
-    #[Route(name: 'app_paiement_index', methods: ['GET'])]
+    #[Route(name: 'app_admin_paiement_index', methods: ['GET'])]
     public function index(PaiementRepository $paiementRepository): Response
     {
-        return $this->render('paiement/index.html.twig', [
+        return $this->render('admin/paiement/index.html.twig', [
             'paiements' => $paiementRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_paiement_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_paiement_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $paiement = new Paiement();
@@ -37,24 +37,24 @@ final class PaiementController extends AbstractController
             $entityManager->persist($paiement);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_paiement_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_paiement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('paiement/new.html.twig', [
+        return $this->render('admin/paiement/new.html.twig', [
             'paiement' => $paiement,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_paiement_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_paiement_show', methods: ['GET'])]
     public function show(Paiement $paiement): Response
     {
-        return $this->render('paiement/show.html.twig', [
+        return $this->render('admin/paiement/show.html.twig', [
             'paiement' => $paiement,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_paiement_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_paiement_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Paiement $paiement, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(PaiementType::class, $paiement);
@@ -63,16 +63,16 @@ final class PaiementController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_paiement_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_paiement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('paiement/edit.html.twig', [
+        return $this->render('admin/paiement/edit.html.twig', [
             'paiement' => $paiement,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_paiement_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_paiement_delete', methods: ['POST'])]
     public function delete(Request $request, Paiement $paiement, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$paiement->getId(), $request->getPayload()->getString('_token'))) {
@@ -80,6 +80,6 @@ final class PaiementController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_paiement_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_paiement_index', [], Response::HTTP_SEE_OTHER);
     }
 }

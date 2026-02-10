@@ -2,7 +2,13 @@
 
 <ul class="navbar-nav bg-dark-sidebar sidebar sidebar-dark accordion" id="accordionSidebar">
 
+<<<<<<< Updated upstream
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ path('medecin_dashboard') }}">
+=======
+    {# Logo - Keep medecin dashboard #}
+    <a class="sidebar-brand d-flex align-items-center justify-content-center"
+       href="{{ path('medecin_dashboard', {'id': app.user.id}) }}">
+>>>>>>> Stashed changes
         <img class="img-profile rounded-circle"
                     src="{{ asset('front/assets/logo.png') }}" width="50">
         <div class="sidebar-brand-text mx-3">Clinic360</div>
@@ -11,8 +17,13 @@
     <hr class="sidebar-divider my-0 border-secondary-custom">
 
     <li class="nav-item {{ app.request.get('_route') == 'medecin_dashboard' ? 'active' : '' }}">
+<<<<<<< Updated upstream
         <a class="nav-link" href="{{ path('medecin_dashboard') }}">
                         <img src="{{ asset('front/assets/chart.svg') }}" width="14" alt="Remove User">
+=======
+        <a class="nav-link" href="{{ path('medecin_dashboard', {'id': app.user.id}) }}">
+            <img src="{{ asset('front/assets/chart.svg') }}" width="14">
+>>>>>>> Stashed changes
             <span>Tableau de bord</span>
         </a>
     </li>
@@ -23,6 +34,10 @@
         Activité Médicale
     </div>
 
+<<<<<<< Updated upstream
+=======
+    {# Consultation #}
+>>>>>>> Stashed changes
     <li class="nav-item">
         <a class="nav-link" href="#">
             <img src="{{ asset('front/assets/user-minus.svg') }}" width="14">
@@ -37,15 +52,31 @@
 </li>
 
 
+<<<<<<< Updated upstream
     <li class="nav-item">
         <a class="nav-link" href="#">
         <img src="{{ asset('front/assets/folder-add.svg') }} " width="14" >
+=======
+    {# Rendez-vous #}
+    <li class="nav-item">
+        <a class="nav-link" href="#">
+            <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14">
+            <span>Rendez-vous</span>
+        </a>
+    </li>
+
+    {# Dossier Clinique #}
+    <li class="nav-item {{ app.request.get('_route') starts with 'medecin_dossier' or app.request.get('_route') == 'medecin_profils_list' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('medecin_profils_list') }}">
+            <img src="{{ asset('front/assets/folder-add.svg') }}" width="14">
+>>>>>>> Stashed changes
             <span>Dossier Clinique</span>
         </a>
     </li>
 
     <hr class="sidebar-divider border-secondary-custom">
 
+<<<<<<< Updated upstream
     <div class="sidebar-heading text-muted-custom">
         Administrative
     </div>
@@ -63,6 +94,9 @@
             <span>Specialité</span>
         </a>
     </li>
+=======
+    
+>>>>>>> Stashed changes
 
     
 

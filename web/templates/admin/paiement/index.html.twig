@@ -21,8 +21,9 @@
                 <td>{{ paiement.datePaiement ? paiement.datePaiement|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ paiement.montant }}</td>
                 <td>
-                    <a href="{{ path('app_paiement_show', {'id': paiement.id}) }}">show</a>
-                    <a href="{{ path('app_paiement_edit', {'id': paiement.id}) }}">edit</a>
+                    <a href="{{ path('app_admin_paiement_show', {'id': paiement.id}) }}">show</a>
+                    <a href="{{ path('app_admin_paiement_edit', {'id': paiement.id}) }}">edit</a>
+                    {{ include('admin/paiement/_delete_form.html.twig') }}
                 </td>
             </tr>
         {% else %}
@@ -33,5 +34,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_paiement_new') }}">Create new</a>
+    <a href="{{ path('app_admin_paiement_new') }}">Create new</a>
 {% endblock %}

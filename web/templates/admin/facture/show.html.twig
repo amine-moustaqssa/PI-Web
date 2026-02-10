@@ -1,34 +1,109 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Facture{% endblock %}
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Détails Facture{% endblock %}
 
 {% block body %}
-    <h1>Facture</h1>
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Détails Facture #{{ facture.reference }}</h1>
+        {# Fixed the route name to match your controller #}
+        <a href="{{ path('app_admin_facture_index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ facture.id }}</td>
-            </tr>
-            <tr>
-                <th>Reference</th>
-                <td>{{ facture.reference }}</td>
-            </tr>
-            <tr>
-                <th>MontantTotal</th>
-                <td>{{ facture.montantTotal }}</td>
-            </tr>
-            <tr>
-                <th>Statut</th>
-                <td>{{ facture.statut }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations de la facture</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Référence</th>
+                            <td>{{ facture.reference }}</td>
+                        </tr>
+                        <tr>
+                            <th>Montant Total</th>
+                            <td><strong>{{ facture.montantTotal }} DT</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Statut</th>
+                            <td>
+                                {% if facture.statut == 'PAYEE' %}
+                                    <span class="badge badge-success">Payée</span>
+                                {% elseif facture.statut == 'EN_ATTENTE' %}
+                                    <span class="badge badge-warning">En attente</span>
+                                {% else %}
+                                    <span class="badge badge-danger">{{ facture.statut }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Titulaire</th>
+                            <td>
+                                {# Safety check: If titulaire is null, display 'N/A' #}
+                                {% if facture.titulaire %}
+                                    {{ facture.titulaire.nom }} {{ facture.titulaire.prenom }}
+                                {% else %}
+                                    <span class="text-muted">Aucun titulaire assigné</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
 
-    <a href="{{ path('app_facture_index') }}">back to list</a>
+            {% if facture.paiements is defined and facture.paiements|length > 0 %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Paiements</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for paiement in facture.paiements %}
+                                <tr>
+                                    <td>{{ paiement.datePaiement|date('d/m/Y H:i') }}</td>
+                                    <td>{{ paiement.montant }} DT</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Aucun paiement enregistré pour cette facture.
+            </div>
+            {% endif %}
+        </div>
 
-    <a href="{{ path('app_facture_edit', {'id': facture.id}) }}">edit</a>
-
-    {{ include('admin/facture/_delete_form.html.twig') }}
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                </div>
+                <div class="card-body">
+                    {# Fixed: Changed 'app_patient_paiement_new' to your actual route name if it exists #}
+                    {% if facture.statut == 'EN_ATTENTE' %}
+                        <a href="#" class="btn btn-success btn-block mb-2">
+                            <i class="fas fa-credit-card"></i> Effectuer un paiement
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{{ path('app_admin_facture_index') }}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

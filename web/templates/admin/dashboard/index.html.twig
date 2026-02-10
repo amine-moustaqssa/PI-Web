@@ -10,70 +10,33 @@
         </a>
     </div>
 
-    <div class="row">
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Rendez-vous (Mensuel)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">40</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Revenu (Annuel)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">215,000 TND</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Demandes en attente</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="row mb-4">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card shadow h-100 py-2 bg-dark-card border-left-primary">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Consultations aujourd'hui</div>
+                <div class="h5 mb-0 font-weight-bold text-white">{{ consultsToday }}</div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Bienvenue dans l'Admin</h6>
-                </div>
-                <div class="card-body">
-                    <p>L'intégration du template est terminée ! Vous pouvez maintenant commencer à créer vos pages CRUD pour gérer les utilisateurs, les rendez-vous et les départements.</p>
-                </div>
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card shadow h-100 py-2 bg-dark-card border-left-info">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Dossiers mis à jour</div>
+                <div class="h5 mb-0 font-weight-bold text-white">{{ dossiersCount }}</div>
             </div>
         </div>
     </div>
+
+    <div class="col-xl-4 col-md-12 mb-4">
+        <div class="card shadow h-100 py-2 bg-dark-card border-left-warning">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Rendez-vous prévus</div>
+                <div class="h5 mb-0 font-weight-bold text-white">{{ rdvsToday }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

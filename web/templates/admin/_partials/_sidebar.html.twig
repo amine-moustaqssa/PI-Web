@@ -44,6 +44,40 @@
     </a>
     </li>
 
+<<<<<<< Updated upstream
+=======
+    <li class="nav-item {{ app.request.get('_route') and 'disponibilite' in app.request.get('_route') ? 'active' : '' }}">
+    {# Attention : Utilisez la route Admin (souvent app_disponibilite_index) et non medecin_ #}
+    <a class="nav-link" href="{{ path('app_disponibilite_index') }}">
+        <i class="fas fa-calendar-alt"></i> {# Icône FontAwesome blanche #}
+        <span>Disponibilité</span>
+    </a>
+</li>
+
+    <li class="nav-item {{ app.request.get('_route') and 'specialite' in app.request.get('_route') ? 'active' : '' }}">
+    {# Utilisez la route Admin pour les spécialités #}
+    <a class="nav-link" href="{{ path('app_specialite_index') }}">
+        <i class="fas fa-hospital"></i> {# Icône FontAwesome blanche #}
+        <span>Spécialité & Département</span>
+    </a>
+</li>
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_facture_index') }}">
+        <i class="fas fa-file-alt"></i>
+        <span>Facture</span>
+    </a>
+</li>
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_paiement_index') }}">
+        <i class="fas fa-dollar-sign"></i>
+        <span>paiement</span>
+    </a>
+</li>
+
+
+>>>>>>> Stashed changes
 
     <hr class="sidebar-divider d-none d-md-block">
 
