@@ -35,12 +35,10 @@ class Disponibilite
     private ?\DateTimeInterface $heureFin = null;
 
     #[ORM\Column]
-    #[Assert\NotNull(message: 'Le champ récurrent est obligatoire.')]
-    private ?bool $estRecurrent = null;
+    private ?bool $estRecurrent = false;
 
-    #[ORM\ManyToOne(targetEntity: Medecin::class, inversedBy: 'disponibilites')]
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Le médecin est obligatoire.')]
     private ?Utilisateur $medecin = null;
 
     public function getId(): ?int

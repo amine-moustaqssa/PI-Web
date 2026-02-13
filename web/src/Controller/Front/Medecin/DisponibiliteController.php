@@ -27,16 +27,16 @@ final class DisponibiliteController extends AbstractController
     #[Route('/new', name: 'medecin_disponibilite_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
     {
-        $medecin = $this->getUser();
-
         $disponibilite = new Disponibilite();
-        $disponibilite->setMedecin($medecin);
 
-        $form = $this->createForm(DisponibiliteType::class, $disponibilite);
+        $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
+            // Set medecin AFTER handleRequest so it doesn't get reset to null
+            $disponibilite->setMedecin($this->getUser());
+
             // --- RÈGLE MÉTIER : ANTI-COLLISION ---
             $conflits = $repo->findOverlapping(
                 $disponibilite->getMedecin(),
@@ -73,13 +73,13 @@ final class DisponibiliteController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(DisponibiliteType::class, $disponibilite);
+        $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
-             // --- RÈGLE MÉTIER : ANTI-COLLISION (Exclusion de soi-même) ---
-             $conflits = $repo->findOverlapping(
+
+            // --- RÈGLE MÉTIER : ANTI-COLLISION (Exclusion de soi-même) ---
+            $conflits = $repo->findOverlapping(
                 $disponibilite->getMedecin(),
                 $disponibilite->getJourSemaine(),
                 $disponibilite->getHeureDebut(),
@@ -125,7 +125,7 @@ final class DisponibiliteController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        if ($this->isCsrfTokenValid('delete'.$disponibilite->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $disponibilite->getId(), $request->request->get('_token'))) {
             $em->remove($disponibilite);
             $em->flush();
         }
