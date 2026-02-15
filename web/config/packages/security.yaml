@@ -48,6 +48,9 @@ security:
     # Protect Infirmier Area
     - { path: ^/infirmier, roles: ROLE_PERSONNEL }
 
+    # Protect Receptionniste Area
+    - { path: ^/receptionniste, roles: ROLE_PERSONNEL }
+
     # 3. CRITICAL: Protect the Titulaire Dashboard!
     # Do NOT set this to PUBLIC_ACCESS, or login is useless.
     - { path: ^/titulaire, roles: ROLE_TITULAIRE }
