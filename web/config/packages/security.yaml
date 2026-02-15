@@ -39,6 +39,9 @@ security:
     - { path: ^/register, roles: PUBLIC_ACCESS }
     - { path: ^/verify, roles: PUBLIC_ACCESS }
 
+    # First-login flow (email verification + password change for receptionist-created accounts)
+    - { path: ^/first-login, roles: IS_AUTHENTICATED_FULLY }
+
     # Protect the Admin Dashboard (Only Admins)
     - { path: ^/admin, roles: ROLE_ADMIN }
 
