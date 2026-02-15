@@ -8,24 +8,21 @@
 
     <hr class="sidebar-divider my-0 border-secondary-custom">
 
-    {# Dashboard #}
-    <li class="nav-item {{ app.request.get('_route') == 'receptionniste_dashboard' ? 'active' : '' }}">
-        <a class="nav-link" href="{{ path('receptionniste_dashboard') }}">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Tableau de bord</span>
-        </a>
-    </li>
-
-    <hr class="sidebar-divider border-secondary-custom">
-
     <div class="sidebar-heading text-muted-custom">
         Gestion
     </div>
 
-    <li class="nav-item {{ app.request.get('_route') starts with 'receptionniste_planning' ? 'active' : '' }}">
+    <li class="nav-item {{ app.request.get('_route') == 'receptionniste_dashboard' ? 'active' : '' }}">
         <a class="nav-link" href="{{ path('receptionniste_dashboard') }}">
             <i class="fas fa-fw fa-calendar-alt"></i>
             <span>Emplois des médecins</span>
+        </a>
+    </li>
+
+    <li class="nav-item {{ app.request.get('_route') == 'receptionniste_comptes' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('receptionniste_comptes') }}">
+            <i class="fas fa-fw fa-user-plus"></i>
+            <span>Ajouter Comptes</span>
         </a>
     </li>
 
