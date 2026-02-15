@@ -37,6 +37,7 @@ security:
     - { path: ^/home, roles: PUBLIC_ACCESS }
     - { path: ^/login, roles: PUBLIC_ACCESS }
     - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/verify, roles: PUBLIC_ACCESS }
 
     # Protect the Admin Dashboard (Only Admins)
     - { path: ^/admin, roles: ROLE_ADMIN }
