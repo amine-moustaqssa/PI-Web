@@ -44,4 +44,29 @@ class DisponibiliteRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findByFilters($jour, $recurrent, $medecin = null)
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        // Filtre de sécurité : Si un médecin est passé, on limite les résultats à lui
+        if ($medecin) {
+            $qb->andWhere('d.medecin = :medecin')
+            ->setParameter('medecin', $medecin);
+        }
+
+        // Filtre par Jour
+        if ($jour) {
+            $qb->andWhere('d.jourSemaine = :jour')
+            ->setParameter('jour', $jour);
+        }
+
+        // Filtre par Récurrence
+        if ($recurrent !== null && $recurrent !== '') {
+            $qb->andWhere('d.estRecurrent = :recurrent')
+            ->setParameter('recurrent', $recurrent);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
