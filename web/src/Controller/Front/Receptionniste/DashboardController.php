@@ -7,6 +7,8 @@ use App\Form\ReceptionnisteTitulaireType;
 use App\Repository\DisponibiliteRepository;
 use App\Repository\MedecinRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -127,23 +129,85 @@ class DashboardController extends AbstractController
             $randomPassword = bin2hex(random_bytes(6)); // 12 hex chars
             $titulaire->setPassword($passwordHasher->hashPassword($titulaire, $randomPassword));
             $titulaire->setRoles(['ROLE_TITULAIRE']);
-            $titulaire->setIsVerified(true);
+            $titulaire->setIsVerified(false);
+            $titulaire->setMustChangePassword(true);
 
             $em->persist($titulaire);
             $em->flush();
 
+            // Store credentials in session for PDF generation
+            $request->getSession()->set('pdf_credentials', [
+                'nom' => $titulaire->getNom(),
+                'prenom' => $titulaire->getPrenom(),
+                'email' => $titulaire->getEmail(),
+                'password' => $randomPassword,
+                'created_at' => (new \DateTime())->format('d/m/Y H:i'),
+            ]);
+
             $this->addFlash('success', sprintf(
-                'Le compte de %s %s a été créé. Mot de passe généré : %s',
+                'Le compte de %s %s a été créé avec succès.',
                 $titulaire->getPrenom(),
-                $titulaire->getNom(),
-                $randomPassword
+                $titulaire->getNom()
             ));
 
-            return $this->redirectToRoute('receptionniste_comptes');
+            return $this->redirectToRoute('receptionniste_comptes_print');
         }
 
         return $this->render('front/receptionniste/comptes/new.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/comptes/imprimer', name: 'receptionniste_comptes_print', methods: ['GET'])]
+    public function comptesPrint(Request $request): Response
+    {
+        $this->checkReceptionist();
+
+        $credentials = $request->getSession()->get('pdf_credentials');
+        if (!$credentials) {
+            $this->addFlash('warning', 'Aucune fiche à imprimer.');
+            return $this->redirectToRoute('receptionniste_comptes');
+        }
+
+        return $this->render('front/receptionniste/comptes/print.html.twig', [
+            'credentials' => $credentials,
+        ]);
+    }
+
+    #[Route('/comptes/fiche-pdf', name: 'receptionniste_comptes_pdf', methods: ['GET'])]
+    public function comptesPdf(Request $request): Response
+    {
+        $this->checkReceptionist();
+
+        $credentials = $request->getSession()->get('pdf_credentials');
+        if (!$credentials) {
+            $this->addFlash('warning', 'Aucune fiche à imprimer.');
+            return $this->redirectToRoute('receptionniste_comptes');
+        }
+
+        // Render HTML for the PDF
+        $html = $this->renderView('front/receptionniste/comptes/pdf.html.twig', [
+            'credentials' => $credentials,
+        ]);
+
+        // Generate PDF with Dompdf
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Helvetica');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A5', 'portrait');
+        $dompdf->render();
+
+        // Clear credentials from session (one-time use)
+        $request->getSession()->remove('pdf_credentials');
+
+        $filename = sprintf('compte_%s_%s.pdf', $credentials['prenom'], $credentials['nom']);
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => sprintf('inline; filename="%s"', $filename),
         ]);
     }
 }
