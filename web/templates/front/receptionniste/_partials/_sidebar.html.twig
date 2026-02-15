@@ -26,6 +26,13 @@
         </a>
     </li>
 
+    <li class="nav-item {{ app.request.get('_route') == 'receptionniste_factures' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('receptionniste_factures') }}">
+            <i class="fas fa-fw fa-file-invoice-dollar"></i>
+            <span>Factures & Paiements</span>
+        </a>
+    </li>
+
     <hr class="sidebar-divider border-secondary-custom d-none d-md-block">
 
     <div class="text-center d-none d-md-inline mt-4">

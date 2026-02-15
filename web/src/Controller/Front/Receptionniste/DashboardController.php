@@ -210,4 +210,12 @@ class DashboardController extends AbstractController
             'Content-Disposition' => sprintf('inline; filename="%s"', $filename),
         ]);
     }
+
+    #[Route('/factures', name: 'receptionniste_factures', methods: ['GET'])]
+    public function factures(): Response
+    {
+        $this->checkReceptionist();
+
+        return $this->render('front/receptionniste/factures/index.html.twig');
+    }
 }
