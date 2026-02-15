@@ -24,6 +24,28 @@
         .step-section.active { display: block; }
         .required-star { color: #e51c00; }
         .modal-subtitle { font-size: 0.85rem; color: #697386; margin-top: 4px; }
+
+        /* --- STYLES AJOUTÉS POUR LA VALIDATION --- */
+        .form-control.is-invalid {
+            border-color: #dc3545 !important;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5zM6 8.2a.3.3 0 110-.6.3.3 0 010 .6z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 80%;
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .is-invalid {
+    transition: all 0.3s ease;
+    border-color: #dc3545 !important;
+}
     </style>
 {% endblock %}
 
@@ -49,7 +71,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">Historique et gestion des consultations</h6>
             </div>
             <div class="card-body">
-                {# Display Flash Messages if any (especially the error we just added) #}
+                {# Display Flash Messages #}
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
                         <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
@@ -156,8 +178,9 @@
                     {# STEP 2: FORMULAIRE #}
                     <div id="step-form" class="step-section">
                         {% if form is defined %}
-                            {{ form_start(form) }}
-                                {# --- FIX: CHAMPS CACHÉ POUR L'ID SPECIALITE --- #}
+                            {# IMPORTANT: novalidate désactive la validation navigateur pour laisser faire Symfony #}
+                            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                                
                                 <input type="hidden" name="specialite_id" id="specialite_input" value="{{ app.request.get('specialite_id') }}">
 
                                 <div class="alert alert-info border-0 bg-light-primary text-primary small mb-4">
@@ -167,24 +190,50 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label class="form-label-modern">Patient concerné <span class="required-star">*</span></label>
-                                            {{ form_widget(form.profil, {'attr': {'class': 'form-control form-control-modern'}}) }}
+                                            
+                                            {# Calcul de la classe d'erreur pour le Profil #}
+                                            {% set profil_class = 'form-control form-control-modern ' ~ (form.profil.vars.valid ? '' : 'is-invalid') %}
+                                            
+                                            {{ form_widget(form.profil, {'attr': {'class': profil_class}}) }}
+                                            
+                                            <div class="invalid-feedback">
+                                                {{ form_errors(form.profil) }}
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label class="form-label-modern">Date et Heure <span class="required-star">*</span></label>
-                                            {{ form_widget(form.date_debut, {'attr': {'class': 'form-control form-control-modern'}}) }}
+                                            
+                                            {# Calcul de la classe d'erreur pour la Date #}
+                                            {% set date_class = 'form-control form-control-modern ' ~ (form.date_debut.vars.valid ? '' : 'is-invalid') %}
+                                            
+                                            {{ form_widget(form.date_debut, {'attr': {'class': date_class}}) }}
+                                            
+                                            <div class="invalid-feedback">
+                                                {{ form_errors(form.date_debut) }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label class="form-label-modern">Motif</label>
-                                    {{ form_widget(form.motif, {'attr': {'class': 'form-control form-control-modern', 'rows': '3'}}) }}
+                                    
+                                    {# Calcul de la classe d'erreur pour le Motif #}
+                                    {% set motif_class = 'form-control form-control-modern ' ~ (form.motif.vars.valid ? '' : 'is-invalid') %}
+                                    
+                                    {{ form_widget(form.motif, {'attr': {'class': motif_class, 'rows': '3'}}) }}
+                                    
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.motif) }}
+                                    </div>
                                 </div>
+                                
                                 {{ form_rest(form) }}
+                                
                                 <div class="modal-footer border-top-0 px-0 pb-0">
                                     <button type="button" class="btn btn-ghost-modern" onclick="goBackToStep1()">Retour</button>
-                                    <button type="submit" class="btn btn-primary-modern">Confirmer</button>
+                                    <button type="submit" id="btn-submit-rdv" class="btn-primary-modern">Confirmer</button>
                                 </div>
                             {{ form_end(form) }}
                         {% endif %}
@@ -217,19 +266,55 @@
     {{ parent() }}
     <script>
         $(document).ready(function() {
-            // Error Handling: If validation fails, reopen modal at Step 2
-            // Also check if we have a server-side flash error regarding the specialty
-            if ($('#newRdvModal').find('.is-invalid, .invalid-feedback').length > 0 || $('.alert-danger').length > 0) {
-                
-                // If there is a specialty ID already (from previous submit), go to step 2
-                if(document.getElementById('specialite_input').value) {
-                    $('#newRdvModal').modal('show');
-                    $('#step-specialite').removeClass('active');
-                    $('#step-form').addClass('active');
+            
+            // --- VALIDATION COMMUNE (NOUVEAU & MODIFIER) ---
+            // On utilise $(document).on('submit', ...) pour que ça marche même sur les formulaires chargés en AJAX
+            $(document).on('submit', 'form[name="rendez_vous"]', function(e) {
+                let hasError = false;
+                let form = $(this); // Le formulaire qui vient d'être soumis
+
+                // 1. Vérifier le Patient (on cherche à l'intérieur du formulaire actuel)
+                const profilField = form.find('select[id$="_profil"]');
+                if (!profilField.val()) {
+                    showError(profilField, "Veuillez sélectionner un patient.");
+                    hasError = true;
+                } else {
+                    removeError(profilField);
+                }
+
+                // 2. Vérifier la Date
+                const dateField = form.find('input[id$="_date_debut"]');
+                if (!dateField.val()) {
+                    showError(dateField, "La date de début est obligatoire.");
+                    hasError = true;
+                } else {
+                    removeError(dateField);
+                }
+
+                // Si erreur, on bloque tout
+                if (hasError) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Fonctions de style (à garder à l'intérieur du ready)
+            function showError(field, message) {
+                field.addClass('is-invalid');
+                let feedback = field.siblings('.invalid-feedback');
+                if (feedback.length === 0) {
+                    field.after('<div class="invalid-feedback">' + message + '</div>');
+                } else {
+                    feedback.text(message).show();
                 }
             }
 
-            // --- EDIT BUTTON LOGIC ---
+            function removeError(field) {
+                field.removeClass('is-invalid');
+                field.siblings('.invalid-feedback').hide();
+            }
+
+            // --- LOGIQUE BOUTON MODIFIER (TON CODE AJAX ACTUEL) ---
             $('.btn-edit-rdv').on('click', function(e) {
                 e.preventDefault();
                 var url = $(this).data('url');
@@ -243,6 +328,8 @@
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     success: function(response) {
                         $('#editRdvModalBody').html(response);
+                        // ASTUCE : On ajoute novalidate dynamiquement au formulaire chargé
+                        $('#editRdvModalBody').find('form').attr('novalidate', 'novalidate');
                     },
                     error: function() {
                         $('#editRdvModalBody').html('<div class="alert alert-danger">Erreur de chargement</div>');
@@ -251,14 +338,10 @@
             });
         });
 
+        // Fonctions de navigation (Spécialités)
         function selectSpecialty(id, name) {
-            // Visual Update
             document.getElementById('selected_spec_name').innerText = name;
-            
-            // --- FIX: Fill the hidden input for the controller ---
             document.getElementById('specialite_input').value = id;
-
-            // Transition
             $('#step-specialite').fadeOut(200, function() {
                 $('#step-specialite').removeClass('active');
                 $('#step-form').fadeIn(200).addClass('active');
