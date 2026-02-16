@@ -3,32 +3,32 @@
 {% block title %}Nouvelle Spécialité{% endblock %}
 
 {% block body %}
-    <div class="container-fluid">
-        {# Titre de la page #}
-        <h1 class="h3 mb-4 text-gray-800">Créer une nouvelle spécialité</h1>
+    {# Titre de la page #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Ajouter une spécialité</h1>
+        <a href="{{ path('app_specialite_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Retour à la liste
+        </a>
+    </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Formulaire d'ajout</h6>
-            </div>
-            <div class="card-body">
-                
-                {# Inclusion du formulaire #}
-                <div class="mb-4">
-                    {{ include('specialite/_form.html.twig') }}
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Nouveau Formulaire</h6>
                 </div>
+                <div class="card-body">
+                    {{ include('specialite/_form.html.twig') }}
 
-                {# Séparateur visuel #}
-                <hr>
-
-                {# Bouton Retour stylisé #}
-                <a href="{{ path('app_specialite_index') }}" class="btn btn-secondary btn-icon-split">
-                    <span class="icon text-white-50">
-                        <i class="fas fa-arrow-left"></i>
-                    </span>
-                    <span class="text">Retour à la liste</span>
-                </a>
-
+                    <div class="form-group text-center">
+                        <button type="submit" form="specialite_form" class="btn btn-success btn-sm btn-icon-split shadow-sm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span class="text">Enregistrer</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
