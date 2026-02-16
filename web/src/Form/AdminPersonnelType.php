@@ -6,12 +6,9 @@ use App\Entity\Utilisateur;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AdminPersonnelType extends AbstractType
 {
@@ -32,29 +29,22 @@ class AdminPersonnelType extends AbstractType
                 'label' => 'Adresse e-mail',
                 'attr' => ['class' => 'form-control', 'placeholder' => 'exemple@clinique360.tn'],
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => $isEdit ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe',
-                'mapped' => false,
+            ->add('cin', TextType::class, [
+                'label' => 'CIN',
                 'required' => !$isEdit,
-                'attr' => ['class' => 'form-control', 'placeholder' => '••••••••'],
-                'constraints' => $isEdit ? [] : [
-                    new NotBlank(['message' => 'Veuillez entrer un mot de passe.']),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
-                        'max' => 4096,
-                    ]),
-                ],
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 12345678', 'maxlength' => 8],
+                'help' => $isEdit ? null : 'Le CIN sera utilisé comme mot de passe initial.',
             ])
             ->add('niveauAcces', ChoiceType::class, [
                 'label' => 'Niveau d\'accès',
                 'required' => false,
                 'placeholder' => '-- Choisir un niveau --',
                 'choices' => [
-                    'Accueil' => 'ACCUEIL',
                     'Infirmier' => 'INFIRMIER',
+                    'Réceptionniste' => 'RECEPTIONIST',
                     'Technicien' => 'TECHNICIEN',
                     'Secrétaire' => 'SECRETAIRE',
+                    'Accueil' => 'ACCUEIL',
                     'Gestionnaire' => 'GESTIONNAIRE',
                 ],
                 'attr' => ['class' => 'form-control'],

@@ -91,6 +91,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'must_change_password', options: ['default' => false])]
     private bool $mustChangePassword = false;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Regex(pattern: '/^\d{8}$/', message: 'Le CIN doit contenir exactement 8 chiffres.')]
+    private ?string $cin = null;
+
     public function __construct()
     {
         $this->profilsMedicaux = new ArrayCollection();
@@ -279,6 +283,18 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMustChangePassword(bool $mustChangePassword): static
     {
         $this->mustChangePassword = $mustChangePassword;
+
+        return $this;
+    }
+
+    public function getCin(): ?string
+    {
+        return $this->cin;
+    }
+
+    public function setCin(?string $cin): static
+    {
+        $this->cin = $cin;
 
         return $this;
     }

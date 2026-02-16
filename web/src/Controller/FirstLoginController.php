@@ -15,10 +15,47 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/first-login')]
 class FirstLoginController extends AbstractController
 {
+    /**
+     * Determine the correct dashboard route based on user role.
+     */
+    private function getDashboardRoute(Utilisateur $user): string
+    {
+        $roles = $user->getRoles();
+
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+            return 'admin_dashboard';
+        }
+        if (in_array('ROLE_MEDECIN', $roles, true)) {
+            return 'medecin_dashboard';
+        }
+        if (in_array('ROLE_PERSONNEL', $roles, true)) {
+            $niveau = $user->getNiveauAcces();
+            if ($niveau === 'INFIRMIER') {
+                return 'infirmier_dashboard';
+            }
+            if ($niveau === 'RECEPTIONIST') {
+                return 'receptionniste_dashboard';
+            }
+        }
+
+        return 'app_titulaire_dashboard';
+    }
+
+    /**
+     * Build redirect params (medecin_dashboard needs an id).
+     */
+    private function getDashboardRouteParams(Utilisateur $user): array
+    {
+        if (in_array('ROLE_MEDECIN', $user->getRoles(), true)) {
+            return ['id' => $user->getId()];
+        }
+        return [];
+    }
     /**
      * Step 1: Email verification for receptionist-created accounts.
      * Sends a 6-digit code on first visit, then validates the submitted code.
@@ -41,7 +78,7 @@ class FirstLoginController extends AbstractController
             if ($user->isMustChangePassword()) {
                 return $this->redirectToRoute('first_login_change_password');
             }
-            return $this->redirectToRoute('app_titulaire_dashboard');
+            return $this->redirectToRoute($this->getDashboardRoute($user), $this->getDashboardRouteParams($user));
         }
 
         $session = $request->getSession();
@@ -90,7 +127,7 @@ class FirstLoginController extends AbstractController
                     return $this->redirectToRoute('first_login_change_password');
                 }
 
-                return $this->redirectToRoute('app_titulaire_dashboard');
+                return $this->redirectToRoute($this->getDashboardRoute($user), $this->getDashboardRouteParams($user));
             }
 
             $this->addFlash('error', 'Code de vérification incorrect. Veuillez réessayer.');
@@ -148,7 +185,7 @@ class FirstLoginController extends AbstractController
 
         // If password change not required, go to dashboard
         if (!$user->isMustChangePassword()) {
-            return $this->redirectToRoute('app_titulaire_dashboard');
+            return $this->redirectToRoute($this->getDashboardRoute($user), $this->getDashboardRouteParams($user));
         }
 
         if ($request->isMethod('POST')) {
