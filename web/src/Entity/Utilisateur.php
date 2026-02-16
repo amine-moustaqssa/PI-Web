@@ -98,6 +98,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleId = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $facebookId = null;
+
     public function __construct()
     {
         $this->profilsMedicaux = new ArrayCollection();
@@ -310,6 +313,18 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGoogleId(?string $googleId): static
     {
         $this->googleId = $googleId;
+
+        return $this;
+    }
+
+    public function getFacebookId(): ?string
+    {
+        return $this->facebookId;
+    }
+
+    public function setFacebookId(?string $facebookId): static
+    {
+        $this->facebookId = $facebookId;
 
         return $this;
     }
