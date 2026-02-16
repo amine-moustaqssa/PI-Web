@@ -39,6 +39,7 @@ class Disponibilite
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "Veuillez sélectionner un médecin.")]
     private ?Utilisateur $medecin = null;
 
     public function getId(): ?int
@@ -51,7 +52,7 @@ class Disponibilite
         return $this->jourSemaine;
     }
 
-    public function setJourSemaine(int $jourSemaine): static
+    public function setJourSemaine(?int $jourSemaine): static
     {
         $this->jourSemaine = $jourSemaine;
 
@@ -63,7 +64,7 @@ class Disponibilite
         return $this->heureDebut;
     }
 
-    public function setHeureDebut(\DateTimeInterface $heureDebut): static
+    public function setHeureDebut(?\DateTimeInterface $heureDebut): static
     {
         $this->heureDebut = $heureDebut;
 
@@ -75,7 +76,7 @@ class Disponibilite
         return $this->heureFin;
     }
 
-    public function setHeureFin(\DateTimeInterface $heureFin): static
+    public function setHeureFin(?\DateTimeInterface $heureFin): static
     {
         $this->heureFin = $heureFin;
 

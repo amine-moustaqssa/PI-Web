@@ -71,4 +71,9 @@ class Medecin extends Utilisateur
         $this->specialite = $specialite;
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->getNom() . ' ' . $this->getPrenom();
+    }
 }

@@ -10,26 +10,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Repository\DisponibiliteRepository;
 
 #[Route('/espace-client')]
 class TitulaireController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_titulaire_dashboard')]
     #[Route('/{id}/dashboard', name: 'app_titulaire_dashboard_profil')]
-    public function index(Request $request, ?int $id, EntityManagerInterface $entityManager): Response
-    {
+    public function index(
+        Request $request, 
+        ?int $id, 
+        EntityManagerInterface $entityManager,
+        \App\Repository\DisponibiliteRepository $disponibiliteRepository
+    ): Response {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
-        // --- 1. HANDLE ADD PROFILE FORM (Moved here for Modal) ---
+        // --- 1. GESTION DU FORMULAIRE D'AJOUT DE PROFIL (MODAL) ---
         $newProfil = new ProfilMedical();
         $newProfil->setTitulaire($user);
         $form = $this->createForm(ProfilMedicalType::class, $newProfil);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // Create default Dossier Clinique
             $dossier = new DossierClinique();
             $dossier->setProfilMedical($newProfil);
             $dossier->setAllergies([]);
@@ -41,28 +44,25 @@ class TitulaireController extends AbstractController
 
             $this->addFlash('success', 'Nouveau profil ajouté avec succès !');
 
-            // Redirect to self to show the new profile
             return $this->redirectToRoute('app_titulaire_dashboard_profil', ['id' => $newProfil->getId()]);
         }
 
-        // --- 2. FETCH DASHBOARD DATA (Your existing logic) ---
+        // --- 2. RÉCUPÉRATION DES DONNÉES DU DASHBOARD ---
         $query = $entityManager->createQuery(
             'SELECT p, d, r 
-             FROM App\Entity\ProfilMedical p 
-             LEFT JOIN p.dossierClinique d 
-             LEFT JOIN d.rapportsMedicaux r
-             WHERE p.titulaire = :user'
+            FROM App\Entity\ProfilMedical p 
+            LEFT JOIN p.dossierClinique d 
+            LEFT JOIN d.rapportsMedicaux r
+            WHERE p.titulaire = :user'
         )->setParameter('user', $user);
 
         $allProfils = $query->getArrayResult();
 
-        // Handle Empty State (If no profiles exist yet, just render the page, the modal form is there)
-        // You might want to remove the redirect here so they can see the "Add" button/modal immediately
-        if (empty($allProfils) && !$form->isSubmitted()) {
-            // Optional: You could pass a flag to open the modal automatically if list is empty
-        }
+        // --- 3. RÉCUPÉRATION DES DISPONIBILITÉS DES MÉDECINS ---
+        // On récupère les 6 dernières disponibilités pour le widget client
+        $recent_dispos = $disponibiliteRepository->findBy([], ['id' => 'DESC'], 6);
 
-        // Sanitize Data (Your existing logic)
+        // --- 4. NETTOYAGE DES DONNÉES (SANITIZATION) ---
         foreach ($allProfils as &$p) {
             $p['dateNaissance'] = $p['date_naissance'];
             $p['contactUrgence'] = $p['contact_urgence'];
@@ -77,7 +77,7 @@ class TitulaireController extends AbstractController
         }
         unset($p);
 
-        // Select Active Profile
+        // --- 5. SÉLECTION DU PROFIL ACTIF ---
         $activeProfil = !empty($allProfils) ? $allProfils[0] : null;
         if ($id && !empty($allProfils)) {
             foreach ($allProfils as $profil) {
@@ -88,10 +88,12 @@ class TitulaireController extends AbstractController
             }
         }
 
+        // --- 6. RENDU DE LA VUE ---
         return $this->render('titulaire/dashboard.html.twig', [
             'activeProfil' => $activeProfil,
             'allProfils' => $allProfils,
-            'form' => $form->createView(), // Pass the form to the view
+            'recent_dispos' => $recent_dispos, // Variable nécessaire pour votre nouveau tableau
+            'form' => $form->createView(),
         ]);
     }
 }
