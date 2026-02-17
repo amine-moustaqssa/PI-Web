@@ -17,10 +17,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class DisponibiliteController extends AbstractController
 {
     #[Route('/', name: 'medecin_disponibilite_index', methods: ['GET'])]
-    public function index(DisponibiliteRepository $repository): Response
+    public function index(Request $request, DisponibiliteRepository $repository): Response
     {
+        $jour = $request->query->get('jour');
+        $recurrent = $request->query->get('recurrent');
+
         return $this->render('front/medecin/disponibilite/index.html.twig', [
-            'disponibilites' => $repository->findBy(['medecin' => $this->getUser()]),
+            'disponibilites' => $repository->findByFilters($jour, $recurrent, $this->getUser()),
         ]);
     }
 
@@ -28,14 +31,12 @@ final class DisponibiliteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
     {
         $disponibilite = new Disponibilite();
+        $disponibilite->setMedecin($this->getUser());
 
         $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // Set medecin AFTER handleRequest so it doesn't get reset to null
-            $disponibilite->setMedecin($this->getUser());
 
             // --- RÈGLE MÉTIER : ANTI-COLLISION ---
             $conflits = $repo->findOverlapping(
