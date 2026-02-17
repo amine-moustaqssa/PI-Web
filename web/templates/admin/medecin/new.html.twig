@@ -51,9 +51,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                {{ form_label(form.plainPassword) }}
-                                {{ form_widget(form.plainPassword) }}
-                                {{ form_errors(form.plainPassword) }}
+                                {{ form_label(form.cin) }}
+                                {{ form_widget(form.cin) }}
+                                {{ form_errors(form.cin) }}
                             </div>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                     <li>Le <strong>matricule</strong> est l'identifiant interne du médecin.</li>
                     <li>La <strong>spécialité</strong> détermine le département associé.</li>
                     <li>Le <strong>tarif</strong> sera utilisé pour la facturation.</li>
-                    <li>Le mot de passe doit contenir au moins 6 caractères.</li>
+                    <li>Le <strong>CIN</strong> sera utilisé comme mot de passe initial. Le médecin devra le changer à sa première connexion.</li>
                 </ul>
             </div>
         </div>

@@ -35,12 +35,11 @@ class Disponibilite
     private ?\DateTimeInterface $heureFin = null;
 
     #[ORM\Column]
-    #[Assert\NotNull(message: 'Le champ récurrent est obligatoire.')]
-    private ?bool $estRecurrent = null;
+    private ?bool $estRecurrent = false;
 
-    #[ORM\ManyToOne(targetEntity: Medecin::class, inversedBy: 'disponibilites')]
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Le médecin est obligatoire.')]
+    #[Assert\NotNull(message: "Veuillez sélectionner un médecin.")]
     private ?Utilisateur $medecin = null;
 
     public function getId(): ?int
@@ -53,7 +52,7 @@ class Disponibilite
         return $this->jourSemaine;
     }
 
-    public function setJourSemaine(int $jourSemaine): static
+    public function setJourSemaine(?int $jourSemaine): static
     {
         $this->jourSemaine = $jourSemaine;
 
@@ -65,7 +64,7 @@ class Disponibilite
         return $this->heureDebut;
     }
 
-    public function setHeureDebut(\DateTimeInterface $heureDebut): static
+    public function setHeureDebut(?\DateTimeInterface $heureDebut): static
     {
         $this->heureDebut = $heureDebut;
 
@@ -77,7 +76,7 @@ class Disponibilite
         return $this->heureFin;
     }
 
-    public function setHeureFin(\DateTimeInterface $heureFin): static
+    public function setHeureFin(?\DateTimeInterface $heureFin): static
     {
         $this->heureFin = $heureFin;
 

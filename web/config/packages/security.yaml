@@ -19,7 +19,11 @@ security:
       lazy: true
       # 2. CONNECT THE FIREWALL TO THE DATABASE PROVIDER
       provider: app_user_provider
-      custom_authenticator: App\Security\AppAuthenticator
+      custom_authenticator:
+        - App\Security\GoogleAuthenticator
+        - App\Security\FacebookAuthenticator
+        - App\Security\AppAuthenticator
+      entry_point: App\Security\AppAuthenticator
       logout:
         path: app_logout
         target: app_home
@@ -37,6 +41,11 @@ security:
     - { path: ^/home, roles: PUBLIC_ACCESS }
     - { path: ^/login, roles: PUBLIC_ACCESS }
     - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/verify, roles: PUBLIC_ACCESS }
+    - { path: ^/connect, roles: PUBLIC_ACCESS }
+
+    # First-login flow (email verification + password change for receptionist-created accounts)
+    - { path: ^/first-login, roles: IS_AUTHENTICATED_FULLY }
 
     # Protect the Admin Dashboard (Only Admins)
     - { path: ^/admin, roles: ROLE_ADMIN }
@@ -46,6 +55,9 @@ security:
 
     # Protect Infirmier Area
     - { path: ^/infirmier, roles: ROLE_PERSONNEL }
+
+    # Protect Receptionniste Area
+    - { path: ^/receptionniste, roles: ROLE_PERSONNEL }
 
     # 3. CRITICAL: Protect the Titulaire Dashboard!
     # Do NOT set this to PUBLIC_ACCESS, or login is useless.

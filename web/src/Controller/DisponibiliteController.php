@@ -16,14 +16,21 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class DisponibiliteController extends AbstractController
 {
     #[Route('/', name: 'app_disponibilite_index', methods: ['GET'])]
-    public function index(DisponibiliteRepository $disponibiliteRepository): Response
+    public function index(Request $request, DisponibiliteRepository $disponibiliteRepository): Response
     {
         $user = $this->getUser();
+        
+        // 1. On récupère les filtres du formulaire
+        $jour = $request->query->get('jour');
+        $recurrent = $request->query->get('recurrent');
 
+        // 2. Logique de filtrage par Rôle et par Recherche
         if ($this->isGranted('ROLE_MEDECIN') && !$this->isGranted('ROLE_ADMIN')) {
-            $disponibilites = $disponibiliteRepository->findBy(['medecin' => $user]);
+            // Le médecin est limité à ses propres données + ses filtres
+            $disponibilites = $disponibiliteRepository->findByFilters($jour, $recurrent, $user);
         } else {
-            $disponibilites = $disponibiliteRepository->findAll();
+            // L'admin peut tout filtrer
+            $disponibilites = $disponibiliteRepository->findByFilters($jour, $recurrent);
         }
 
         return $this->render('disponibilite/index.html.twig', [

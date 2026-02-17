@@ -17,26 +17,27 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class DisponibiliteController extends AbstractController
 {
     #[Route('/', name: 'medecin_disponibilite_index', methods: ['GET'])]
-    public function index(DisponibiliteRepository $repository): Response
+    public function index(Request $request, DisponibiliteRepository $repository): Response
     {
+        $jour = $request->query->get('jour');
+        $recurrent = $request->query->get('recurrent');
+
         return $this->render('front/medecin/disponibilite/index.html.twig', [
-            'disponibilites' => $repository->findBy(['medecin' => $this->getUser()]),
+            'disponibilites' => $repository->findByFilters($jour, $recurrent, $this->getUser()),
         ]);
     }
 
     #[Route('/new', name: 'medecin_disponibilite_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
     {
-        $medecin = $this->getUser();
-
         $disponibilite = new Disponibilite();
-        $disponibilite->setMedecin($medecin);
+        $disponibilite->setMedecin($this->getUser());
 
-        $form = $this->createForm(DisponibiliteType::class, $disponibilite);
+        $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             // --- RÈGLE MÉTIER : ANTI-COLLISION ---
             $conflits = $repo->findOverlapping(
                 $disponibilite->getMedecin(),
@@ -73,13 +74,13 @@ final class DisponibiliteController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(DisponibiliteType::class, $disponibilite);
+        $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
-             // --- RÈGLE MÉTIER : ANTI-COLLISION (Exclusion de soi-même) ---
-             $conflits = $repo->findOverlapping(
+
+            // --- RÈGLE MÉTIER : ANTI-COLLISION (Exclusion de soi-même) ---
+            $conflits = $repo->findOverlapping(
                 $disponibilite->getMedecin(),
                 $disponibilite->getJourSemaine(),
                 $disponibilite->getHeureDebut(),
@@ -125,7 +126,7 @@ final class DisponibiliteController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        if ($this->isCsrfTokenValid('delete'.$disponibilite->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $disponibilite->getId(), $request->request->get('_token'))) {
             $em->remove($disponibilite);
             $em->flush();
         }
