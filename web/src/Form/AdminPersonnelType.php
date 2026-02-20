@@ -19,20 +19,23 @@ class AdminPersonnelType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Nom du personnel'],
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Prénom du personnel'],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Adresse e-mail',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'exemple@clinique360.tn'],
             ])
             ->add('cin', TextType::class, [
                 'label' => 'CIN',
-                'required' => !$isEdit,
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 12345678', 'maxlength' => 8],
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 12345678'],
                 'help' => $isEdit ? null : 'Le CIN sera utilisé comme mot de passe initial.',
             ])
             ->add('niveauAcces', ChoiceType::class, [

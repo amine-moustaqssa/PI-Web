@@ -12,8 +12,8 @@ class DepartementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom')
-            ->add('code')
+            ->add('nom', null, ['required' => false])
+            ->add('code', null, ['required' => false])
         ;
     }
 

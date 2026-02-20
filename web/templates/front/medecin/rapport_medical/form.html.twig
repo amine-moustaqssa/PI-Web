@@ -16,7 +16,7 @@
     <div class="card shadow mb-4">
         <div class="card-body">
 
-            {{ form_start(form) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
             <div class="form-group">
                 {{ form_label(form.contenu) }}

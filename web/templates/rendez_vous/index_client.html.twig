@@ -156,7 +156,7 @@
                     {# STEP 2: FORMULAIRE #}
                     <div id="step-form" class="step-section">
                         {% if form is defined %}
-                            {{ form_start(form) }}
+                            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                                 {# --- FIX: CHAMPS CACHÉ POUR L'ID SPECIALITE --- #}
                                 <input type="hidden" name="specialite_id" id="specialite_input" value="{{ app.request.get('specialite_id') }}">
 

@@ -15,10 +15,12 @@ class RapportMedicalType extends AbstractType
     {
         $builder
             ->add('contenu', TextareaType::class, [
-                'label' => 'Contenu du rapport'
+                'label' => 'Contenu du rapport',
+                'required' => false,
             ])
             ->add('conclusion', TextareaType::class, [
-                'label' => 'Conclusion'
+                'label' => 'Conclusion',
+                'required' => false,
             ])
             ->add('url_pdf', TextType::class, [
                 'label' => 'URL PDF',

@@ -48,7 +48,7 @@ class RendezVous
         return $this->date_debut;
     }
 
-    public function setDateDebut(\DateTimeInterface $date_debut): static
+    public function setDateDebut(?\DateTimeInterface $date_debut): static
     {
         $this->date_debut = $date_debut;
         return $this;
@@ -59,7 +59,7 @@ class RendezVous
         return $this->date_fin;
     }
 
-    public function setDateFin(\DateTimeInterface $date_fin): static
+    public function setDateFin(?\DateTimeInterface $date_fin): static
     {
         $this->date_fin = $date_fin;
         return $this;
@@ -70,7 +70,7 @@ class RendezVous
         return $this->statut;
     }
 
-    public function setStatut(string $statut): static
+    public function setStatut(?string $statut): static
     {
         $this->statut = $statut;
         return $this;
@@ -81,7 +81,7 @@ class RendezVous
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         $this->type = $type;
         return $this;
@@ -92,7 +92,7 @@ class RendezVous
         return $this->motif;
     }
 
-    public function setMotif(string $motif): static
+    public function setMotif(?string $motif): static
     {
         $this->motif = $motif;
         return $this;

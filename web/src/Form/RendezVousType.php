@@ -23,10 +23,9 @@ class RendezVousType extends AbstractType
             ->add('date_debut', DateTimeType::class, [
                 'label' => 'Date et Heure souhaitée',
                 'widget' => 'single_text',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control mb-3',
-                    // Optional: blocks past dates in the picker
-                    'min' => (new \DateTime())->format('Y-m-d\TH:i')
                 ]
             ])
             ->add('profil', EntityType::class, [
@@ -37,13 +36,12 @@ class RendezVousType extends AbstractType
                 },
                 'query_builder' => function (ProfilMedicalRepository $er) use ($user) {
                     return $er->createQueryBuilder('p')
-                        // --- FIX IS HERE ---
-                        // Use 'p.titulaire' (Entity Property), NOT 'p.titulaire_id'
                         ->where('p.titulaire = :user')
                         ->setParameter('user', $user);
                 },
                 'attr' => ['class' => 'form-select mb-3'],
-                'placeholder' => 'Choisissez le bénéficiaire'
+                'placeholder' => 'Choisissez le bénéficiaire',
+                'required' => false,
             ])
             ->add('motif', TextareaType::class, [
                 'label' => 'Motif de la consultation',
@@ -52,7 +50,7 @@ class RendezVousType extends AbstractType
                     'rows' => 4,
                     'placeholder' => 'Décrivez brièvement vos symptômes...'
                 ],
-                'required' => true
+                'required' => false
             ])
         ;
     }
