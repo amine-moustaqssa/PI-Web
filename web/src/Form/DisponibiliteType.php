@@ -29,14 +29,17 @@ class DisponibiliteType extends AbstractType
                     'Dimanche' => 7,
                 ],
                 'placeholder' => '-- Choisir un jour --',
+                'required' => false,
             ])
             ->add('heureDebut', TimeType::class, [
                 'label' => 'Heure de début',
                 'widget' => 'single_text',
+                'required' => false,
             ])
             ->add('heureFin', TimeType::class, [
                 'label' => 'Heure de fin',
                 'widget' => 'single_text',
+                'required' => false,
             ])
             ->add('estRecurrent', CheckboxType::class, [
                 'label' => 'Créneau récurrent',
@@ -47,8 +50,8 @@ class DisponibiliteType extends AbstractType
         if (!$options['hide_medecin']) {
             $builder->add('medecin', EntityType::class, [
                 'class' => Medecin::class,
-                // Uses Medecin::__toString() automatically
                 'placeholder' => '-- Sélectionner un médecin --',
+                'required' => false,
             ]);
         }
     }

@@ -21,14 +21,17 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
+                'required' => false,
                 'attr' => ['placeholder' => 'Votre nom'],
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
+                'required' => false,
                 'attr' => ['placeholder' => 'Votre prénom'],
             ])
             ->add('email', null, [
                 'label' => 'Adresse email',
+                'required' => false,
                 'attr' => ['placeholder' => 'nom@exemple.com'],
             ])
             ->add('adresse', TextareaType::class, [
@@ -44,6 +47,7 @@ class RegistrationFormType extends AbstractType
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
                 'label' => 'Mot de passe',
+                'required' => false,
                 'attr' => ['autocomplete' => 'new-password', 'placeholder' => 'Minimum 6 caractères'],
                 'constraints' => [
                     new NotBlank([
@@ -58,6 +62,7 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
+                'required' => false,
                 'label' => "J'accepte les conditions d'utilisation",
                 'constraints' => [
                     new IsTrue([

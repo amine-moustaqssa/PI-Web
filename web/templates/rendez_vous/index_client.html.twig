@@ -178,9 +178,8 @@
                     {# STEP 2: FORMULAIRE #}
                     <div id="step-form" class="step-section">
                         {% if form is defined %}
-                            {# IMPORTANT: novalidate désactive la validation navigateur pour laisser faire Symfony #}
                             {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                                
+                                {# --- FIX: CHAMPS CACHÉ POUR L'ID SPECIALITE --- #}
                                 <input type="hidden" name="specialite_id" id="specialite_input" value="{{ app.request.get('specialite_id') }}">
 
                                 <div class="alert alert-info border-0 bg-light-primary text-primary small mb-4">

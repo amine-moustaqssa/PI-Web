@@ -10,7 +10,7 @@
             <h5 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i> {{ specialite.nom }}</h5>
         </div>
         <div class="card-body p-4">
-            {{ form_start(form) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                 {{ form_row(form.date_debut) }}
                 {{ form_row(form.profil) }} 
                 {{ form_row(form.motif) }}

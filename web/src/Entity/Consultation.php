@@ -63,7 +63,7 @@ class Consultation
         return $this->statut;
     }
 
-    public function setStatut(string $statut): static
+    public function setStatut(?string $statut): static
     {
         $this->statut = $statut;
         return $this;

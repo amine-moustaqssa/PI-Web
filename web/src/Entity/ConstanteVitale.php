@@ -78,7 +78,7 @@ class ConstanteVitale
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         $this->type = $type;
         return $this;
@@ -100,7 +100,7 @@ class ConstanteVitale
         return $this->valeur;
     }
 
-    public function setValeur(string $valeur): static
+    public function setValeur(?string $valeur): static
     {
         $this->valeur = $valeur;
         return $this;

@@ -16,14 +16,17 @@ class ReceptionnisteTitulaireType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Nom du client'],
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Prénom du client'],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Adresse e-mail',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'exemple@email.com'],
             ])
             ->add('adresse', TextType::class, [

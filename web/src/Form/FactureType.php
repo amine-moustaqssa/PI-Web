@@ -15,16 +15,18 @@ class FactureType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('reference')
-            ->add('montantTotal')
-            ->add('statut')
+            ->add('reference', null, ['required' => false])
+            ->add('montantTotal', null, ['required' => false])
+            ->add('statut', null, ['required' => false])
             ->add('consultation', EntityType::class, [
                 'class' => Consultation::class,
                 'choice_label' => 'id',
+                'required' => false,
             ])
             ->add('titulaire', EntityType::class, [
-                'class' => Utilisateur::class, // Utilise la classe importée plus haut
-                'choice_label' => 'nom', 
+                'class' => Utilisateur::class,
+                'choice_label' => 'nom',
+                'required' => false,
             ]);
     }
 

@@ -18,11 +18,12 @@ class ConstanteVitaleAdminType extends AbstractType
                 'class' => Consultation::class,
                 'choice_label' => 'id',
                 'label' => 'Consultation',
+                'required' => false,
             ])
-            ->add('date_prise')
-            ->add('type')
-            ->add('unite')
-            ->add('valeur');
+            ->add('date_prise', null, ['required' => false])
+            ->add('type', null, ['required' => false])
+            ->add('unite', null, ['required' => false])
+            ->add('valeur', null, ['required' => false]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

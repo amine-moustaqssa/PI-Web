@@ -95,7 +95,7 @@ class ProfilMedical
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom(?string $nom): static
     {
         $this->nom = $nom;
         return $this;
@@ -106,7 +106,7 @@ class ProfilMedical
         return $this->prenom;
     }
 
-    public function setPrenom(string $prenom): static
+    public function setPrenom(?string $prenom): static
     {
         $this->prenom = $prenom;
         return $this;
@@ -117,7 +117,7 @@ class ProfilMedical
         return $this->date_naissance;
     }
 
-    public function setDateNaissance(\DateTimeInterface $date_naissance): static
+    public function setDateNaissance(?\DateTimeInterface $date_naissance): static
     {
         $this->date_naissance = $date_naissance;
         return $this;
@@ -129,7 +129,7 @@ class ProfilMedical
     }
 
 
-    public function setContactUrgence(string $contact_urgence): static
+    public function setContactUrgence(?string $contact_urgence): static
     {
         $this->contact_urgence = $contact_urgence;
         return $this;
@@ -171,9 +171,9 @@ class ProfilMedical
         return $this->dossierClinique;
     }
 
-    public function setDossierClinique(DossierClinique $dossierClinique): static
+    public function setDossierClinique(?DossierClinique $dossierClinique): static
     {
-        if ($dossierClinique->getProfilMedical() !== $this) {
+        if ($dossierClinique !== null && $dossierClinique->getProfilMedical() !== $this) {
             $dossierClinique->setProfilMedical($this);
         }
         $this->dossierClinique = $dossierClinique;
