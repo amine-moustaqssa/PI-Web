@@ -17,7 +17,7 @@ class RendezVous
     private ?string $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: 'La date de début est obligatoire.')]
+    #[Assert\NotNull(message: 'Veuillez choisir une date.')]
     private ?\DateTimeInterface $date_debut = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -35,7 +35,7 @@ class RendezVous
 
     #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
-    #[Assert\NotNull(message: 'Le profil médical est obligatoire.')]
+    #[Assert\NotNull(message: 'Veuillez sélectionner un patient.')]
     private ?ProfilMedical $profil = null;
 
     public function getId(): ?string
@@ -94,7 +94,7 @@ class RendezVous
 
     public function setMotif(?string $motif): static
     {
-        $this->motif = $motif;
+        $this->motif = $motif ?? '';
         return $this;
     }
 

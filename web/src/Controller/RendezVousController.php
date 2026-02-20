@@ -12,7 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-// --- AJOUTS POUR LE MAIL ---
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
@@ -25,7 +24,7 @@ class RendezVousController extends AbstractController
         ProfilMedicalRepository $profilRepo,
         SpecialiteRepository $specRepo,
         EntityManagerInterface $entityManager,
-        MailerInterface $mailer // --- INJECTION DU MAILER ---
+        MailerInterface $mailer 
     ): Response {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
@@ -62,21 +61,11 @@ class RendezVousController extends AbstractController
             $entityManager->persist($rendezVous);
             $entityManager->flush();
 
-            // --- LOGIQUE D'ENVOI D'EMAIL ---
-            $email = (new Email())
-                ->from('no-reply@clinique.tn')
-                ->to($user->getUserIdentifier()) // Utilise l'email de l'utilisateur connecté
-                ->subject('Confirmation de votre demande de rendez-vous')
-                ->html("
-                    <h3>Bonjour " . $user->getUserIdentifier() . ",</h3>
-                    <p>Votre demande de rendez-vous pour <strong>" . $rendezVous->getType() . "</strong> a bien été enregistrée.</p>
-                    <p>Date : " . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . "</p>
-                    <p>Statut : En attente de confirmation par le médecin.</p>
-                ");
+            // --- EMAIL : CRÉATION ---
+            $this->sendRdvEmail($mailer, $user->getUserIdentifier(), 'Confirmation de votre demande de rendez-vous', 
+                "<h3>Bonjour,</h3><p>Votre demande pour <strong>" . $rendezVous->getType() . "</strong> le " . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . " a été enregistrée.</p>");
 
-            $mailer->send($email);
-
-            $this->addFlash('success', 'Rendez-vous ajouté ! Un email de confirmation vous a été envoyé.');
+            $this->addFlash('success', 'Rendez-vous ajouté ! Un email de confirmation a été envoyé.');
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
@@ -91,7 +80,7 @@ class RendezVousController extends AbstractController
     }
 
     #[Route('/mes-rendez-vous/modifier/{id}', name: 'app_rendez_vous_edit')]
-    public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(RendezVous $rendezVous, Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
         $user = $this->getUser();
         if ($rendezVous->getProfil()->getTitulaire() !== $user && $rendezVous->getProfil()->getTitulaireId() != 7) {
@@ -107,8 +96,14 @@ class RendezVousController extends AbstractController
                 $dateFin->modify('+30 minutes');
                 $rendezVous->setDateFin($dateFin);
             }
+            
             $entityManager->flush();
-            $this->addFlash('success', 'Modifications enregistrées.');
+
+            // --- EMAIL : MODIFICATION ---
+            $this->sendRdvEmail($mailer, $user->getUserIdentifier(), 'Modification de votre rendez-vous', 
+                "<p>Votre rendez-vous a été mis à jour. Nouvelle date : <strong>" . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . "</strong>.</p>");
+
+            $this->addFlash('success', 'Modifications enregistrées et email envoyé.');
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
@@ -126,14 +121,33 @@ class RendezVousController extends AbstractController
     }
 
     #[Route('/mes-rendez-vous/annuler/{id}', name: 'app_rendez_vous_cancel')]
-    public function cancel(RendezVous $rendezVous, EntityManagerInterface $entityManager): Response
+    public function cancel(RendezVous $rendezVous, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
         $user = $this->getUser();
         if ($rendezVous->getProfil()->getTitulaire() === $user || $rendezVous->getProfil()->getTitulaireId() == 7) {
             $rendezVous->setStatut('annulé');
             $entityManager->flush();
-            $this->addFlash('warning', 'Le rendez-vous a été annulé.');
+
+            // --- EMAIL : ANNULATION ---
+            $this->sendRdvEmail($mailer, $user->getUserIdentifier(), 'Annulation de votre rendez-vous', 
+                "<p>Votre rendez-vous du " . $rendezVous->getDateDebut()->format('d/m/Y') . " a bien été annulé.</p>");
+
+            $this->addFlash('warning', 'Le rendez-vous a été annulé (email envoyé).');
         }
         return $this->redirectToRoute('app_mes_rendez_vous');
+    }
+
+    /**
+     * Fonction utilitaire privée pour éviter la répétition de code d'envoi d'email
+     */
+    private function sendRdvEmail(MailerInterface $mailer, string $to, string $subject, string $content): void
+    {
+        $email = (new Email())
+            ->from('no-reply@clinique.tn')
+            ->to($to)
+            ->subject($subject)
+            ->html($content);
+
+        $mailer->send($email);
     }
 }
