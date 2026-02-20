@@ -42,7 +42,7 @@ class Paiement
         return $this->datePaiement;
     }
 
-    public function setDatePaiement(\DateTime $datePaiement): static
+    public function setDatePaiement(?\DateTime $datePaiement): static
     {
         $this->datePaiement = $datePaiement;
         return $this;
@@ -53,7 +53,7 @@ class Paiement
         return $this->montant;
     }
 
-    public function setMontant(string $montant): static
+    public function setMontant(?string $montant): static
     {
         $this->montant = $montant;
         return $this;

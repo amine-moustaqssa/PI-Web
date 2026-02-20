@@ -13,9 +13,9 @@ class ConstanteVitaleInfirmierType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void 
     {
         $builder
-            ->add('type')
-            ->add('valeur')
-            ->add('unite')
+            ->add('type', null, ['required' => false])
+            ->add('valeur', null, ['required' => false])
+            ->add('unite', null, ['required' => false])
             ->add('date_prise', DateTimeType::class, [
                 'widget' => 'single_text',
                 'required' => false,

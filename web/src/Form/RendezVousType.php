@@ -30,7 +30,6 @@ class RendezVousType extends AbstractType
             ->add('profil', EntityType::class, [
                 'class' => ProfilMedical::class,
                 'choices' => $options['titulaire_id'] ? $options['titulaire_id']->getProfilsMedicaux() : [],
-
                 'choice_label' => function (ProfilMedical $p) { return $p->getNom() . ' ' . $p->getPrenom(); },
                 'placeholder' => 'Choisir le patient...',
                 'constraints' => [

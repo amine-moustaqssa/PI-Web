@@ -5,7 +5,7 @@
 
 <div class="modal-body">
     {{ form_start(form, {
-        'attr': {'id': 'editForm'},
+        'attr': {'id': 'editForm', 'novalidate': 'novalidate'},
         'action': path('admin_dossier_clinique_edit', {'id': profil.id}),
         'method': 'POST'
     }) }}
