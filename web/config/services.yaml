@@ -30,5 +30,9 @@ services:
             $authToken: '%env(TWILIO_TOKEN)%'     # ← correspond à TWILIO_TOKEN
             $fromNumber: '%env(TWILIO_FROM)%'     # ← correspond à TWILIO_FROM
 
+    App\Service\PdfGeneratorService:
+        arguments:
+            $apiKey: '%env(PDF_CO_API_KEY)%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
