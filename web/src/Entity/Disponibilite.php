@@ -26,6 +26,10 @@ class Disponibilite
     )]
     private ?int $jourSemaine = null;
 
+    // Propriété non mappée (pas de colonne dans la base de données)
+    #[Assert\NotNull(message: 'La date est obligatoire.')]
+    private ?\DateTimeInterface $dateSpecifique = null;
+
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     #[Assert\NotNull(message: "L'heure de début est obligatoire.")]
     private ?\DateTimeInterface $heureDebut = null;
@@ -103,6 +107,21 @@ class Disponibilite
     public function setMedecin(?Utilisateur $medecin): static
     {
         $this->medecin = $medecin;
+
+        return $this;
+    }
+
+    public function getDateSpecifique(): ?\DateTimeInterface
+    {
+        return $this->dateSpecifique;
+    }
+
+    public function setDateSpecifique(?\DateTimeInterface $dateSpecifique): static
+    {
+        $this->dateSpecifique = $dateSpecifique;
+        if ($dateSpecifique) {
+            $this->jourSemaine = (int) $dateSpecifique->format('N');
+        }
 
         return $this;
     }

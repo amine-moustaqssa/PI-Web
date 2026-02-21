@@ -31,7 +31,7 @@ class RendezVous
 
     #[ORM\Column(length: 60, nullable: true)]
     #[Assert\Length(max: 60, maxMessage: 'Le motif ne doit pas dépasser {{ limit }} caractères.')]
-    private ?string $motif = null;
+    private ?string $motif = '';
 
     #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]

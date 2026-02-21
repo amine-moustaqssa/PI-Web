@@ -28,7 +28,7 @@ final class DisponibiliteController extends AbstractController
     }
 
     #[Route('/new', name: 'medecin_disponibilite_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
+    public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo, \App\Service\HolidayApiService $holidayApi): Response
     {
         $disponibilite = new Disponibilite();
         $disponibilite->setMedecin($this->getUser());
@@ -37,6 +37,21 @@ final class DisponibiliteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // --- AUTO DÉDUCTION DU JOUR DE LA SEMAINE ---
+            if ($disponibilite->getDateSpecifique()) {
+                $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
+            }
+
+            // --- US-2.3 : VÉRIFICATION JOURS FÉRIÉS ---
+            if ($disponibilite->getDateSpecifique() && $holidayApi->isHoliday($disponibilite->getDateSpecifique())) {
+                $this->addFlash('warning', "⚠️ Attention : Vous essayez de créer un créneau le jour d'une fête nationale. Ce n'est pas permis.");
+                return $this->render('front/medecin/disponibilite/new.html.twig', [
+                    'form' => $form,
+                    'disponibilite' => $disponibilite,
+                ]);
+            }
+            // -------------------------------------
 
             // --- RÈGLE MÉTIER : ANTI-COLLISION ---
             $conflits = $repo->findOverlapping(
@@ -68,16 +83,38 @@ final class DisponibiliteController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'medecin_disponibilite_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Disponibilite $disponibilite, EntityManagerInterface $em, DisponibiliteRepository $repo): Response
+    public function edit(Request $request, Disponibilite $disponibilite, EntityManagerInterface $em, DisponibiliteRepository $repo, \App\Service\HolidayApiService $holidayApi): Response
     {
         if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
             throw $this->createAccessDeniedException();
+        }
+
+        if (!$disponibilite->getDateSpecifique() && $disponibilite->getJourSemaine()) {
+            // Find the closest upcoming day of the week to prefill the calendar
+            $days = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
+            $dayName = $days[$disponibilite->getJourSemaine()];
+            $disponibilite->setDateSpecifique(new \DateTime("next $dayName"));
         }
 
         $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // --- AUTO DÉDUCTION DU JOUR DE LA SEMAINE ---
+            if ($disponibilite->getDateSpecifique()) {
+                $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
+            }
+
+            // --- US-2.3 : VÉRIFICATION JOURS FÉRIÉS ---
+            if ($disponibilite->getDateSpecifique() && $holidayApi->isHoliday($disponibilite->getDateSpecifique())) {
+                $this->addFlash('warning', "⚠️ Attention : Vous essayez de modifier un créneau vers un jour de fête nationale. Ce n'est pas permis.");
+                return $this->render('front/medecin/disponibilite/edit.html.twig', [
+                    'form' => $form,
+                    'disponibilite' => $disponibilite,
+                ]);
+            }
+            // -------------------------------------
 
             // --- RÈGLE MÉTIER : ANTI-COLLISION (Exclusion de soi-même) ---
             $conflits = $repo->findOverlapping(

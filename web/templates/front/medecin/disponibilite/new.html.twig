@@ -42,12 +42,16 @@
                         </div>
                     {% endif %}
 
-                    <div class="form-group">
-                        <label class="font-weight-bold text-gray-700">
-                            <i class="fas fa-calendar-day mr-1 text-primary"></i> Jour de la semaine
-                        </label>
-                        {{ form_widget(form.jourSemaine, {'attr': {'class': 'form-control'}}) }}
-                        <div class="text-danger small mt-1">{{ form_errors(form.jourSemaine) }}</div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="font-weight-bold text-gray-700">
+                                    <i class="fas fa-calendar mr-1 text-primary"></i> Date de la disponibilité
+                                </label>
+                                {{ form_widget(form.dateSpecifique, {'attr': {'class': 'form-control'}}) }}
+                                <div class="text-danger small mt-1">{{ form_errors(form.dateSpecifique) }}</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row">
