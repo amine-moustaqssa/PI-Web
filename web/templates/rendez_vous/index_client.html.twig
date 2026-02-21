@@ -66,6 +66,26 @@
             </button>
         </div>
 
+        <hr>
+<h3 class="mt-4">Actualités pour vous : <span class="badge bg-info">{{ sujet }}</span></h3>
+<div class="row">
+    {% for article in articles %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                {% if article.urlToImage %}
+                    <img src="{{ article.urlToImage }}" class="card-img-top" alt="News Image" style="height: 150px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ article.title|slice(0, 50) }}...</h6>
+                    <p class="card-text" style="font-size: 0.8rem;">{{ article.description|slice(0, 80) }}...</p>
+                    <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Lire la suite</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Aucune actualité disponible pour le moment.</p>
+    {% endfor %}
+</div>
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Historique et gestion des consultations</h6>

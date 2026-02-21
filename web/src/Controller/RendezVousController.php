@@ -14,68 +14,83 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Service\NewsHealthService;
 
 class RendezVousController extends AbstractController
 {
     #[Route('/mes-rendez-vous', name: 'app_mes_rendez_vous')]
     public function index_client(
         Request $request,
+        EntityManagerInterface $entityManager,
         RendezVousRepository $rendezVousRepository,
         ProfilMedicalRepository $profilRepo,
         SpecialiteRepository $specRepo,
-        EntityManagerInterface $entityManager,
-        MailerInterface $mailer 
+        MailerInterface $mailer,
+        NewsHealthService $newsService
     ): Response {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
+        // 1. Initialisation du nouveau Rendez-vous et du formulaire
         $rendezVous = new RendezVous();
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
         $form->handleRequest($request);
 
+        // 2. Traitement de la soumission du formulaire
         if ($form->isSubmitted() && $form->isValid()) {
-            $specialiteId = $request->request->get('specialite_id');
-
-            if (!$specialiteId) {
-                $this->addFlash('danger', 'Veuillez sélectionner une spécialité avant de confirmer.');
-                return $this->render('rendez_vous/index_client.html.twig', [
-                    'rendez_vous' => $rendezVousRepository->findBy(['profil' => $profilRepo->findBy(['titulaire' => $user])], ['date_debut' => 'DESC']),
-                    'form'        => $form->createView(),
-                    'specialites' => $specRepo->findAll(),
-                ]);
+            // Récupération du médecin (champ non mappé)
+            $medecin = $form->get('medecin')->getData();
+            
+            // On génère le type/titre du RDV
+            if ($medecin) {
+                $rendezVous->setType("Consultation - Dr " . $medecin->getNom());
             }
 
-            $specialite = $specRepo->find($specialiteId);
-            $profil = $rendezVous->getProfil();
-
-            $rendezVous->setStatut('en attente de confirmation');
-            $specName = $specialite ? $specialite->getNom() : 'Consultation';
-            $rendezVous->setType($profil->getNom() . ' ' . $profil->getPrenom() . ' [' . $specName . ']');
-
-            if ($rendezVous->getDateDebut() instanceof \DateTimeInterface) {
-                $dateFin = \DateTime::createFromInterface($rendezVous->getDateDebut());
+            // Calcul de la date de fin (+30 minutes)
+            if ($rendezVous->getDateDebut()) {
+                $dateFin = clone $rendezVous->getDateDebut();
                 $dateFin->modify('+30 minutes');
                 $rendezVous->setDateFin($dateFin);
             }
 
+            $rendezVous->setStatut('En attente');
+
+            // Sauvegarde en base
             $entityManager->persist($rendezVous);
             $entityManager->flush();
 
-            // --- EMAIL : CRÉATION ---
-            $this->sendRdvEmail($mailer, $user->getUserIdentifier(), 'Confirmation de votre demande de rendez-vous', 
-                "<h3>Bonjour,</h3><p>Votre demande pour <strong>" . $rendezVous->getType() . "</strong> le " . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . " a été enregistrée.</p>");
+            // Envoi de l'email de confirmation
+            $this->sendRdvEmail(
+                $mailer, 
+                $user->getUserIdentifier(), 
+                'Confirmation de votre rendez-vous', 
+                "<p>Votre rendez-vous du <strong>" . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . "</strong> a bien été enregistré. Il est en attente de confirmation par la clinique.</p>"
+            );
 
-            $this->addFlash('success', 'Rendez-vous ajouté ! Un email de confirmation a été envoyé.');
+            $this->addFlash('success', 'Votre demande de rendez-vous a été envoyée avec succès.');
             return $this->redirectToRoute('app_mes_rendez_vous');
         }
 
+        // 3. Récupération de l'historique pour l'affichage
         $profilsFamille = $profilRepo->findBy(['titulaire' => $user]);
         $mesRendezVous = $rendezVousRepository->findBy(['profil' => $profilsFamille], ['date_debut' => 'DESC']);
 
+        // 4. LOGIQUE NEWS API
+        $sujetNews = 'Santé'; // Sujet par défaut
+        if (!empty($mesRendezVous)) {
+            $dernierRDV = $mesRendezVous[0];
+            // On extrait un mot clé, ou on utilise le type du dernier RDV
+            $sujetNews = $dernierRDV->getType() ?: 'Médecine';
+        }
+
+        $articles = $newsService->getHealthNews($sujetNews);
+
         return $this->render('rendez_vous/index_client.html.twig', [
             'rendez_vous' => $mesRendezVous,
-            'form'         => $form->createView(),
+            'form'        => $form->createView(),
             'specialites' => $specRepo->findAll(),
+            'articles'    => $articles,
+            'sujet'       => $sujetNews
         ]);
     }
 
@@ -91,8 +106,15 @@ class RendezVousController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
+            // Mise à jour du médecin si modifié
+            $medecin = $form->get('medecin')->getData();
+            if ($medecin) {
+                $rendezVous->setType("Consultation - Dr " . $medecin->getNom());
+            }
+
             if ($rendezVous->getDateDebut() instanceof \DateTimeInterface) {
-                $dateFin = \DateTime::createFromInterface($rendezVous->getDateDebut());
+                $dateFin = clone $rendezVous->getDateDebut();
                 $dateFin->modify('+30 minutes');
                 $rendezVous->setDateFin($dateFin);
             }
