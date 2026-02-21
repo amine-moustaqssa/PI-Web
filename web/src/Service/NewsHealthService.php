@@ -15,23 +15,21 @@ class NewsHealthService
         $this->apiKey = $apiKey;
     }
 
-    public function getHealthNews(string $query = 'Santé'): array
-    {
-        try {
-            $response = $this->httpClient->request('GET', 'https://newsapi.org/v2/everything', [
-                'query' => [
-                    'q' => $query . ' AND (santé OR médical)',
-                    'language' => 'fr',
-                    'sortBy' => 'publishedAt',
-                    'pageSize' => 3, // On en prend 3 pour ne pas surcharger la page
-                    'apiKey' => $this->apiKey,
-                ],
-            ]);
+    public function getHealthNews(string $query): array
+{
+    // On force l'ajout de mots-clés médicaux pour filtrer les résultats
+    $refinedQuery = $query . ' AND (santé OR médical OR hôpital OR recherche)';
 
-            $data = $response->toArray();
-            return $data['articles'] ?? [];
-        } catch (\Exception $e) {
-            return []; // En cas d'erreur API, on retourne une liste vide
-        }
-    }
+    $response = $this->httpClient->request('GET', 'https://newsapi.org/v2/everything', [
+        'query' => [
+            'q' => $refinedQuery,
+            'apiKey' => $this->apiKey,
+            'language' => 'fr',
+            'sortBy' => 'relevance', // Priorité à la pertinence
+            'pageSize' => 3
+        ]
+    ]);
+
+    return $response->toArray()['articles'] ?? [];
+}
 }
