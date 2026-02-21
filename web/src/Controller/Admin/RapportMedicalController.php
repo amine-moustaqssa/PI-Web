@@ -1,4 +1,5 @@
 <?php
+// src/Controller/Admin/RapportMedicalController.php
 
 namespace App\Controller\Admin;
 
@@ -7,6 +8,7 @@ use App\Entity\RapportMedical;
 use App\Form\RapportMedicalType;
 use App\Repository\DossierCliniqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,22 +17,47 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/admin/rapports')]
 class RapportMedicalController extends AbstractController
 {
-    #[Route('/{id}', name: 'admin_dossier_clinique_reports')]
-    public function liste(DossierClinique $dossier): Response
+    private EntityManagerInterface $entityManager;
+
+    // Injection de l'EntityManager dans le constructeur
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $rapports = $dossier->getRapportsMedicaux();
+        $this->entityManager = $entityManager;
+    }
+
+    #[Route('/{id}', name: 'admin_dossier_clinique_reports')]
+    public function liste(
+        DossierClinique $dossier,
+        Request $request,
+        PaginatorInterface $paginator
+    ): Response
+    {
+        // Utilisation de $this->entityManager au lieu de $this->getDoctrine()
+        $query = $this->entityManager->createQueryBuilder()
+            ->select('r')
+            ->from(RapportMedical::class, 'r')
+            ->where('r.dossierClinique = :dossier')
+            ->setParameter('dossier', $dossier)
+            ->orderBy('r.date_creation', 'DESC')
+            ->getQuery();
+
+        // Paginer les résultats (5 par page)
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            5
+        );
 
         return $this->render('admin/rapport_medical/liste.html.twig', [
             'dossier' => $dossier,
-            'rapports' => $rapports,
+            'pagination' => $pagination,
         ]);
     }
 
     #[Route('/ajouter/{id}', name: 'admin_rapport_ajouter')]
     public function ajouter(
         DossierClinique $dossier,
-        Request $request,
-        EntityManagerInterface $em
+        Request $request
     ): Response {
         $rapport = new RapportMedical();
         $rapport->setDossierClinique($dossier);
@@ -40,8 +67,8 @@ class RapportMedicalController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($rapport);
-            $em->flush();
+            $this->entityManager->persist($rapport);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Rapport ajouté avec succès.');
             return $this->redirectToRoute('admin_dossier_clinique_reports', ['id' => $dossier->getId()]);
@@ -57,14 +84,13 @@ class RapportMedicalController extends AbstractController
     #[Route('/modifier/{id}', name: 'admin_rapport_modifier')]
     public function modifier(
         RapportMedical $rapport,
-        Request $request,
-        EntityManagerInterface $em
+        Request $request
     ): Response {
         $form = $this->createForm(RapportMedicalType::class, $rapport);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $this->entityManager->flush();
             $this->addFlash('success', 'Rapport modifié avec succès.');
 
             return $this->redirectToRoute('admin_dossier_clinique_reports', [
@@ -80,16 +106,13 @@ class RapportMedicalController extends AbstractController
     }
 
     #[Route('/supprimer/{id}', name: 'admin_rapport_supprimer')]
-    public function supprimer(RapportMedical $rapport, EntityManagerInterface $em): Response
+    public function supprimer(RapportMedical $rapport): Response
     {
         $dossierId = $rapport->getDossierClinique()->getId();
-        $em->remove($rapport);
-        $em->flush();
+        $this->entityManager->remove($rapport);
+        $this->entityManager->flush();
 
         $this->addFlash('success', 'Rapport supprimé.');
         return $this->redirectToRoute('admin_dossier_clinique_reports', ['id' => $dossierId]);
     }
-
-
-    
 }

@@ -1,15 +1,24 @@
 <div class="modal-header">
-    <h5 class="modal-title">Modifier le dossier de {{ profil.nom }} {{ profil.prenom }}</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <h5 class="modal-title">
+        Modifier le dossier de {{ profil.nom }} {{ profil.prenom }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 
 <div class="modal-body">
+
     {{ form_start(form, {
-        'attr': {'id': 'editForm'},
-        'action': path('admin_dossier_clinique_edit', {'id': profil.id}),
-        'method': 'POST'
+        attr: {'id': 'editForm'},
+        action: path('admin_dossier_clinique_edit', {'id': profil.id}),
+        method: 'POST'
     }) }}
+
         {{ form_widget(form) }}
-        <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+
+        <button type="submit" class="btn btn-primary mt-3">
+            Enregistrer
+        </button>
+
     {{ form_end(form) }}
+
 </div>
