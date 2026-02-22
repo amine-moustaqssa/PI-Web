@@ -8,6 +8,9 @@ use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -27,15 +30,9 @@ class RendezVousType extends AbstractType
             ->add('profil', EntityType::class, [
                 'class' => ProfilMedical::class,
                 'choices' => $options['titulaire_id'] ? $options['titulaire_id']->getProfilsMedicaux() : [],
+
                 'choice_label' => function (ProfilMedical $p) { return $p->getNom() . ' ' . $p->getPrenom(); },
                 'placeholder' => 'Choisir le patient...',
-                'constraints' => [
-                    new NotBlank(['message' => 'Ce champ est obligatoire.']),
-                ],
-                'attr' => ['class' => 'form-control']
-            ])
-            ->add('date_debut', null, [
-                'widget' => 'single_text',
                 'constraints' => [
                     new NotBlank(['message' => 'Ce champ est obligatoire.']),
                 ],
@@ -47,6 +44,31 @@ class RendezVousType extends AbstractType
                 ],
                 'attr' => ['class' => 'form-control', 'rows' => 2]
             ]);
+
+        if ($options['is_edit']) {
+            $builder->add('date_debut', DateTimeType::class, [
+                'widget' => 'single_text',
+                'constraints' => [
+                    new NotBlank(['message' => 'Ce champ est obligatoire.']),
+                ],
+                'attr' => ['class' => 'form-control']
+            ]);
+        } else {
+            $builder->add('date_debut', DateType::class, [
+                'widget' => 'single_text',
+                'constraints' => [
+                    new NotBlank(['message' => 'Ce champ est obligatoire.']),
+                ],
+                'attr' => ['class' => 'form-control']
+            ]);
+
+            $builder->add('heure_choisie', HiddenType::class, [
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez choisir un créneau horaire.']),
+                ],
+            ]);
+        }
 
         if ($options['include_medecin']) {
             $builder->add('medecin', EntityType::class, [
@@ -93,8 +115,10 @@ class RendezVousType extends AbstractType
             'data_class' => RendezVous::class,
             'titulaire_id' => null,
             'include_medecin' => true,
+            'is_edit' => false,
         ]);
 
         $resolver->setAllowedTypes('include_medecin', 'bool');
+        $resolver->setAllowedTypes('is_edit', 'bool');
     }
 }

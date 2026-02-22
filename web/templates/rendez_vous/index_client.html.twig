@@ -139,6 +139,15 @@
                             {{ form_widget(form.date_debut, {'attr': {'class': 'form-control'}}) }}
                             {{ form_errors(form.date_debut) }}
                         </div>
+
+                        {{ form_widget(form.heure_choisie) }}
+
+                        <div class="mb-3">
+                            <label>Créneaux disponibles</label>
+                            <div id="creneaux-container" class="d-flex flex-wrap" style="gap: 8px;"></div>
+                            <div class="invalid-feedback" id="creneaux-error" style="display:none;">Veuillez choisir un créneau horaire.</div>
+                            {{ form_errors(form.heure_choisie) }}
+                        </div>
                         <div class="mb-3">
                             <label>Motif</label>
                             {{ form_widget(form.motif, {'attr': {'class': 'form-control'}}) }}
@@ -195,8 +204,9 @@
                 const $form = $(this);
 
                 $form.find('.invalid-feedback.client-required').remove();
+                $('#creneaux-error').hide();
 
-                $form.find('select, input[type="datetime-local"], textarea').each(function() {
+                $form.find('select, input[type="date"], textarea').each(function() {
                     const $field = $(this);
                     if (!$field.val()) {
                         $field.addClass('is-invalid');
@@ -208,7 +218,74 @@
                         $field.removeClass('is-invalid');
                     }
                 });
+
+                const $heureChoisie = $form.find('input[name*="[heure_choisie]"]');
+                if (!$heureChoisie.val()) {
+                    $('#creneaux-error').show();
+                    valid = false;
+                }
                 if (!valid) e.preventDefault();
+            });
+
+            function renderCreneaux(slots) {
+                const $container = $('#creneaux-container');
+                $container.empty();
+
+                if (!slots || !slots.length) {
+                    $container.html('<div class="text-muted">Aucun créneau disponible pour cette date.</div>');
+                    return;
+                }
+
+                slots.forEach(function(time) {
+                    const $btn = $('<button type="button" class="btn btn-outline-primary creneau-btn"></button>');
+                    $btn.text(time);
+                    $btn.attr('data-time', time);
+                    $container.append($btn);
+                });
+            }
+
+            function clearCreneauxSelection() {
+                const $form = $('#form-rdv-new');
+                $form.find('input[name*="[heure_choisie]"]').val('');
+                $('#creneaux-container .creneau-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+                $('#creneaux-error').hide();
+            }
+
+            function loadCreneaux() {
+                const $form = $('#form-rdv-new');
+                const medecinId = $form.find('select[name*="[medecin]"]').val();
+                const date = $form.find('input[name*="[date_debut]"]').val();
+
+                clearCreneauxSelection();
+
+                if (!medecinId || !date) {
+                    renderCreneaux([]);
+                    return;
+                }
+
+                $('#creneaux-container').html('<div class="text-muted">Chargement des créneaux...</div>');
+
+                $.get('{{ path("api_creneaux") }}', { medecin_id: medecinId, date: date }, function(data) {
+                    renderCreneaux(data);
+                }).fail(function() {
+                    $('#creneaux-container').html('<div class="text-danger">Erreur lors du chargement des créneaux.</div>');
+                });
+            }
+
+            $(document).on('change', 'select[name*="[medecin]"], input[name*="[date_debut]"]', function() {
+                loadCreneaux();
+            });
+
+            $(document).on('click', '.creneau-btn', function() {
+                const $btn = $(this);
+                const time = $btn.data('time');
+                const $form = $('#form-rdv-new');
+
+                $form.find('input[name*="[heure_choisie]"]').val(time);
+
+                $('#creneaux-container .creneau-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+                $btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                $('#creneaux-error').hide();
             });
 
             // 2bis. Si on arrive depuis le triage, on ouvre automatiquement le modal et on sélectionne la spécialité.
