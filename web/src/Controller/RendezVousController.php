@@ -11,6 +11,7 @@ use App\Repository\ProfilMedicalRepository;
 use App\Repository\DisponibiliteRepository;
 use App\Service\NewsHealthService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,8 @@ class RendezVousController extends AbstractController
         SpecialiteRepository $specRepo,
         EntityManagerInterface $em,
         NewsHealthService $newsService,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        PaginatorInterface $paginator
     ): Response {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
@@ -37,7 +39,7 @@ class RendezVousController extends AbstractController
         $rendezVous = new RendezVous();
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
         $form->handleRequest($request);
-
+        
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $specialiteId = $request->request->get('specialite_id');
@@ -104,8 +106,14 @@ class RendezVousController extends AbstractController
         $mesProfils = $user->getProfilsMedicaux();
         $mesRendezVous = $rdvRepo->findBy(['profil' => $mesProfils->toArray()], ['date_debut' => 'DESC']);
 
+        $pagination = $paginator->paginate(
+            $mesRendezVous,
+            $request->query->getInt('page', 1),
+            5
+        );
+
         return $this->render('rendez_vous/index_client.html.twig', [
-            'rendez_vous' => $mesRendezVous,
+            'rendez_vous' => $pagination,
             'form'        => $form->createView(),
             'specialites' => $specRepo->findAll(),
             'articles'    => $newsService->getHealthNews('Santé'),

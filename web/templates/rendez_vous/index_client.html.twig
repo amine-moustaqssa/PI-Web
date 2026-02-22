@@ -13,6 +13,39 @@
         .step-section.active { display: block; }
         .invalid-feedback { display: block; color: #dc3545; font-weight: bold; }
         .is-invalid { border-color: #dc3545 !important; }
+
+        .pagination { gap: 6px; }
+        .pagination .page-item .page-link {
+            border-radius: 10px;
+            border: 1px solid rgba(0, 153, 255, 0.25);
+            color: #0099ff;
+            background: rgba(0, 153, 255, 0.06);
+            font-weight: 600;
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 6px 16px rgba(0, 153, 255, 0.12);
+        }
+        .pagination .page-item .page-link:hover {
+            color: #ffffff;
+            background: #0099ff;
+            border-color: #0099ff;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(0, 153, 255, 0.30);
+        }
+        .pagination .page-item.active .page-link {
+            color: #ffffff;
+            background: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 12px 28px rgba(0, 123, 255, 0.40);
+        }
+        .pagination .page-item.disabled .page-link {
+            color: rgba(0, 153, 255, 0.45);
+            background: rgba(0, 153, 255, 0.03);
+            border-color: rgba(0, 153, 255, 0.12);
+            box-shadow: none;
+        }
+        .pagination .page-item .page-link:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 153, 255, 0.25);
+        }
     </style>
 {% endblock %}
 
@@ -88,6 +121,10 @@
                     </tbody>
                 </table>
             </div>
+
+            {% if rendez_vous.getTotalItemCount > 5 %}
+                {{ knp_pagination_render(rendez_vous) }}
+            {% endif %}
         </div>
     </div>
 </div>
