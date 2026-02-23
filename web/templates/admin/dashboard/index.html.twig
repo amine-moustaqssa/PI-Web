@@ -68,11 +68,6 @@
                 <span class="badge badge-light ml-auto">{{ alertesIA|length }} alerte{{ alertesIA|length > 1 ? 's' : '' }}</span>
             </div>
             <div class="card-body">
-                <p class="text-muted small mb-3">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Analyse automatique des créneaux de disponibilité par spécialité, jour et département.
-                    Les recommandations ci-dessous sont générées dynamiquement par un algorithme de classification.
-                </p>
 
                 {% for alerte in alertesIA %}
                     <div class="alert alert-{{ alerte.type }} d-flex align-items-start mb-2 shadow-sm" role="alert" style="border-radius: 8px;">
