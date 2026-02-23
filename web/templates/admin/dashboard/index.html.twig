@@ -57,6 +57,17 @@
 </div>
 
 <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Répartition des Créneaux (Spécialités)</h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-pie pt-4 pb-2" style="height: 350px;">
+            {{ render_chart(chart) }}
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">
             Vue d'ensemble des rendez-vous
@@ -136,7 +147,10 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
 
+        </div>
     </div>
 </div>
 {% endblock %}

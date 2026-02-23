@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Repository\RendezVousRepository;
 use App\Repository\DisponibiliteRepository;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'dashboard')]
-    public function index(RendezVousRepository $repo, Request $request): Response
+    public function index(RendezVousRepository $repo, DisponibiliteRepository $dispoRepo, ChartBuilderInterface $chartBuilder, Request $request): Response
     {
         // On récupère le paramètre de recherche 'q'
         $query = $request->query->get('q');
@@ -22,9 +24,43 @@ class DashboardController extends AbstractController
         // On récupère les rendez-vous filtrés
         $rendezVousList = $repo->findBySearchQuery($query);
 
+        // --- UX ChartJS : Répartition des Créneaux ---
+        $disponibilites = $dispoRepo->findAll();
+        $specialiteCounts = [];
+        
+        foreach ($disponibilites as $dispo) {
+            $medecin = $dispo->getMedecin();
+            if ($medecin && method_exists($medecin, 'getSpecialite') && $medecin->getSpecialite()) {
+                $specName = $medecin->getSpecialite()->getNom();
+                $specialiteCounts[$specName] = ($specialiteCounts[$specName] ?? 0) + 1;
+            } else {
+                $specialiteCounts['Non assigné'] = ($specialiteCounts['Non assigné'] ?? 0) + 1;
+            }
+        }
+
+        $chart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $chart->setData([
+            'labels' => array_keys($specialiteCounts),
+            'datasets' => [
+                [
+                    'label' => 'Créneaux',
+                    'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'],
+                    'data' => array_values($specialiteCounts),
+                ],
+            ],
+        ]);
+        
+        $chart->setOptions([
+            'maintainAspectRatio' => false,
+            'plugins' => [
+                'legend' => ['position' => 'bottom']
+            ]
+        ]);
+
         return $this->render('admin/dashboard/index.html.twig', [
             'rendez_vous' => $rendezVousList,
-            'search_query' => $query
+            'search_query' => $query,
+            'chart' => $chart,
         ]);
     }
 
