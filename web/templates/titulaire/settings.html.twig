@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paramètres - Clinic360{% endblock %}
+
+{% block sidebar %}
+    {% include 'titulaire/_partials/_sidebar.html.twig' %}
+{% endblock %}
+
+{% block topbar %}{% endblock %}
+
+{% block body %}
+    <div class="mt-4">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+                <a href="{{ path('app_titulaire_dashboard') }}" class="btn btn-link p-0 mr-3" title="Retour au tableau de bord">
+                    <i class="fas fa-arrow-left fa-lg text-primary"></i>
+                </a>
+                <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+                    <i class="fas fa-cog mr-2"></i>Paramètres
+                </h1>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-tools fa-3x text-gray-300 mb-3"></i>
+                <p class="text-gray-500 mb-0">Cette page est en cours de construction.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

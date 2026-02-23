@@ -15,11 +15,20 @@ use App\Repository\DisponibiliteRepository;
 #[Route('/espace-client')]
 class TitulaireController extends AbstractController
 {
+    #[Route('/settings', name: 'app_titulaire_settings')]
+    public function settings(): Response
+    {
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        return $this->render('titulaire/settings.html.twig');
+    }
+
     #[Route('/dashboard', name: 'app_titulaire_dashboard')]
     #[Route('/{id}/dashboard', name: 'app_titulaire_dashboard_profil')]
     public function index(
-        Request $request, 
-        ?int $id, 
+        Request $request,
+        ?int $id,
         EntityManagerInterface $entityManager,
         \App\Repository\DisponibiliteRepository $disponibiliteRepository
     ): Response {
