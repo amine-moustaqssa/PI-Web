@@ -38,6 +38,8 @@ class DisponibiliteController extends AbstractController
         ]);
     }
 
+
+
     #[Route('/new', name: 'app_disponibilite_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, \App\Service\HolidayApiService $holidayApi): Response
     {
@@ -56,6 +58,7 @@ class DisponibiliteController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($disponibilite->getDateSpecifique()) {
+                // Ensure jourSemaine is strictly 1-7 to prevent SQL check constraint violations
                 $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
             }
 
@@ -107,6 +110,7 @@ class DisponibiliteController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($disponibilite->getDateSpecifique()) {
+                // Ensure jourSemaine is strictly 1-7 to prevent SQL check constraint violations
                 $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
             }
 

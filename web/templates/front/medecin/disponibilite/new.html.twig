@@ -75,15 +75,17 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox small">
-                            {{ form_widget(form.estRecurrent, {'attr': {'class': 'custom-control-input'}}) }}
-                            <label class="custom-control-label font-weight-bold text-primary" for="{{ form.estRecurrent.vars.id }}">
-                                <i class="fas fa-sync-alt mr-1"></i> Répéter ce créneau chaque semaine
-                            </label>
+                    <div class="card border-left-info shadow-sm py-2 mb-3">
+                        <div class="card-body py-2">
+                            <div class="form-check">
+                                {{ form_widget(form.estRecurrent, {'attr': {'class': 'form-check-input'}}) }}
+                                <label class="form-check-label font-weight-bold text-primary small" for="{{ form.estRecurrent.vars.id }}">
+                                    <i class="fas fa-sync-alt mr-2"></i> Répéter ce créneau chaque semaine
+                                </label>
+                            </div>
                         </div>
-                        <div class="text-danger small mt-1">{{ form_errors(form.estRecurrent) }}</div>
                     </div>
+                    <div class="text-danger small mt-1">{{ form_errors(form.estRecurrent) }}</div>
 
                     <hr>
 

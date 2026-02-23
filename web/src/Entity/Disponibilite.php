@@ -16,17 +16,12 @@ class Disponibilite
     #[ORM\Column]
     private ?int $id = null;
 
-    // 1 = Monday, 7 = Sunday
+    // 1 = Monday, 7 = Sunday OR Unix Timestamp (if estRecurrent = false)
     #[ORM\Column]
     #[Assert\NotNull(message: 'Le jour de la semaine est obligatoire.')]
-    #[Assert\Range(
-        min: 1,
-        max: 7,
-        notInRangeMessage: 'Le jour doit être compris entre {{ min }} (lundi) et {{ max }} (dimanche).'
-    )]
     private ?int $jourSemaine = null;
 
-    // Propriété non mappée (pas de colonne dans la base de données)
+    // Propriété non mappée (sert uniquement de raccourci formulaire)
     #[Assert\NotNull(message: 'La date est obligatoire.')]
     private ?\DateTimeInterface $dateSpecifique = null;
 

@@ -48,4 +48,25 @@ class HolidayApiService
 
         return false;
     }
+
+    /**
+     * Récupère tous les jours fériés pour une année donnée en Tunisie.
+     */
+    public function getHolidaysForYear(int $year): array
+    {
+        try {
+            $response = $this->client->request(
+                'GET',
+                "https://date.nager.at/api/v3/PublicHolidays/{$year}/TN"
+            );
+
+            if ($response->getStatusCode() !== 200) {
+                return [];
+            }
+
+            return $response->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
 }

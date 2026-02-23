@@ -38,8 +38,9 @@ final class DisponibiliteController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // --- AUTO DÉDUCTION DU JOUR DE LA SEMAINE ---
+            // --- AUTO DÉDUCTION DU JOUR DE LA SEMAINE OU TIMESTAMP ---
             if ($disponibilite->getDateSpecifique()) {
+                // Ensure jourSemaine is strictly 1-7 to prevent SQL check constraint violations (US-2.3)
                 $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
             }
 
@@ -101,8 +102,9 @@ final class DisponibiliteController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // --- AUTO DÉDUCTION DU JOUR DE LA SEMAINE ---
+            // --- AUTO DÉDUCTION DU JOUR DE LA SEMAINE OU TIMESTAMP ---
             if ($disponibilite->getDateSpecifique()) {
+                // Ensure jourSemaine is strictly 1-7 to prevent SQL check constraint violations
                 $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
             }
 
