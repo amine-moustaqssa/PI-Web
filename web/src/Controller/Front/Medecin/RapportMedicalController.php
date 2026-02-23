@@ -1,5 +1,4 @@
 <?php
-// src/Controller/Front/Medecin/RapportMedicalController.php
 
 namespace App\Controller\Front\Medecin;
 
@@ -14,6 +13,7 @@ use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -55,10 +55,14 @@ class RapportMedicalController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()){
-            $em->persist($rapport);
-            $em->flush();
-            $this->addFlash('success', 'Rapport médical ajouté.');
-            return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $dossier->getId()]);
+            try {
+                $em->persist($rapport);
+                $em->flush();
+                $this->addFlash('success', 'Rapport médical ajouté avec succès.');
+                return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $dossier->getId()]);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de l\'ajout: ' . $e->getMessage());
+            }
         }
 
         // === DONNÉES POUR L'ASSISTANT IA ===
@@ -69,6 +73,7 @@ class RapportMedicalController extends AbstractController
 
         return $this->render('front/medecin/rapport_medical/form.html.twig', [
             'form' => $form->createView(),
+            'rapport' => $rapport,
             'dossier' => $dossier,
             'action' => 'Ajouter',
             'patientAge' => $patientAge,
@@ -86,9 +91,18 @@ class RapportMedicalController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()){
-            $em->flush();
-            $this->addFlash('success', 'Rapport médical modifié.');
-            return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $rapport->getDossierClinique()->getId()]);
+            try {
+                // Mettre à jour la date de création si un nouveau fichier est uploadé
+                if ($rapport->getPdfFile() !== null) {
+                    $rapport->setDateCreation(new \DateTime());
+                }
+                
+                $em->flush();
+                $this->addFlash('success', 'Rapport médical modifié avec succès.');
+                return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $rapport->getDossierClinique()->getId()]);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la modification: ' . $e->getMessage());
+            }
         }
 
         // === DONNÉES POUR L'ASSISTANT IA ===
@@ -100,6 +114,7 @@ class RapportMedicalController extends AbstractController
 
         return $this->render('front/medecin/rapport_medical/form.html.twig', [
             'form' => $form->createView(),
+            'rapport' => $rapport,
             'dossier' => $dossier,
             'action' => 'Modifier',
             'patientAge' => $patientAge,
@@ -114,14 +129,47 @@ class RapportMedicalController extends AbstractController
     public function supprimer(RapportMedical $rapport, EntityManagerInterface $em): Response
     {
         $dossierId = $rapport->getDossierClinique()->getId();
-        $em->remove($rapport);
-        $em->flush();
-        $this->addFlash('success', 'Rapport médical supprimé.');
+        
+        try {
+            // Supprimer le fichier physique si il existe
+            if ($rapport->getUrlPdf()) {
+                $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/rapports/' . $rapport->getUrlPdf();
+                if (file_exists($pdfPath)) {
+                    unlink($pdfPath);
+                }
+            }
+            
+            $em->remove($rapport);
+            $em->flush();
+            $this->addFlash('success', 'Rapport médical supprimé.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+        }
+        
         return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $dossierId]);
     }
 
     // ===============================
-    // PDF - Visualiser
+    // Visualiser PDF uploadé
+    // ===============================
+    #[Route('/visualiser-fichier/{id}', name: 'medecin_rapport_visualiser_fichier')]
+    public function visualiserFichier(RapportMedical $rapport): Response
+    {
+        if (!$rapport->getUrlPdf()) {
+            throw $this->createNotFoundException('Aucun fichier associé à ce rapport');
+        }
+
+        $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/rapports/' . $rapport->getUrlPdf();
+        
+        if (!file_exists($pdfPath)) {
+            throw $this->createNotFoundException('Le fichier PDF n\'existe pas');
+        }
+
+        return $this->file($pdfPath, null, ResponseHeaderBag::DISPOSITION_INLINE);
+    }
+
+    // ===============================
+    // PDF - Visualiser (généré)
     // ===============================
     #[Route('/pdf-api/{id}', name: 'medecin_rapport_medical_pdf_api')]
     public function visualiserPdf(RapportMedical $rapport, PdfGeneratorService $pdfGenerator): Response
@@ -172,7 +220,7 @@ class RapportMedicalController extends AbstractController
     }
 
     // ===============================
-    // PDF - Télécharger
+    // PDF - Télécharger (généré)
     // ===============================
     #[Route('/pdf-api-download/{id}', name: 'medecin_rapport_medical_pdf_download')]
     public function telechargerPdf(RapportMedical $rapport, PdfGeneratorService $pdfGenerator): Response
@@ -220,7 +268,9 @@ class RapportMedicalController extends AbstractController
         }
     }
 
-    // Fallback methods...
+    // ===============================
+    // Fallback methods (Dompdf)
+    // ===============================
     private function visualiserPdfFallback(RapportMedical $rapport): Response
     {
         try {

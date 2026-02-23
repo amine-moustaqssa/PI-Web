@@ -1,5 +1,3 @@
-{# templates/front/medecin/rapport_medical/form.html.twig #}
-
 {% extends 'front/medecin/base_medecin.html.twig' %}
 
 {% block title %}{{ action }} rapport médical{% endblock %}
@@ -16,7 +14,6 @@
     <div class="card">
         <div class="card-body">
             
-            {# Assistant médical #}
             {% include 'front/medecin/rapport_medical/_ai_assistant.html.twig' with {
                 patientAge: patientAge|default(null),
                 patientAntecedents: patientAntecedents|default('')
@@ -54,11 +51,26 @@
             </div>
 
             <div class="mb-3">
-                {{ form_label(form.url_pdf, 'Document associé (optionnel)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                {{ form_widget(form.url_pdf, {'attr': {
+                {{ form_label(form.pdfFile, 'Document PDF', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                {{ form_widget(form.pdfFile, {'attr': {
                     'class': 'form-control',
-                    'placeholder': 'URL du document PDF (optionnel)'
+                    'accept': 'application/pdf'
                 }}) }}
+                
+                {% if rapport.urlPdf is defined and rapport.urlPdf %}
+                    <div class="mt-2 p-2 bg-light rounded">
+                        <small class="text-muted">
+                            <i class="fas fa-paperclip me-1"></i> Fichier actuel: 
+                            <a href="{{ asset('uploads/rapports/' ~ rapport.urlPdf) }}" target="_blank">
+                                {{ rapport.urlPdf }}
+                            </a>
+                        </small>
+                    </div>
+                {% endif %}
+                
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i> Format PDF uniquement, max 5 Mo
+                </small>
             </div>
 
             <div class="d-flex justify-content-between">
@@ -80,9 +92,6 @@
 {{ parent() }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ============================================
-    // ÉLÉMENTS DOM
-    // ============================================
     const contenuField = document.querySelector('#rapport_medical_contenu');
     const conclusionField = document.querySelector('#rapport_medical_conclusion');
     const assistantStatus = document.getElementById('assistantStatus');
@@ -90,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const generateBtn = document.getElementById('generateConclusionBtn');
     const conclusionLoader = document.getElementById('conclusionLoader');
     
-    // Sections du panneau de suggestions
     const examensSection = document.getElementById('examensSection');
     const traitementsSection = document.getElementById('traitementsSection');
     const orientationSection = document.getElementById('orientationSection');
@@ -101,9 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const orientationList = document.getElementById('orientationList');
     const alertesList = document.getElementById('alertesList');
     
-    // ============================================
-    // CONTEXTE PATIENT
-    // ============================================
     const patientContext = {
         age: {{ patientAge|default('null') }},
         antecedents: '{{ patientAntecedents|default('')|e('js') }}'
@@ -112,13 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentField = contenuField;
     let analyseTimeout = null;
 
-    // ============================================
-    // FONCTIONS PRINCIPALES
-    // ============================================
-
-    /**
-     * Analyse la situation clinique (Ctrl+Espace)
-     */
     async function analyserSituation() {
         const texte = currentField.value.trim();
         
@@ -162,17 +160,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * Affiche les suggestions structurées
-     */
     function afficherSuggestions(suggestions) {
-        // Cacher toutes les sections d'abord
         examensSection.style.display = 'none';
         traitementsSection.style.display = 'none';
         orientationSection.style.display = 'none';
         alertesSection.style.display = 'none';
 
-        // Examens
         if (suggestions.examens && suggestions.examens.length > 0) {
             examensList.innerHTML = suggestions.examens.map(e => 
                 `<span class="suggestion-item" data-texte="${e.replace(/"/g, '&quot;')}">${e}</span>`
@@ -180,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
             examensSection.style.display = 'block';
         }
 
-        // Traitements
         if (suggestions.traitements && suggestions.traitements.length > 0) {
             traitementsList.innerHTML = suggestions.traitements.map(t => 
                 `<span class="suggestion-item" data-texte="${t.replace(/"/g, '&quot;')}">${t}</span>`
@@ -188,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
             traitementsSection.style.display = 'block';
         }
 
-        // Orientation
         if (suggestions.orientation && suggestions.orientation.length > 0) {
             orientationList.innerHTML = suggestions.orientation.map(o => 
                 `<span class="suggestion-item" data-texte="${o.replace(/"/g, '&quot;')}">${o}</span>`
@@ -196,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
             orientationSection.style.display = 'block';
         }
 
-        // Alertes
         if (suggestions.alertes && suggestions.alertes.length > 0) {
             alertesList.innerHTML = suggestions.alertes.map(a => 
                 `<span class="suggestion-item" data-texte="${a.replace(/"/g, '&quot;')}">${a}</span>`
@@ -204,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alertesSection.style.display = 'block';
         }
 
-        // Afficher le panel si au moins une section est visible
         if (suggestions.examens?.length || suggestions.traitements?.length || 
             suggestions.orientation?.length || suggestions.alertes?.length) {
             suggestionsPanel.style.display = 'block';
@@ -212,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
             suggestionsPanel.style.display = 'none';
         }
 
-        // Ajouter les écouteurs de clic
         document.querySelectorAll('.suggestion-item').forEach(item => {
             item.addEventListener('click', function() {
                 insererSuggestion(this.dataset.texte);
@@ -220,9 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    /**
-     * Insère une suggestion sans icône
-     */
     function insererSuggestion(texte) {
         if (!currentField) return;
 
@@ -230,12 +215,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const textAvant = currentField.value.substring(0, cursorPos);
         const textApres = currentField.value.substring(cursorPos);
         
-        // Ajouter un point si nécessaire
         const separateur = textAvant.length > 0 && !textAvant.endsWith('.') && !textAvant.endsWith(' ') ? '. ' : ' ';
         
         currentField.value = textAvant + separateur + texte + textApres;
         
-        // Positionner le curseur après le texte inséré
         const nouvellePosition = cursorPos + separateur.length + texte.length;
         currentField.setSelectionRange(nouvellePosition, nouvellePosition);
         
@@ -244,9 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
         assistantStatus.textContent = 'Suggestion insérée';
     }
 
-    /**
-     * Génère une conclusion basée sur le contenu
-     */
     async function genererConclusion() {
         const contenu = contenuField.value.trim();
         
@@ -255,7 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // UI : désactiver le bouton, afficher loader
         generateBtn.disabled = true;
         conclusionLoader.style.display = 'block';
         assistantStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Génération conclusion...';
@@ -276,10 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.conclusion) {
-                // Proposer la conclusion dans le champ
                 conclusionField.value = data.conclusion;
-                
-                // Notification de succès
                 showNotification('Conclusion générée avec succès', 'success');
                 assistantStatus.textContent = 'Conclusion prête';
             } else {
@@ -292,15 +268,11 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification('Erreur de connexion', 'error');
             assistantStatus.textContent = 'Erreur connexion';
         } finally {
-            // UI : réactiver le bouton, cacher loader
             generateBtn.disabled = false;
             conclusionLoader.style.display = 'none';
         }
     }
 
-    /**
-     * Affiche une notification temporaire
-     */
     function showNotification(message, type) {
         const notification = document.createElement('div');
         notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow`;
@@ -314,49 +286,28 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => notification.remove(), 3000);
     }
 
-    // ============================================
-    // GESTIONNAIRES D'ÉVÉNEMENTS
-    // ============================================
-
-    /**
-     * Gestionnaire de focus
-     */
     function onFieldFocus(event) {
         currentField = event.target;
     }
 
-    /**
-     * Gestionnaire de touches
-     */
     function onKeyDown(event) {
-        // Ctrl+Espace pour analyser
         if (event.ctrlKey && event.code === 'Space') {
             event.preventDefault();
             currentField = event.target;
             analyserSituation();
         }
         
-        // Échap pour fermer les suggestions
         if (event.key === 'Escape' && suggestionsPanel.style.display === 'block') {
             suggestionsPanel.style.display = 'none';
             assistantStatus.textContent = 'Suggestions fermées';
         }
     }
 
-    /**
-     * Debounce sur la saisie pour analyse automatique (optionnel)
-     */
     function onInput(event) {
-        // Vous pouvez activer cette fonction si vous voulez une analyse automatique
-        // clearTimeout(analyseTimeout);
-        // analyseTimeout = setTimeout(() => analyserSituation(), 2000);
+        clearTimeout(analyseTimeout);
+        analyseTimeout = setTimeout(() => analyserSituation(), 2000);
     }
 
-    // ============================================
-    // INITIALISATION DES ÉCOUTEURS
-    // ============================================
-
-    // Champs de texte
     [contenuField, conclusionField].forEach(field => {
         if (field) {
             field.addEventListener('focus', onFieldFocus);
@@ -365,12 +316,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bouton de génération de conclusion
     if (generateBtn) {
         generateBtn.addEventListener('click', genererConclusion);
     }
 
-    // Cacher les suggestions au clic ailleurs
     document.addEventListener('click', function(event) {
         if (!suggestionsPanel.contains(event.target) && 
             !event.target.closest('textarea') &&
@@ -379,10 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ============================================
-    // INITIALISATION
-    // ============================================
-    console.log('✅ Assistant médical prêt - Version complète');
+    console.log('✅ Assistant médical prêt');
     console.log('👤 Patient:', patientContext);
 });
 </script>

@@ -7,7 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class RapportMedicalType extends AbstractType
 {
@@ -30,15 +30,18 @@ class RapportMedicalType extends AbstractType
                     'placeholder' => 'Conclusion du rapport...'
                 ]
             ])
-            ->add('url_pdf', TextType::class, [
-                'label' => 'URL du PDF (optionnel)',
+            ->add('pdfFile', VichFileType::class, [
+                'label' => 'Document PDF',
                 'required' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Supprimer le fichier',
+                'download_uri' => true,
+                'download_label' => 'Télécharger le fichier actuel',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'https://exemple.com/document.pdf'
+                    'accept' => 'application/pdf'
                 ]
             ]);
-        // date_creation et dossierClinique sont gérés dans le contrôleur
     }
 
     public function configureOptions(OptionsResolver $resolver): void
