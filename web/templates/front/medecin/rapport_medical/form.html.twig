@@ -10,7 +10,7 @@
         <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}" class="btn btn-outline-secondary btn-sm me-3">
             <i class="fas fa-arrow-left"></i> 
         </a>
-        <h1 class="h3 mb-0">{{ action }} rapport médical</h1>
+        <h1 class="h3 mb-0">{{ action }} rapport médical pour {{ dossier.profilMedical.prenom }} {{ dossier.profilMedical.nom }}</h1>
     </div>
 
     <div class="card">
@@ -31,28 +31,44 @@
                     'rows': 10,
                     'placeholder': 'Décrivez la situation clinique... (Ctrl+Espace pour analyser)'
                 }}) }}
+                <small class="text-muted">Minimum 50 caractères pour générer une conclusion</small>
             </div>
 
             <div class="mb-3">
-                {{ form_label(form.conclusion, 'Conclusion', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    {{ form_label(form.conclusion, 'Conclusion', {'label_attr': {'class': 'form-label fw-bold mb-0'}}) }}
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="generateConclusionBtn">
+                            <i class="fas fa-magic me-1"></i> Générer une conclusion
+                        </button>
+                    </div>
+                </div>
                 {{ form_widget(form.conclusion, {'attr': {
                     'class': 'form-control',
                     'rows': 4,
-                    'placeholder': 'Conclusion du rapport...'
+                    'placeholder': 'La conclusion sera générée automatiquement ou vous pouvez la saisir manuellement...'
                 }}) }}
+                <div id="conclusionLoader" class="small text-muted mt-1" style="display: none;">
+                    <i class="fas fa-spinner fa-spin me-1"></i> Génération de la conclusion en cours...
+                </div>
             </div>
 
             <div class="mb-3">
-                {{ form_label(form.url_pdf, 'Document associé', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                {{ form_label(form.url_pdf, 'Document associé (optionnel)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
                 {{ form_widget(form.url_pdf, {'attr': {
                     'class': 'form-control',
                     'placeholder': 'URL du document PDF (optionnel)'
                 }}) }}
             </div>
 
-            <button type="submit" class="btn btn-primary px-4">
-                {{ action }}
-            </button>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary px-4">
+                    {{ action }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                    Annuler
+                </button>
+            </div>
 
             {{ form_end(form) }}
         </div>
@@ -64,13 +80,17 @@
 {{ parent() }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Éléments DOM
+    // ============================================
+    // ÉLÉMENTS DOM
+    // ============================================
     const contenuField = document.querySelector('#rapport_medical_contenu');
     const conclusionField = document.querySelector('#rapport_medical_conclusion');
     const assistantStatus = document.getElementById('assistantStatus');
     const suggestionsPanel = document.getElementById('suggestionsPanel');
+    const generateBtn = document.getElementById('generateConclusionBtn');
+    const conclusionLoader = document.getElementById('conclusionLoader');
     
-    // Sections
+    // Sections du panneau de suggestions
     const examensSection = document.getElementById('examensSection');
     const traitementsSection = document.getElementById('traitementsSection');
     const orientationSection = document.getElementById('orientationSection');
@@ -81,16 +101,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const orientationList = document.getElementById('orientationList');
     const alertesList = document.getElementById('alertesList');
     
-    // Contexte patient
+    // ============================================
+    // CONTEXTE PATIENT
+    // ============================================
     const patientContext = {
         age: {{ patientAge|default('null') }},
         antecedents: '{{ patientAntecedents|default('')|e('js') }}'
     };
 
     let currentField = contenuField;
+    let analyseTimeout = null;
+
+    // ============================================
+    // FONCTIONS PRINCIPALES
+    // ============================================
 
     /**
-     * Analyse la situation clinique
+     * Analyse la situation clinique (Ctrl+Espace)
      */
     async function analyserSituation() {
         const texte = currentField.value.trim();
@@ -218,6 +245,80 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
+     * Génère une conclusion basée sur le contenu
+     */
+    async function genererConclusion() {
+        const contenu = contenuField.value.trim();
+        
+        if (contenu.length < 50) {
+            alert('Veuillez d\'abord écrire un contenu suffisant (minimum 50 caractères)');
+            return;
+        }
+
+        // UI : désactiver le bouton, afficher loader
+        generateBtn.disabled = true;
+        conclusionLoader.style.display = 'block';
+        assistantStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Génération conclusion...';
+
+        try {
+            const response = await fetch('{{ path('api_generate_conclusion') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    contenu: contenu,
+                    context: patientContext
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.conclusion) {
+                // Proposer la conclusion dans le champ
+                conclusionField.value = data.conclusion;
+                
+                // Notification de succès
+                showNotification('Conclusion générée avec succès', 'success');
+                assistantStatus.textContent = 'Conclusion prête';
+            } else {
+                showNotification('Erreur lors de la génération', 'error');
+                assistantStatus.textContent = 'Erreur';
+            }
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showNotification('Erreur de connexion', 'error');
+            assistantStatus.textContent = 'Erreur connexion';
+        } finally {
+            // UI : réactiver le bouton, cacher loader
+            generateBtn.disabled = false;
+            conclusionLoader.style.display = 'none';
+        }
+    }
+
+    /**
+     * Affiche une notification temporaire
+     */
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow`;
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    // ============================================
+    // GESTIONNAIRES D'ÉVÉNEMENTS
+    // ============================================
+
+    /**
      * Gestionnaire de focus
      */
     function onFieldFocus(event) {
@@ -235,30 +336,54 @@ document.addEventListener('DOMContentLoaded', function() {
             analyserSituation();
         }
         
-        // Échap pour fermer
+        // Échap pour fermer les suggestions
         if (event.key === 'Escape' && suggestionsPanel.style.display === 'block') {
             suggestionsPanel.style.display = 'none';
-            assistantStatus.textContent = 'Fermé';
+            assistantStatus.textContent = 'Suggestions fermées';
         }
     }
 
-    // Initialisation des écouteurs
+    /**
+     * Debounce sur la saisie pour analyse automatique (optionnel)
+     */
+    function onInput(event) {
+        // Vous pouvez activer cette fonction si vous voulez une analyse automatique
+        // clearTimeout(analyseTimeout);
+        // analyseTimeout = setTimeout(() => analyserSituation(), 2000);
+    }
+
+    // ============================================
+    // INITIALISATION DES ÉCOUTEURS
+    // ============================================
+
+    // Champs de texte
     [contenuField, conclusionField].forEach(field => {
         if (field) {
             field.addEventListener('focus', onFieldFocus);
             field.addEventListener('keydown', onKeyDown);
+            field.addEventListener('input', onInput);
         }
     });
+
+    // Bouton de génération de conclusion
+    if (generateBtn) {
+        generateBtn.addEventListener('click', genererConclusion);
+    }
 
     // Cacher les suggestions au clic ailleurs
     document.addEventListener('click', function(event) {
         if (!suggestionsPanel.contains(event.target) && 
-            !event.target.closest('textarea')) {
+            !event.target.closest('textarea') &&
+            !event.target.closest('button')) {
             suggestionsPanel.style.display = 'none';
         }
     });
 
-    console.log('✅ Assistant médical prêt (version professionnelle)');
+    // ============================================
+    // INITIALISATION
+    // ============================================
+    console.log('✅ Assistant médical prêt - Version complète');
+    console.log('👤 Patient:', patientContext);
 });
 </script>
 {% endblock %}
