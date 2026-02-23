@@ -6,6 +6,9 @@ use App\Entity\DossierClinique;
 use App\Entity\ProfilMedical;
 use App\Form\ProfilMedicalType;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +25,79 @@ class TitulaireController extends AbstractController
         if (!$user) return $this->redirectToRoute('app_login');
 
         return $this->render('titulaire/settings.html.twig');
+    }
+
+    #[Route('/2fa/setup', name: 'app_titulaire_2fa_setup')]
+    public function twoFactorSetup(
+        Request $request,
+        TotpAuthenticatorInterface $totpAuthenticator,
+        EntityManagerInterface $em
+    ): Response {
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        // Already enabled — go back to settings
+        if ($user->isTotpAuthenticationEnabled()) {
+            return $this->redirectToRoute('app_titulaire_settings');
+        }
+
+        // Generate and store a pending secret in the session until confirmed
+        $session = $request->getSession();
+        if (!$session->has('totp_secret_pending')) {
+            $session->set('totp_secret_pending', $totpAuthenticator->generateSecret());
+        }
+        $pendingSecret = $session->get('totp_secret_pending');
+
+        // Temporarily assign the secret so the bundle can build the OTP URI
+        $user->setTotpSecret($pendingSecret);
+        $qrContent = $totpAuthenticator->getQRContent($user);
+        $user->setTotpSecret(null); // don't persist yet
+
+        // Generate QR code as a base64 PNG data URI
+        $qrCode = new QrCode($qrContent);
+        $qrCode->setSize(200);
+        $result = (new SvgWriter())->write($qrCode);
+        $qrCodeDataUri = $result->getDataUri();
+
+        // Handle confirmation form submission
+        if ($request->isMethod('POST')) {
+            $code = (string) $request->request->get('_auth_code', '');
+            $user->setTotpSecret($pendingSecret);
+
+            if ($totpAuthenticator->checkCode($user, $code)) {
+                $em->persist($user);
+                $em->flush();
+                $session->remove('totp_secret_pending');
+                $this->addFlash('success', 'L\'authentification à deux facteurs a été activée avec succès.');
+                return $this->redirectToRoute('app_titulaire_settings');
+            }
+
+            // Bad code — reset, show error
+            $user->setTotpSecret(null);
+            $this->addFlash('danger', 'Code invalide. Veuillez réessayer.');
+        }
+
+        return $this->render('titulaire/2fa_setup.html.twig', [
+            'qrCodeDataUri' => $qrCodeDataUri,
+            'secret'        => $pendingSecret,
+        ]);
+    }
+
+    #[Route('/2fa/disable', name: 'app_titulaire_2fa_disable', methods: ['POST'])]
+    public function twoFactorDisable(
+        EntityManagerInterface $em
+    ): Response {
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+        if (!$user) return $this->redirectToRoute('app_login');
+
+        $user->setTotpSecret(null);
+        $em->persist($user);
+        $em->flush();
+
+        $this->addFlash('success', 'L\'authentification à deux facteurs a été désactivée.');
+        return $this->redirectToRoute('app_titulaire_settings');
     }
 
     #[Route('/dashboard', name: 'app_titulaire_dashboard')]
