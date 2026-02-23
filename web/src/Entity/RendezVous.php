@@ -38,6 +38,9 @@ class RendezVous
     #[Assert\NotNull(message: 'Veuillez sélectionner un patient.')]
     private ?ProfilMedical $profil = null;
 
+    #[ORM\ManyToOne(inversedBy: 'rendezVouses')]
+    private ?Medecin $medecin = null;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -106,6 +109,18 @@ class RendezVous
     public function setProfil(?ProfilMedical $profil): static
     {
         $this->profil = $profil;
+        return $this;
+    }
+
+    public function getMedecin(): ?Medecin
+    {
+        return $this->medecin;
+    }
+
+    public function setMedecin(?Medecin $medecin): static
+    {
+        $this->medecin = $medecin;
+
         return $this;
     }
 }

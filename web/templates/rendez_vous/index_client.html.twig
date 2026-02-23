@@ -5,353 +5,346 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        /* Modern Modal Styles */
         .modal-content-modern { border: none; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .modal-header-modern { border-bottom: none; padding-bottom: 0; background-color: white; border-radius: 12px 12px 0 0; }
-        .modal-title-modern { font-weight: 700; color: #1a1f36; font-size: 1.1rem; }
-        .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #3c4257; margin-bottom: 6px; display: block; }
-        .form-control-modern { border-radius: 6px; border: 1px solid #e3e8ee; padding: 10px 12px; font-size: 0.9rem; color: #1a1f36; width: 100%; }
-        .btn-ghost-modern { background: transparent; border: 1px solid #e3e8ee; color: #3c4257; font-weight: 600; border-radius: 6px; padding: 8px 16px; }
-        .btn-primary-modern { background-color: #2e3b55; border: none; color: white; font-weight: 600; border-radius: 6px; padding: 8px 20px; }
-        
-        /* Wizard Cards */
-        .spec-card { border: 1px solid #e3e8ee; border-radius: 8px; padding: 15px; cursor: pointer; text-align: center; background: white; transition: all 0.2s; }
+        .modal-header-modern { border-bottom: none; background-color: white; border-radius: 12px 12px 0 0; }
+        .spec-card { border: 1px solid #e3e8ee; border-radius: 8px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s; }
         .spec-card:hover { border-color: #2e3b55; background-color: #f7f9fc; transform: translateY(-2px); }
-        .spec-icon { font-size: 1.5rem; margin-bottom: 10px; color: #4e73df; }
-        .spec-name { font-weight: 600; font-size: 0.9rem; color: #1a1f36; }
-        
         .step-section { display: none; }
         .step-section.active { display: block; }
-        .required-star { color: #e51c00; }
-        .modal-subtitle { font-size: 0.85rem; color: #697386; margin-top: 4px; }
+        .invalid-feedback { display: block; color: #dc3545; font-weight: bold; }
+        .is-invalid { border-color: #dc3545 !important; }
 
-        /* --- STYLES AJOUTÉS POUR LA VALIDATION --- */
-        .form-control.is-invalid {
-            border-color: #dc3545 !important;
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5zM6 8.2a.3.3 0 110-.6.3.3 0 010 .6z'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        .pagination { gap: 6px; }
+        .pagination .page-item .page-link {
+            border-radius: 10px;
+            border: 1px solid rgba(0, 153, 255, 0.25);
+            color: #0099ff;
+            background: rgba(0, 153, 255, 0.06);
+            font-weight: 600;
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 6px 16px rgba(0, 153, 255, 0.12);
         }
-        .invalid-feedback {
-            display: block;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 80%;
-            color: #dc3545;
-            font-weight: bold;
+        .pagination .page-item .page-link:hover {
+            color: #ffffff;
+            background: #0099ff;
+            border-color: #0099ff;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(0, 153, 255, 0.30);
         }
-        .is-invalid {
-    transition: all 0.3s ease;
-    border-color: #dc3545 !important;
-}
+        .pagination .page-item.active .page-link {
+            color: #ffffff;
+            background: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 12px 28px rgba(0, 123, 255, 0.40);
+        }
+        .pagination .page-item.disabled .page-link {
+            color: rgba(0, 153, 255, 0.45);
+            background: rgba(0, 153, 255, 0.03);
+            border-color: rgba(0, 153, 255, 0.12);
+            box-shadow: none;
+        }
+        .pagination .page-item .page-link:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 153, 255, 0.25);
+        }
     </style>
 {% endblock %}
 
-{% block sidebar %}
-    {% include 'titulaire/_partials/_sidebar.html.twig' %}
-{% endblock %}
-
-{% block topbar %}{% endblock %}
-
 {% block body %}
-    
-    <div class="mt-4">
-        
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Mes Rendez-vous</h1>
-            <button class="btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#newRdvModal">
-                <i class="fas fa-calendar-plus fa-sm text-white-50 mr-2"></i> Nouveau RDV
+<div class="container-fluid mt-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Mes Rendez-vous</h1>
+        <div>
+            <a class="btn btn-outline-secondary shadow-sm mr-2" href="{{ path('app_symptom_triage') }}">
+                <i class="fas fa-brain mr-2"></i> Triage IA
+            </a>
+            <button class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#newRdvModal">
+                <i class="fas fa-calendar-plus mr-2"></i> Nouveau RDV
             </button>
         </div>
+    </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Historique et gestion des consultations</h6>
+    {# --- SECTION NEWS --- #}
+    <h3 class="mt-4">Actualités Santé : <span class="badge badge-info">{{ sujet }}</span></h3>
+    <div class="row mb-4">
+        {% for article in articles %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if article.urlToImage %}<img src="{{ article.urlToImage }}" class="card-img-top" style="height: 140px; object-fit: cover;">{% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title font-weight-bold">{{ article.title|slice(0, 50) }}...</h6>
+                        <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-link p-0">Lire la suite</a>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                {# Display Flash Messages #}
-                {% for label, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endfor %}
+        {% endfor %}
+    </div>
+
+    {# --- LISTE DES RDV --- #}
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">{{ message }}</div>
                 {% endfor %}
+            {% endfor %}
 
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th style="width: 20%;">Date et Heure</th>
-                                <th>Détails / Patient</th>
-                                <th class="text-center" style="width: 15%;">Statut</th>
-                                <th class="text-center" style="width: 15%;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for rdv in rendez_vous %}
-                            <tr>
-                                <td class="align-middle">
-                                    <div class="font-weight-bold text-gray-800">{{ rdv.dateDebut|date('d/m/Y') }}</div>
-                                    <div class="small text-muted"><i class="far fa-clock mr-1"></i>{{ rdv.dateDebut|date('H:i') }}</div>
-                                </td>
-                                <td class="align-middle"><span class="text-dark">{{ rdv.type }}</span></td>
-                                <td class="text-center align-middle">
-                                    {% if rdv.statut in ['en attente de confirmation', 'En attente'] %}
-                                        <span class="badge badge-warning px-2 py-1">En attente</span>
-                                    {% elseif rdv.statut in ['annulé', 'Annulé'] %}
-                                        <span class="badge badge-danger px-2 py-1">Annulé</span>
-                                    {% elseif rdv.statut in ['confirmé', 'Confirmé'] %}
-                                        <span class="badge badge-success px-2 py-1">Confirmé</span>
-                                    {% else %}
-                                        <span class="badge badge-secondary px-2 py-1">{{ rdv.statut }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center align-middle">
-                                    {% if rdv.statut not in ['annulé', 'Annulé'] %}
-                                        <button class="btn btn-primary btn-circle btn-sm btn-edit-rdv" 
-                                                data-url="{{ path('app_rendez_vous_edit', {'id': rdv.id}) }}"
-                                                title="Modifier">
-                                            <i class="fas fa-pen"></i>
-                                        </button>
-                                        <a href="{{ path('app_rendez_vous_cancel', {'id': rdv.id}) }}" 
-                                           class="btn btn-danger btn-circle btn-sm ml-1"
-                                           onclick="return confirm('Voulez-vous vraiment annuler ?');" title="Annuler">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    {% else %}
-                                        <span class="small text-gray-500">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="4" class="text-center py-5">
-                                    <h6 class="text-gray-600">Aucun rendez-vous trouvé</h6>
-                                    <button class="btn btn-primary btn-sm mt-3" data-toggle="modal" data-target="#newRdvModal">Prendre un rendez-vous</button>
-                                </td>
-                            </tr>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Date et Heure</th>
+                            <th>Détails</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for rdv in rendez_vous %}
+                        <tr>
+                            <td><strong>{{ rdv.dateDebut|date('d/m/Y') }}</strong> à {{ rdv.dateDebut|date('H:i') }}</td>
+                            <td>{{ rdv.type }}</td>
+                            <td>
+                                <span class="badge badge-{{ rdv.statut == 'annulé' ? 'danger' : (rdv.statut == 'confirmé' ? 'success' : 'warning') }}">
+                                    {{ rdv.statut|capitalize }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                {% if rdv.statut != 'annulé' %}
+                                    <button class="btn btn-sm btn-outline-primary btn-edit-rdv" data-url="{{ path('app_rendez_vous_edit', {'id': rdv.id}) }}"><i class="fas fa-pen"></i></button>
+                                    <a href="{{ path('app_rendez_vous_cancel', {'id': rdv.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Annuler ce RDV ?')"><i class="fas fa-times"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="4" class="text-center">Aucun rendez-vous.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if rendez_vous.getTotalItemCount > 5 %}
+                {{ knp_pagination_render(rendez_vous) }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# --- MODAL NOUVEAU RDV (WIZARD) --- #}
+<div class="modal fade" id="newRdvModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-content-modern">
+            <div class="modal-header">
+                <h5 class="modal-title">Prendre un Rendez-vous</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                {# ETAPE 1 : SPECIALITES #}
+                <div id="step-specialite" class="step-section active">
+                    <p class="text-muted">Étape 1 : Choisissez une spécialité</p>
+                    <div class="row">
+                        {% for spec in specialites %}
+                            <div class="col-md-4 mb-3">
+                                <div class="spec-card" onclick="selectSpecialty({{ spec.id }}, '{{ spec.nom }}')">
+                                    <i class="fas fa-user-md fa-2x text-primary mb-2"></i>
+                                    <div class="font-weight-bold">{{ spec.nom }}</div>
+                                </div>
+                            </div>
                         {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {# --- MODAL NOUVEAU RDV --- #}
-    <div class="modal fade" id="newRdvModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content modal-content-modern">
-                <div class="modal-header modal-header-modern">
-                    <div>
-                        <h5 class="modal-title modal-title-modern">Prendre un Rendez-vous</h5>
-                        <p class="modal-subtitle" id="rdvModalSubtitle">Étape 1 : Choisissez une spécialité</p>
                     </div>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
-                <div class="modal-body pt-4">
-                    
-                    {# STEP 1: SPECIALITES #}
-                    <div id="step-specialite" class="step-section active">
+
+                {# ETAPE 2 : FORMULAIRE #}
+                <div id="step-form" class="step-section">
+                    {{ form_start(form, {'attr': {'id': 'form-rdv-new', 'novalidate': 'novalidate'}}) }}
+                        <input type="hidden" name="specialite_id" id="specialite_input">
+                        <div class="alert alert-info">Spécialité : <strong id="selected_spec_name"></strong></div>
+                        
                         <div class="row">
-                            {% if specialites is defined %}
-                                {% for spec in specialites %}
-                                    <div class="col-md-4 mb-3">
-                                        <div class="spec-card" onclick="selectSpecialty({{ spec.id }}, '{{ spec.nom }}')">
-                                            <div class="spec-icon"><i class="fas fa-stethoscope"></i></div>
-                                            <div class="spec-name">{{ spec.nom }}</div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
+                            <div class="col-md-6 mb-3">
+                                <label>Patient</label>
+                                {{ form_widget(form.profil, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.profil) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Médecin</label>
+                                {{ form_widget(form.medecin, {'attr': {'class': 'form-control' ~ (form.medecin.vars.errors|length ? ' is-invalid' : '')}}) }}
+                                <div class="invalid-feedback">{{ form_errors(form.medecin) }}</div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="mb-3">
+                            <label>Date et Heure</label>
+                            {{ form_widget(form.date_debut, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.date_debut) }}
+                        </div>
 
-                    {# STEP 2: FORMULAIRE #}
-                    <div id="step-form" class="step-section">
-                        {% if form is defined %}
-                            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                                {# --- FIX: CHAMPS CACHÉ POUR L'ID SPECIALITE --- #}
-                                <input type="hidden" name="specialite_id" id="specialite_input" value="{{ app.request.get('specialite_id') }}">
+                        {{ form_widget(form.heure_choisie) }}
 
-                                <div class="alert alert-info border-0 bg-light-primary text-primary small mb-4">
-                                    <i class="fas fa-info-circle mr-1"></i> Réservation pour : <strong id="selected_spec_name">...</strong>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="form-label-modern">Patient concerné <span class="required-star">*</span></label>
-                                            
-                                            {# Calcul de la classe d'erreur pour le Profil #}
-                                            {% set profil_class = 'form-control form-control-modern ' ~ (form.profil.vars.valid ? '' : 'is-invalid') %}
-                                            
-                                            {{ form_widget(form.profil, {'attr': {'class': profil_class}}) }}
-                                            
-                                            <div class="invalid-feedback">
-                                                {{ form_errors(form.profil) }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label class="form-label-modern">Date et Heure <span class="required-star">*</span></label>
-                                            
-                                            {# Calcul de la classe d'erreur pour la Date #}
-                                            {% set date_class = 'form-control form-control-modern ' ~ (form.date_debut.vars.valid ? '' : 'is-invalid') %}
-                                            
-                                            {{ form_widget(form.date_debut, {'attr': {'class': date_class}}) }}
-                                            
-                                            <div class="invalid-feedback">
-                                                {{ form_errors(form.date_debut) }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label class="form-label-modern">Motif</label>
-                                    
-                                    {# Calcul de la classe d'erreur pour le Motif #}
-                                    {% set motif_class = 'form-control form-control-modern ' ~ (form.motif.vars.valid ? '' : 'is-invalid') %}
-                                    
-                                    {{ form_widget(form.motif, {'attr': {'class': motif_class, 'rows': '3'}}) }}
-                                    
-                                    <div class="invalid-feedback">
-                                        {{ form_errors(form.motif) }}
-                                    </div>
-                                </div>
-                                
-                                {{ form_rest(form) }}
-                                
-                                <div class="modal-footer border-top-0 px-0 pb-0">
-                                    <button type="button" class="btn btn-ghost-modern" onclick="goBackToStep1()">Retour</button>
-                                    <button type="submit" id="btn-submit-rdv" class="btn-primary-modern">Confirmer</button>
-                                </div>
-                            {{ form_end(form) }}
-                        {% endif %}
-                    </div>
+                        <div class="mb-3">
+                            <label>Créneaux disponibles</label>
+                            <div id="creneaux-container" class="d-flex flex-wrap" style="gap: 8px;"></div>
+                            <div class="invalid-feedback" id="creneaux-error" style="display:none;">Veuillez choisir un créneau horaire.</div>
+                            {{ form_errors(form.heure_choisie) }}
+                        </div>
+                        <div class="mb-3">
+                            <label>Motif</label>
+                            {{ form_widget(form.motif, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.motif) }}
+                        </div>
+                        
+                        <div class="modal-footer px-0">
+                            <button type="button" class="btn btn-secondary" onclick="goBackToStep1()">Retour</button>
+                            <button type="submit" class="btn btn-primary">Confirmer le RDV</button>
+                        </div>
+                    {{ form_end(form) }}
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    {# --- MODAL EDIT RDV --- #}
-    <div class="modal fade" id="editRdvModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content modal-content-modern">
-                <div class="modal-header modal-header-modern">
-                    <h5 class="modal-title modal-title-modern">Modifier le Rendez-vous</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body pt-4" id="editRdvModalBody">
-                    {# Content loaded via AJAX #}
-                </div>
-            </div>
-        </div>
-    </div>
-
+{# MODAL EDIT #}
+<div class="modal fade" id="editRdvModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-body" id="editRdvModalBody"></div></div></div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(document).ready(function() {
-            
-            // --- VALIDATION COMMUNE (NOUVEAU & MODIFIER) ---
-            // On utilise $(document).on('submit', ...) pour que ça marche même sur les formulaires chargés en AJAX
-            $(document).on('submit', 'form[name="rendez_vous"]', function(e) {
-                let hasError = false;
-                let form = $(this); // Le formulaire qui vient d'être soumis
-
-                // 1. Vérifier le Patient (on cherche à l'intérieur du formulaire actuel)
-                const profilField = form.find('select[id$="_profil"]');
-                if (!profilField.val()) {
-                    showError(profilField, "Veuillez sélectionner un patient.");
-                    hasError = true;
-                } else {
-                    removeError(profilField);
-                }
-
-                // 2. Vérifier la Date
-                const dateField = form.find('input[id$="_date_debut"]');
-                if (!dateField.val()) {
-                    showError(dateField, "La date de début est obligatoire.");
-                    hasError = true;
-                } else {
-                    removeError(dateField);
-                }
-
-                // Si erreur, on bloque tout
-                if (hasError) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            // Fonctions de style (à garder à l'intérieur du ready)
-            function showError(field, message) {
-                field.addClass('is-invalid');
-                let feedback = field.siblings('.invalid-feedback');
-                if (feedback.length === 0) {
-                    field.after('<div class="invalid-feedback">' + message + '</div>');
-                } else {
-                    feedback.text(message).show();
-                }
-            }
-
-            function removeError(field) {
-                field.removeClass('is-invalid');
-                field.siblings('.invalid-feedback').hide();
-            }
-
-            // --- LOGIQUE BOUTON MODIFIER (TON CODE AJAX ACTUEL) ---
-            $('.btn-edit-rdv').on('click', function(e) {
-                e.preventDefault();
-                var url = $(this).data('url');
-
-                $('#editRdvModal').modal('show');
-                $('#editRdvModalBody').html('<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>');
-
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    success: function(response) {
-                        $('#editRdvModalBody').html(response);
-                        // ASTUCE : On ajoute novalidate dynamiquement au formulaire chargé
-                        $('#editRdvModalBody').find('form').attr('novalidate', 'novalidate');
-                    },
-                    error: function() {
-                        $('#editRdvModalBody').html('<div class="alert alert-danger">Erreur de chargement</div>');
-                    }
-                });
-            });
-        });
-
-        // Fonctions de navigation (Spécialités)
+        // 1. Sélection de la spécialité et chargement AJAX des médecins
         function selectSpecialty(id, name) {
-            document.getElementById('selected_spec_name').innerText = name;
-            document.getElementById('specialite_input').value = id;
-            $('#step-specialite').fadeOut(200, function() {
-                $('#step-specialite').removeClass('active');
-                $('#step-form').fadeIn(200).addClass('active');
+            $('#selected_spec_name').text(name);
+            $('#specialite_input').val(id);
+
+            // Charger les médecins via API
+            const $medecinSelect = $('select[name*="[medecin]"]');
+            $medecinSelect.html('<option>Chargement...</option>');
+
+            $.get('{{ path("api_medecins_by_specialite") }}?specialite_id=' + id, function(data) {
+                $medecinSelect.empty().append('<option value="">Choisir un médecin</option>');
+                data.forEach(m => $medecinSelect.append(`<option value="${m.id}">${m.nom}</option>`));
             });
+
+            $('#step-specialite').hide();
+            $('#step-form').fadeIn().addClass('active');
         }
 
         function goBackToStep1() {
-            $('#step-form').fadeOut(200, function() {
-                $('#step-form').removeClass('active');
-                $('#step-specialite').fadeIn(200).addClass('active');
-            });
+            $('#step-form').hide();
+            $('#step-specialite').fadeIn();
         }
+
+        $(document).ready(function() {
+            // 2. Validation simple
+            $('#form-rdv-new').on('submit', function(e) {
+                let valid = true;
+                const $form = $(this);
+
+                $form.find('.invalid-feedback.client-required').remove();
+                $('#creneaux-error').hide();
+
+                $form.find('select, input[type="date"], textarea').each(function() {
+                    const $field = $(this);
+                    if (!$field.val()) {
+                        $field.addClass('is-invalid');
+                        if (!$field.next('.invalid-feedback.client-required').length) {
+                            $field.after('<div class="invalid-feedback client-required">Ce champ est obligatoire.</div>');
+                        }
+                        valid = false;
+                    } else {
+                        $field.removeClass('is-invalid');
+                    }
+                });
+
+                const $heureChoisie = $form.find('input[name*="[heure_choisie]"]');
+                if (!$heureChoisie.val()) {
+                    $('#creneaux-error').show();
+                    valid = false;
+                }
+                if (!valid) e.preventDefault();
+            });
+
+            function renderCreneaux(slots) {
+                const $container = $('#creneaux-container');
+                $container.empty();
+
+                if (!slots || !slots.length) {
+                    $container.html('<div class="text-muted">Aucun créneau disponible pour cette date.</div>');
+                    return;
+                }
+
+                slots.forEach(function(time) {
+                    const $btn = $('<button type="button" class="btn btn-outline-primary creneau-btn"></button>');
+                    $btn.text(time);
+                    $btn.attr('data-time', time);
+                    $container.append($btn);
+                });
+            }
+
+            function clearCreneauxSelection() {
+                const $form = $('#form-rdv-new');
+                $form.find('input[name*="[heure_choisie]"]').val('');
+                $('#creneaux-container .creneau-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+                $('#creneaux-error').hide();
+            }
+
+            function loadCreneaux() {
+                const $form = $('#form-rdv-new');
+                const medecinId = $form.find('select[name*="[medecin]"]').val();
+                const date = $form.find('input[name*="[date_debut]"]').val();
+
+                clearCreneauxSelection();
+
+                if (!medecinId || !date) {
+                    renderCreneaux([]);
+                    return;
+                }
+
+                $('#creneaux-container').html('<div class="text-muted">Chargement des créneaux...</div>');
+
+                $.get('{{ path("api_creneaux") }}', { medecin_id: medecinId, date: date }, function(data) {
+                    renderCreneaux(data);
+                }).fail(function() {
+                    $('#creneaux-container').html('<div class="text-danger">Erreur lors du chargement des créneaux.</div>');
+                });
+            }
+
+            $(document).on('change', 'select[name*="[medecin]"], input[name*="[date_debut]"]', function() {
+                loadCreneaux();
+            });
+
+            $(document).on('click', '.creneau-btn', function() {
+                const $btn = $(this);
+                const time = $btn.data('time');
+                const $form = $('#form-rdv-new');
+
+                $form.find('input[name*="[heure_choisie]"]').val(time);
+
+                $('#creneaux-container .creneau-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+                $btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                $('#creneaux-error').hide();
+            });
+
+            // 2bis. Si on arrive depuis le triage, on ouvre automatiquement le modal et on sélectionne la spécialité.
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('open_rdv') === '1') {
+                const specId = params.get('triage_spec_id');
+                const specName = params.get('triage_spec_name') || '';
+
+                $('#newRdvModal').modal('show');
+                if (specId) {
+                    // On réutilise la fonction existante pour déclencher le chargement des médecins.
+                    selectSpecialty(specId, specName);
+                }
+            }
+
+            // 3. Edit via AJAX
+            $('.btn-edit-rdv').on('click', function() {
+                const url = $(this).data('url');
+
+                $('#editRdvModal').modal('show');
+                $('#editRdvModalBody').load(url);
+            });
+        });
     </script>
 {% endblock %}
