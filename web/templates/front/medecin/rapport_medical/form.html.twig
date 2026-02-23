@@ -3,89 +3,334 @@
 {% block title %}{{ action }} rapport médical{% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    <div class="d-flex align-items-center mb-4">
-        <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}" class="btn btn-outline-secondary btn-sm me-3">
-            <i class="fas fa-arrow-left"></i> 
+<div class="rapport-container">
+    <!-- En-tête -->
+    <div class="page-header">
+        <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}" class="back-link">
+            ← Retour
         </a>
-        <h1 class="h3 mb-0">{{ action }} rapport médical pour {{ dossier.profilMedical.prenom }} {{ dossier.profilMedical.nom }}</h1>
+        <h1>{{ action }} rapport médical</h1>
+        <div class="patient-name">{{ dossier.profilMedical.prenom }} {{ dossier.profilMedical.nom }}</div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            
-            {% include 'front/medecin/rapport_medical/_ai_assistant.html.twig' with {
-                patientAge: patientAge|default(null),
-                patientAntecedents: patientAntecedents|default('')
-            } %}
+    <!-- Assistant médical -->
+    {% include 'front/medecin/rapport_medical/_ai_assistant.html.twig' with {
+        patientData: patientData
+    } %}
 
-            {{ form_start(form) }}
+    <!-- Formulaire -->
+    <div class="form-card">
+        {{ form_start(form, {'attr': {'class': 'medical-form'}}) }}
 
-            <div class="mb-3">
-                {{ form_label(form.contenu, 'Observation clinique', {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                {{ form_widget(form.contenu, {'attr': {
-                    'class': 'form-control',
-                    'rows': 10,
-                    'placeholder': 'Décrivez la situation clinique... (Ctrl+Espace pour analyser)'
-                }}) }}
-                <small class="text-muted">Minimum 50 caractères pour générer une conclusion</small>
+        <div class="form-section">
+            <h2>Observation clinique</h2>
+            <div class="field-container">
+                {{ form_widget(form.contenu, {
+                    'attr': {
+                        'class': 'clinical-input',
+                        'placeholder': 'Décrivez la situation clinique... (Ctrl+K pour analyser)'
+                    }
+                }) }}
+                <div class="field-hint">Minimum 50 caractères pour générer une conclusion</div>
             </div>
+        </div>
 
-            <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    {{ form_label(form.conclusion, 'Conclusion', {'label_attr': {'class': 'form-label fw-bold mb-0'}}) }}
-                    <div>
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="generateConclusionBtn">
-                            <i class="fas fa-magic me-1"></i> Générer une conclusion
-                        </button>
-                    </div>
-                </div>
-                {{ form_widget(form.conclusion, {'attr': {
-                    'class': 'form-control',
-                    'rows': 4,
-                    'placeholder': 'La conclusion sera générée automatiquement ou vous pouvez la saisir manuellement...'
-                }}) }}
-                <div id="conclusionLoader" class="small text-muted mt-1" style="display: none;">
-                    <i class="fas fa-spinner fa-spin me-1"></i> Génération de la conclusion en cours...
+        <div class="form-section">
+            <div class="section-header">
+                <h2>Conclusion</h2>
+                <button type="button" class="btn-outline" id="generateConclusionBtn">
+                    Générer une conclusion
+                </button>
+            </div>
+            <div class="field-container">
+                {{ form_widget(form.conclusion, {
+                    'attr': {
+                        'class': 'clinical-input',
+                        'rows': 4,
+                        'placeholder': 'La conclusion apparaîtra ici...'
+                    }
+                }) }}
+                <div id="conclusionLoader" class="loader" style="display: none;">
+                    Génération en cours...
                 </div>
             </div>
+        </div>
 
-            <div class="mb-3">
-                {{ form_label(form.pdfFile, 'Document PDF', {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                {{ form_widget(form.pdfFile, {'attr': {
-                    'class': 'form-control',
-                    'accept': 'application/pdf'
-                }}) }}
+        <div class="form-section">
+            <h2>Document PDF</h2>
+            <div class="field-container">
+                {{ form_widget(form.pdfFile, {
+                    'attr': {
+                        'class': 'file-input',
+                        'accept': 'application/pdf'
+                    }
+                }) }}
                 
                 {% if rapport.urlPdf is defined and rapport.urlPdf %}
-                    <div class="mt-2 p-2 bg-light rounded">
-                        <small class="text-muted">
-                            <i class="fas fa-paperclip me-1"></i> Fichier actuel: 
-                            <a href="{{ asset('uploads/rapports/' ~ rapport.urlPdf) }}" target="_blank">
-                                {{ rapport.urlPdf }}
-                            </a>
-                        </small>
+                    <div class="current-file">
+                        <span>Fichier actuel:</span>
+                        <a href="{{ asset('uploads/rapports/' ~ rapport.urlPdf) }}" target="_blank">
+                            {{ rapport.urlPdf }}
+                        </a>
                     </div>
                 {% endif %}
                 
-                <small class="text-muted">
-                    <i class="fas fa-info-circle me-1"></i> Format PDF uniquement, max 5 Mo
-                </small>
+                <div class="field-hint">Format PDF uniquement • max 5 Mo</div>
             </div>
-
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary px-4">
-                    {{ action }}
-                </button>
-                <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
-                    Annuler
-                </button>
-            </div>
-
-            {{ form_end(form) }}
         </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                {{ action }}
+            </button>
+            <button type="button" class="btn-secondary" onclick="history.back()">
+                Annuler
+            </button>
+        </div>
+
+        {{ form_end(form) }}
     </div>
 </div>
+
+<style>
+.rapport-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* Page header */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.back-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.back-link:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.page-header h1 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #0f172a;
+    margin: 0;
+}
+
+.patient-name {
+    margin-left: auto;
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+/* Formulaire */
+.form-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.form-section {
+    margin-bottom: 32px;
+}
+
+.form-section h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 12px;
+    letter-spacing: 0.3px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+}
+
+.field-container {
+    position: relative;
+}
+
+.clinical-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #0f172a;
+    background: white;
+    transition: all 0.2s;
+    resize: vertical;
+}
+
+.clinical-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.clinical-input::placeholder {
+    color: #94a3b8;
+}
+
+.field-hint {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Boutons */
+.btn-outline {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.btn-primary {
+    background: #1e293b;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #0f172a;
+}
+
+.btn-secondary {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* File input */
+.file-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+.current-file {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.current-file span {
+    color: #64748b;
+    margin-right: 8px;
+}
+
+.current-file a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.current-file a:hover {
+    text-decoration: underline;
+}
+
+/* Loader */
+.loader {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #3b82f6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rapport-container {
+        padding: 16px;
+    }
+    
+    .form-card {
+        padding: 20px;
+    }
+    
+    .page-header {
+        flex-wrap: wrap;
+    }
+    
+    .patient-name {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+</style>
 {% endblock %}
 
 {% block javascripts %}
@@ -109,15 +354,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const orientationList = document.getElementById('orientationList');
     const alertesList = document.getElementById('alertesList');
     
-    const patientContext = {
-        age: {{ patientAge|default('null') }},
-        antecedents: '{{ patientAntecedents|default('')|e('js') }}'
-    };
+    const patientData = {{ patientData|json_encode|raw }};
 
     let currentField = contenuField;
-    let analyseTimeout = null;
+    let isAnalyzing = false;
 
+    // Raccourci clavier : Ctrl+K
     async function analyserSituation() {
+        if (isAnalyzing) {
+            assistantStatus.textContent = 'Analyse en cours...';
+            return;
+        }
+        
         const texte = currentField.value.trim();
         
         if (texte.length < 10) {
@@ -125,7 +373,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        assistantStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Analyse en cours...';
+        isAnalyzing = true;
+        assistantStatus.textContent = 'Analyse...';
         suggestionsPanel.style.display = 'none';
 
         try {
@@ -137,10 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     text: texte,
-                    context: {
-                        ...patientContext,
-                        field: currentField.id.includes('contenu') ? 'contenu' : 'conclusion'
-                    }
+                    context: patientData
                 })
             });
 
@@ -148,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.suggestions) {
                 afficherSuggestions(data.suggestions);
-                assistantStatus.textContent = `Suggestions disponibles (${data.count || 0})`;
+                assistantStatus.textContent = `${data.count} suggestions disponibles`;
             } else {
                 suggestionsPanel.style.display = 'none';
                 assistantStatus.textContent = 'Aucune suggestion';
@@ -156,7 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('Erreur:', error);
-            assistantStatus.textContent = 'Erreur de connexion';
+            assistantStatus.textContent = 'Erreur';
+        } finally {
+            isAnalyzing = false;
         }
     }
 
@@ -168,76 +416,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (suggestions.examens && suggestions.examens.length > 0) {
             examensList.innerHTML = suggestions.examens.map(e => 
-                `<span class="suggestion-item" data-texte="${e.replace(/"/g, '&quot;')}">${e}</span>`
+                `<div class="suggestion-item" data-texte="${e.replace(/"/g, '&quot;')}">${e}</div>`
             ).join('');
             examensSection.style.display = 'block';
         }
 
         if (suggestions.traitements && suggestions.traitements.length > 0) {
             traitementsList.innerHTML = suggestions.traitements.map(t => 
-                `<span class="suggestion-item" data-texte="${t.replace(/"/g, '&quot;')}">${t}</span>`
+                `<div class="suggestion-item" data-texte="${t.replace(/"/g, '&quot;')}">${t}</div>`
             ).join('');
             traitementsSection.style.display = 'block';
         }
 
         if (suggestions.orientation && suggestions.orientation.length > 0) {
             orientationList.innerHTML = suggestions.orientation.map(o => 
-                `<span class="suggestion-item" data-texte="${o.replace(/"/g, '&quot;')}">${o}</span>`
+                `<div class="suggestion-item" data-texte="${o.replace(/"/g, '&quot;')}">${o}</div>`
             ).join('');
             orientationSection.style.display = 'block';
         }
 
         if (suggestions.alertes && suggestions.alertes.length > 0) {
             alertesList.innerHTML = suggestions.alertes.map(a => 
-                `<span class="suggestion-item" data-texte="${a.replace(/"/g, '&quot;')}">${a}</span>`
+                `<div class="suggestion-item" data-texte="${a.replace(/"/g, '&quot;')}">${a}</div>`
             ).join('');
             alertesSection.style.display = 'block';
         }
 
-        if (suggestions.examens?.length || suggestions.traitements?.length || 
-            suggestions.orientation?.length || suggestions.alertes?.length) {
-            suggestionsPanel.style.display = 'block';
-        } else {
-            suggestionsPanel.style.display = 'none';
-        }
-
+        suggestionsPanel.style.display = 'block';
+        
         document.querySelectorAll('.suggestion-item').forEach(item => {
-            item.addEventListener('click', function() {
-                insererSuggestion(this.dataset.texte);
+            item.classList.remove('selected');
+            
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const texte = this.dataset.texte;
+                ajouterSuggestion(texte);
+                this.classList.add('selected');
             });
         });
     }
 
-    function insererSuggestion(texte) {
+    function ajouterSuggestion(texte) {
         if (!currentField) return;
 
         const cursorPos = currentField.selectionStart;
         const textAvant = currentField.value.substring(0, cursorPos);
         const textApres = currentField.value.substring(cursorPos);
         
-        const separateur = textAvant.length > 0 && !textAvant.endsWith('.') && !textAvant.endsWith(' ') ? '. ' : ' ';
+        let separateur = ' ';
+        if (textAvant.length > 0) {
+            const dernierChar = textAvant.charAt(textAvant.length - 1);
+            if (dernierChar !== '.' && dernierChar !== ' ' && dernierChar !== '\n') {
+                separateur = '. ';
+            }
+        }
         
-        currentField.value = textAvant + separateur + texte + textApres;
+        let nouvelleValeur = textAvant + separateur + texte;
         
-        const nouvellePosition = cursorPos + separateur.length + texte.length;
+        const dernierCharSaisi = nouvelleValeur.charAt(nouvelleValeur.length - 1);
+        if (dernierCharSaisi !== '.' && dernierCharSaisi !== '\n') {
+            nouvelleValeur += '.';
+        }
+        
+        nouvelleValeur += textApres;
+        currentField.value = nouvelleValeur;
+        
+        const nouvellePosition = textAvant.length + separateur.length + texte.length + 1;
         currentField.setSelectionRange(nouvellePosition, nouvellePosition);
-        
         currentField.focus();
-        suggestionsPanel.style.display = 'none';
-        assistantStatus.textContent = 'Suggestion insérée';
     }
 
     async function genererConclusion() {
         const contenu = contenuField.value.trim();
         
         if (contenu.length < 50) {
-            alert('Veuillez d\'abord écrire un contenu suffisant (minimum 50 caractères)');
+            alert('Le contenu doit faire au moins 50 caractères');
             return;
         }
 
         generateBtn.disabled = true;
         conclusionLoader.style.display = 'block';
-        assistantStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Génération conclusion...';
+        assistantStatus.textContent = 'Génération...';
 
         try {
             const response = await fetch('{{ path('api_generate_conclusion') }}', {
@@ -248,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     contenu: contenu,
-                    context: patientContext
+                    context: patientData
                 })
             });
 
@@ -256,34 +515,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.conclusion) {
                 conclusionField.value = data.conclusion;
-                showNotification('Conclusion générée avec succès', 'success');
-                assistantStatus.textContent = 'Conclusion prête';
+                assistantStatus.textContent = 'Conclusion générée';
             } else {
-                showNotification('Erreur lors de la génération', 'error');
                 assistantStatus.textContent = 'Erreur';
             }
             
         } catch (error) {
             console.error('Erreur:', error);
-            showNotification('Erreur de connexion', 'error');
-            assistantStatus.textContent = 'Erreur connexion';
+            assistantStatus.textContent = 'Erreur';
         } finally {
             generateBtn.disabled = false;
             conclusionLoader.style.display = 'none';
         }
-    }
-
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow`;
-        notification.style.zIndex = '9999';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => notification.remove(), 3000);
     }
 
     function onFieldFocus(event) {
@@ -291,7 +534,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function onKeyDown(event) {
-        if (event.ctrlKey && event.code === 'Space') {
+        // Ctrl+K au lieu de Ctrl+Espace (plus fiable)
+        if (event.ctrlKey && event.key === 'k') {
             event.preventDefault();
             currentField = event.target;
             analyserSituation();
@@ -299,20 +543,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (event.key === 'Escape' && suggestionsPanel.style.display === 'block') {
             suggestionsPanel.style.display = 'none';
-            assistantStatus.textContent = 'Suggestions fermées';
         }
-    }
-
-    function onInput(event) {
-        clearTimeout(analyseTimeout);
-        analyseTimeout = setTimeout(() => analyserSituation(), 2000);
     }
 
     [contenuField, conclusionField].forEach(field => {
         if (field) {
             field.addEventListener('focus', onFieldFocus);
             field.addEventListener('keydown', onKeyDown);
-            field.addEventListener('input', onInput);
         }
     });
 
@@ -323,13 +560,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(event) {
         if (!suggestionsPanel.contains(event.target) && 
             !event.target.closest('textarea') &&
-            !event.target.closest('button')) {
+            !event.target.closest('button') &&
+            !event.target.closest('.patient-card')) {
             suggestionsPanel.style.display = 'none';
         }
     });
 
-    console.log('✅ Assistant médical prêt');
-    console.log('👤 Patient:', patientContext);
+    console.log('Assistant clinique prêt - Mode sélection multiple');
 });
 </script>
 {% endblock %}

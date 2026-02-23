@@ -1,5 +1,4 @@
 <?php
-// src/Controller/Api/AIConclusionController.php
 
 namespace App\Controller\Api;
 
@@ -10,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/api/ai-conclusion')]
+#[Route('/api/medical')]
 #[IsGranted('ROLE_MEDECIN')]
 class AIConclusionController extends AbstractController
 {
@@ -18,7 +17,7 @@ class AIConclusionController extends AbstractController
         private AIConclusionService $conclusionService
     ) {}
 
-    #[Route('/generate', name: 'api_generate_conclusion', methods: ['POST'])]
+    #[Route('/conclusion', name: 'api_generate_conclusion', methods: ['POST'])]
     public function generate(Request $request): JsonResponse
     {
         try {
@@ -38,7 +37,6 @@ class AIConclusionController extends AbstractController
                 ], 400);
             }
 
-            // Générer la conclusion
             $conclusion = $this->conclusionService->genererConclusion($contenu, $contexte);
             
             return $this->json([

@@ -20,17 +20,26 @@
         <div class="card-body">
 
             <div class="row mb-3 align-items-center">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text"
                            id="searchInput"
                            class="form-control"
                            placeholder="🔍 Rechercher dans les rapports...">
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select id="sortDate" class="form-control">
                         <option value="desc">📅 Plus récent</option>
                         <option value="asc">📅 Plus ancien</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <select id="limitSelect" class="form-control">
+                        <option value="10" {{ app.request.get('limit') == 10 ? 'selected' : '' }}>10 par page</option>
+                        <option value="20" {{ app.request.get('limit') == 20 ? 'selected' : '' }}>20 par page</option>
+                        <option value="50" {{ app.request.get('limit') == 50 ? 'selected' : '' }}>50 par page</option>
+                        <option value="100" {{ app.request.get('limit') == 100 ? 'selected' : '' }}>100 par page</option>
                     </select>
                 </div>
 
@@ -117,20 +126,18 @@
                     </table>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            Total: <strong>{{ rapports|length }}</strong> rapport(s)
-                        </div>
+                <!-- Pagination avec les bonnes méthodes -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        {% set firstItem = (rapports.currentPageNumber - 1) * rapports.itemNumberPerPage + 1 %}
+                        {% set lastItem = firstItem + rapports|length - 1 %}
+                        Affichage de {{ firstItem }} à {{ lastItem }} sur {{ rapports.totalItemCount }} rapports
                     </div>
-                    <div class="col-md-6 text-right">
-                        <small class="text-muted">
-                            <i class="fas fa-cloud-upload-alt"></i> 
-                            Génération PDF via API PDF.co
-                        </small>
+                    <div class="pagination-wrapper">
+                        {{ knp_pagination_render(rapports, 'pagination/bootstrap_v5_pagination_fr.html.twig') }}
                     </div>
                 </div>
+
             {% else %}
                 <div class="alert alert-info text-center">
                     <i class="fas fa-info-circle fa-3x mb-3"></i>
@@ -165,6 +172,17 @@ document.addEventListener('DOMContentLoaded', function () {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+
+    // Gestionnaire de changement de limite
+    const limitSelect = document.getElementById('limitSelect');
+    if (limitSelect) {
+        limitSelect.addEventListener('change', function() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', this.value);
+            url.searchParams.set('page', 1); // Retour à la première page
+            window.location.href = url.toString();
         });
     }
 
@@ -353,6 +371,29 @@ document.addEventListener('DOMContentLoaded', function () {
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: help;
+}
+
+.pagination-wrapper .pagination {
+    margin-bottom: 0;
+    justify-content: flex-end;
+}
+
+.pagination-wrapper .page-link {
+    color: #3498db;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+
+.pagination-wrapper .page-item.active .page-link {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+.pagination-wrapper .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #2980b9;
 }
 
 @media (max-width: 768px) {

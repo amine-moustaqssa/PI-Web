@@ -10,6 +10,7 @@ use App\Service\PdfGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,18 +33,25 @@ class RapportMedicalController extends AbstractController
     }
 
     #[Route('/dossier/{id}', name: 'medecin_dossier_rapports')]
-    public function index(DossierClinique $dossier): Response
+    public function index(DossierClinique $dossier, Request $request, PaginatorInterface $paginator): Response
     {
+        // Récupérer tous les rapports du dossier (triés par date décroissante)
+        $rapportsQuery = $dossier->getRapportsMedicaux();
+        
+        // Paginer les résultats
+        $rapports = $paginator->paginate(
+            $rapportsQuery, // Requête Doctrine
+            $request->query->getInt('page', 1), // Numéro de page
+            $request->query->getInt('limit', 10) // Limite par page
+        );
+
         return $this->render('front/medecin/rapport_medical/index.html.twig', [
             'dossier'  => $dossier,
             'profil'   => $dossier->getProfilMedical(),
-            'rapports' => $dossier->getRapportsMedicaux(),
+            'rapports' => $rapports,
         ]);
     }
 
-    // ===============================
-    // AJOUTER un rapport avec IA
-    // ===============================
     #[Route('/ajouter/{id}', name: 'medecin_rapport_medical_new')]
     public function ajouter(DossierClinique $dossier, Request $request, EntityManagerInterface $em): Response
     {
@@ -65,25 +73,38 @@ class RapportMedicalController extends AbstractController
             }
         }
 
-        // === DONNÉES POUR L'ASSISTANT IA ===
         $profil = $dossier->getProfilMedical();
         $dateNaissance = $profil->getDateNaissance();
         $patientAge = $dateNaissance ? date_diff(new \DateTime(), $dateNaissance)->y : null;
-        $patientAntecedents = $dossier->getAntecedents() ?? '';
+        
+        // Formatage des allergies (array) en string lisible
+        $allergies = $dossier->getAllergies();
+        $patientAllergies = !empty($allergies) ? implode(', ', $allergies) : 'Aucune allergie connue';
+        
+        // Antécédents (string)
+        $patientAntecedents = $dossier->getAntecedents() ?? 'Aucun antécédent notable';
+        
+        // Informations patient
+        $patientNom = $profil->getNom() ?? '';
+        $patientPrenom = $profil->getPrenom() ?? '';
+        $patientContactUrgence = $profil->getContactUrgence() ?? 'Non renseigné';
 
         return $this->render('front/medecin/rapport_medical/form.html.twig', [
             'form' => $form->createView(),
             'rapport' => $rapport,
             'dossier' => $dossier,
             'action' => 'Ajouter',
-            'patientAge' => $patientAge,
-            'patientAntecedents' => $patientAntecedents
+            'patientData' => [
+                'age' => $patientAge,
+                'antecedents' => $patientAntecedents,
+                'allergies' => $patientAllergies,
+                'nom' => $patientNom,
+                'prenom' => $patientPrenom,
+                'contact_urgence' => $patientContactUrgence
+            ]
         ]);
     }
 
-    // ===============================
-    // MODIFIER un rapport avec IA
-    // ===============================
     #[Route('/modifier/{id}', name: 'medecin_rapport_medical_edit')]
     public function modifier(RapportMedical $rapport, Request $request, EntityManagerInterface $em): Response
     {
@@ -92,11 +113,9 @@ class RapportMedicalController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()){
             try {
-                // Mettre à jour la date de création si un nouveau fichier est uploadé
                 if ($rapport->getPdfFile() !== null) {
                     $rapport->setDateCreation(new \DateTime());
                 }
-                
                 $em->flush();
                 $this->addFlash('success', 'Rapport médical modifié avec succès.');
                 return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $rapport->getDossierClinique()->getId()]);
@@ -105,33 +124,45 @@ class RapportMedicalController extends AbstractController
             }
         }
 
-        // === DONNÉES POUR L'ASSISTANT IA ===
         $dossier = $rapport->getDossierClinique();
         $profil = $dossier->getProfilMedical();
         $dateNaissance = $profil->getDateNaissance();
         $patientAge = $dateNaissance ? date_diff(new \DateTime(), $dateNaissance)->y : null;
-        $patientAntecedents = $dossier->getAntecedents() ?? '';
+        
+        // Formatage des allergies (array) en string lisible
+        $allergies = $dossier->getAllergies();
+        $patientAllergies = !empty($allergies) ? implode(', ', $allergies) : 'Aucune allergie connue';
+        
+        // Antécédents (string)
+        $patientAntecedents = $dossier->getAntecedents() ?? 'Aucun antécédent notable';
+        
+        // Informations patient
+        $patientNom = $profil->getNom() ?? '';
+        $patientPrenom = $profil->getPrenom() ?? '';
+        $patientContactUrgence = $profil->getContactUrgence() ?? 'Non renseigné';
 
         return $this->render('front/medecin/rapport_medical/form.html.twig', [
             'form' => $form->createView(),
             'rapport' => $rapport,
             'dossier' => $dossier,
             'action' => 'Modifier',
-            'patientAge' => $patientAge,
-            'patientAntecedents' => $patientAntecedents
+            'patientData' => [
+                'age' => $patientAge,
+                'antecedents' => $patientAntecedents,
+                'allergies' => $patientAllergies,
+                'nom' => $patientNom,
+                'prenom' => $patientPrenom,
+                'contact_urgence' => $patientContactUrgence
+            ]
         ]);
     }
 
-    // ===============================
-    // Supprimer un rapport
-    // ===============================
     #[Route('/supprimer/{id}', name: 'medecin_rapport_medical_delete')]
     public function supprimer(RapportMedical $rapport, EntityManagerInterface $em): Response
     {
         $dossierId = $rapport->getDossierClinique()->getId();
         
         try {
-            // Supprimer le fichier physique si il existe
             if ($rapport->getUrlPdf()) {
                 $pdfPath = $this->getParameter('kernel.project_dir') . '/public/uploads/rapports/' . $rapport->getUrlPdf();
                 if (file_exists($pdfPath)) {
@@ -149,9 +180,6 @@ class RapportMedicalController extends AbstractController
         return $this->redirectToRoute('medecin_dossier_rapports', ['id' => $dossierId]);
     }
 
-    // ===============================
-    // Visualiser PDF uploadé
-    // ===============================
     #[Route('/visualiser-fichier/{id}', name: 'medecin_rapport_visualiser_fichier')]
     public function visualiserFichier(RapportMedical $rapport): Response
     {
@@ -168,9 +196,6 @@ class RapportMedicalController extends AbstractController
         return $this->file($pdfPath, null, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 
-    // ===============================
-    // PDF - Visualiser (généré)
-    // ===============================
     #[Route('/pdf-api/{id}', name: 'medecin_rapport_medical_pdf_api')]
     public function visualiserPdf(RapportMedical $rapport, PdfGeneratorService $pdfGenerator): Response
     {
@@ -219,9 +244,6 @@ class RapportMedicalController extends AbstractController
         }
     }
 
-    // ===============================
-    // PDF - Télécharger (généré)
-    // ===============================
     #[Route('/pdf-api-download/{id}', name: 'medecin_rapport_medical_pdf_download')]
     public function telechargerPdf(RapportMedical $rapport, PdfGeneratorService $pdfGenerator): Response
     {
@@ -268,9 +290,6 @@ class RapportMedicalController extends AbstractController
         }
     }
 
-    // ===============================
-    // Fallback methods (Dompdf)
-    // ===============================
     private function visualiserPdfFallback(RapportMedical $rapport): Response
     {
         try {

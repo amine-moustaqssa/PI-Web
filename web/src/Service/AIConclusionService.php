@@ -1,5 +1,4 @@
 <?php
-// src/Service/AIConclusionService.php
 
 namespace App\Service;
 
@@ -24,7 +23,7 @@ class AIConclusionService
             // Essayer Ollama d'abord
             if ($this->isOllamaDisponible()) {
                 $conclusion = $this->getConclusionParOllama($contenu, $contextePatient);
-                if (!empty($conclusion)) {
+                if (!empty($conclusion) && strlen($conclusion) > 30) {
                     return $conclusion;
                 }
             }
@@ -37,7 +36,7 @@ class AIConclusionService
     }
 
     /**
-     * Vérifie si Ollama est disponible - RENDUE PUBLIQUE
+     * Vérifie si Ollama est disponible
      */
     public function isOllamaDisponible(): bool
     {
@@ -53,82 +52,148 @@ class AIConclusionService
     }
 
     /**
-     * Conclusion via Ollama (IA)
+     * Conclusion via Ollama (IA) - AMÉLIORÉ
      */
     private function getConclusionParOllama(string $contenu, array $contexte): string
     {
         $age = $contexte['age'] ?? 'non précisé';
-        $antecedents = $contexte['antecedents'] ?? 'aucun';
+        $antecedents = $contexte['antecedents'] ?? 'aucun antécédent notable';
+        $allergies = $contexte['allergies'] ?? 'aucune allergie connue';
+        $nom = $contexte['nom'] ?? 'Patient';
+        $prenom = $contexte['prenom'] ?? '';
 
-        $prompt = "Tu es un médecin expert. À partir de cette observation clinique, rédige une CONCLUSION MÉDICALE professionnelle et concise.
+        $prompt = "Tu es un médecin chef de service. Rédige une CONCLUSION MÉDICALE professionnelle et personnalisée pour ce patient.
 
-Contexte patient:
+DOSSIER PATIENT:
+- Patient: $prenom $nom
 - Âge: $age ans
 - Antécédents: $antecedents
+- Allergies: $allergies
 
-Observation clinique:
+OBSERVATION CLINIQUE:
 \"$contenu\"
 
-Rédige une conclusion médicale structurée en 3-4 phrases maximum qui:
-1. Synthétise le diagnostic probable
-2. Résume les examens clés à réaliser
-3. Propose la conduite à tenir
-4. Mentionne le suivi recommandé
+RÈGLES POUR LA CONCLUSION:
+1. Structure en 3-4 phrases maximum
+2. Commence par \"Conclusion :\"
+3. Inclus le diagnostic probable ou les hypothèses principales
+4. Mentionne les examens clés à réaliser en priorité
+5. Propose la conduite à tenir immédiate
+6. Adapte au contexte patient (âge, antécédents, allergies)
+7. Sois précise, pas de généralités
 
-La conclusion doit être professionnelle, précise et utilisable directement dans un rapport médical.";
+La conclusion doit être directement utilisable dans un rapport médical.";
 
-        $response = $this->httpClient->request('POST', 'http://localhost:11434/api/generate', [
-            'json' => [
-                'model' => 'mistral',
-                'prompt' => $prompt,
-                'stream' => false,
-                'options' => [
-                    'temperature' => 0.3,
-                    'num_predict' => 300
-                ]
-            ],
-            'timeout' => 15
-        ]);
+        try {
+            $response = $this->httpClient->request('POST', 'http://localhost:11434/api/generate', [
+                'json' => [
+                    'model' => 'mistral',
+                    'prompt' => $prompt,
+                    'stream' => false,
+                    'options' => [
+                        'temperature' => 0.3,
+                        'num_predict' => 400
+                    ]
+                ],
+                'timeout' => 20
+            ]);
 
-        $data = $response->toArray();
-        $conclusion = trim($data['response'] ?? '');
-        
-        // Nettoyer la conclusion
-        $conclusion = preg_replace('/^["\']|["\']$/', '', $conclusion);
-        $conclusion = str_replace(['```', 'json'], '', $conclusion);
-        
-        return $conclusion;
+            $data = $response->toArray();
+            $conclusion = trim($data['response'] ?? '');
+            
+            // Nettoyer la conclusion
+            $conclusion = preg_replace('/^["\']|["\']$/', '', $conclusion);
+            $conclusion = str_replace(['```', 'json', '```json', '```html', '```text'], '', $conclusion);
+            $conclusion = trim($conclusion);
+            
+            // S'assurer que la conclusion commence par "Conclusion :"
+            if (strpos($conclusion, 'Conclusion') !== 0 && strpos($conclusion, 'CONCLUSION') !== 0) {
+                $conclusion = 'Conclusion : ' . lcfirst($conclusion);
+            }
+            
+            return $conclusion;
+            
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur Ollama: ' . $e->getMessage());
+            return '';
+        }
     }
 
     /**
-     * Conclusion via règles (fallback)
+     * Conclusion via règles (fallback) - AMÉLIORÉ
      */
     private function getConclusionParRegles(string $contenu, array $contexte): string
     {
         $contenuLower = strtolower($contenu);
         $age = $contexte['age'] ?? 30;
+        $allergies = $contexte['allergies'] ?? '';
+        $antecedents = $contexte['antecedents'] ?? '';
 
-        // Règles simples basées sur mots-clés
-        if (strpos($contenuLower, 'douleur thoracique') !== false) {
-            if (strpos($contenuLower, 'irradiation') !== false || strpos($contenuLower, 'bras') !== false) {
-                return "Conclusion : suspicion de syndrome coronarien aigu. Un ECG et un dosage des troponines sont réalisés en urgence. Une surveillance scopique et un transfert en unité de soins intensifs cardiologiques sont à discuter selon les résultats.";
+        // Alerte allergies
+        $alerteAllergies = '';
+        if (!empty($allergies) && $allergies !== 'Aucune allergie connue' && $allergies !== 'aucune allergie connue') {
+            $alerteAllergies = " Attention aux allergies: $allergies.";
+        }
+
+        // Alerte antécédents
+        $alerteAntecedents = '';
+        if (!empty($antecedents) && $antecedents !== 'Aucun antécédent notable' && $antecedents !== 'aucun antécédent notable') {
+            $alerteAntecedents = " À prendre en compte: $antecedents.";
+        }
+
+        // Règles plus détaillées
+        if (preg_match('/(douleur thoracique|angine|poitrine).*(irradiation|bras|mâchoire)/i', $contenu)) {
+            return "Conclusion : syndrome coronarien aigu suspecté. Un ECG et dosage des troponines en urgence. Mise sous aspirine 250mg et surveillance scopique. Transfert en USIC à discuter.$alerteAllergies$alerteAntecedents";
+        }
+        
+        if (preg_match('/(douleur thoracique|angine|poitrine)/i', $contenu)) {
+            return "Conclusion : douleur thoracique à explorer. ECG et bilan biologique (troponines, NFS, CRP). Consultation cardiologique rapide.$alerteAllergies$alerteAntecedents";
+        }
+
+        if (preg_match('/(fièvre|température|frissons).*(toux|expectoration|crachat)/i', $contenu)) {
+            return "Conclusion : pneumopathie infectieuse probable. Radiographie thoracique, NFS, CRP, hémocultures. Antibiothérapie probabiliste adaptée aux allergies. Réévaluation clinique dans 48h.$alerteAllergies$alerteAntecedents";
+        }
+
+        if (preg_match('/(fièvre|température).*(dysurie|brûlures|urines)/i', $contenu)) {
+            return "Conclusion : infection urinaire probable. ECBU avec antibiogramme. Antibiothérapie probabiliste si symptômes sévères. Boisson abondante.$alerteAllergies$alerteAntecedents";
+        }
+
+        if (preg_match('/(dyspnée|essoufflement|orthopnée)/i', $contenu)) {
+            if ($age > 65) {
+                return "Conclusion : suspicion d'insuffisance cardiaque chez patient âgé. Radiographie thoracique, BNP, échocardiographie. Traitement diurétique à discuter. Surveillance rapprochée.$alerteAllergies$alerteAntecedents";
             }
-            return "Conclusion : douleur thoracique à explorer. ECG et bilan biologique à réaliser. Consultation cardiologique si persistance.";
+            return "Conclusion : dyspnée d'effort. Bilan étiologique: radiographie thoracique, EFR, échographie cardiaque. Traitement symptomatique en attendant les résultats.$alerteAllergies$alerteAntecedents";
         }
 
-        if (strpos($contenuLower, 'fièvre') !== false && strpos($contenuLower, 'toux') !== false) {
-            return "Conclusion : pneumopathie infectieuse probable. Une radiographie thoracique et un bilan biologique (NFS, CRP) sont prescrits. Antibiothérapie probabiliste à débuter. Réévaluation clinique dans 48h.";
+        if (preg_match('/(migraine|céphalée|mal de tête)/i', $contenu)) {
+            if (preg_match('/(aura|photophobie|nausée)/i', $contenu)) {
+                return "Conclusion : crise migraineuse avec aura. Traitement par triptans au début des symptômes. Repos au calme. Consultation neurologique si > 4 crises/mois.$alerteAllergies$alerteAntecedents";
+            }
+            return "Conclusion : céphalées de tension probable. Antalgiques de palier I. Repos. Consultation si persistance ou aggravation.$alerteAllergies$alerteAntecedents";
         }
 
-        if (strpos($contenuLower, 'dyspnée') !== false || strpos($contenuLower, 'essoufflement') !== false) {
-            return "Conclusion : dyspnée d'effort. Bilan étiologique à réaliser : radiographie thoracique, EFR, échographie cardiaque. Traitement symptomatique en attendant les résultats.";
+        if (preg_match('/(vomissement|vomit|nausée)/i', $contenu)) {
+            if (preg_match('/(diarrhée|déshydratation)/i', $contenu)) {
+                return "Conclusion : gastro-entérite aiguë. Réhydratation orale abondante. Antiémétiques si besoin. Surveillance des signes de déshydratation. Régime sans lait pendant 48h.$alerteAllergies$alerteAntecedents";
+            }
+            return "Conclusion : nausées/vomissements. Bilan électrolytique. Réhydratation. Recherche étiologique (médicaments, grossesse, trouble digestif).$alerteAllergies$alerteAntecedents";
         }
 
-        if (strpos($contenuLower, 'migraine') !== false || strpos($contenuLower, 'céphalée') !== false) {
-            return "Conclusion : crise migraineuse typique. Traitement de la crise par triptans. Mesures non médicamenteuses associées. Consultation neurologique si fréquence > 4 crises/mois.";
+        if (preg_match('/(diabète|glycémie|sucre)/i', $contenu)) {
+            return "Conclusion : déséquilibre glycémique. Adaptation du traitement antidiabétique. Éducation thérapeutique. Consultation diététique. Surveillance glycémique rapprochée.$alerteAllergies$alerteAntecedents";
         }
 
-        // Conclusion générique
-        return "Conclusion : tableau clinique à surveiller. Examens complémentaires en cours. Traitement symptomatique instauré. Consultation de contrôle dans 7 jours avec les résultats.";
+        if (preg_match('/(hypertension|tension|hta)/i', $contenu)) {
+            return "Conclusion : hypertension artérielle. Bilan initial: ECG, créatininémie, bandelette urinaire. Règles hygiéno-diététiques. Adaptation thérapeutique si nécessaire.$alerteAllergies$alerteAntecedents";
+        }
+
+        // Conclusion générique personnalisée selon l'âge
+        if ($age > 75) {
+            return "Conclusion : patient âgé de $age ans. Tableau clinique à surveiller. Examens complémentaires adaptés. Adaptation des posologies. Consultation de contrôle dans 48-72h.$alerteAllergies$alerteAntecedents";
+        } elseif ($age < 16) {
+            return "Conclusion : patient pédiatrique de $age ans. Adaptation des doses au poids. Surveillance parentale. Réévaluation rapide en cas d'aggravation.$alerteAllergies$alerteAntecedents";
+        } else {
+            return "Conclusion : tableau clinique à explorer. Examens complémentaires en cours. Traitement symptomatique instauré. Consultation de contrôle dans 7 jours avec les résultats.$alerteAllergies$alerteAntecedents";
+        }
     }
 }

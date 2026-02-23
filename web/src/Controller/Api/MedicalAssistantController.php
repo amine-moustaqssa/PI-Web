@@ -1,5 +1,4 @@
 <?php
-// src/Controller/Api/MedicalAssistantController.php
 
 namespace App\Controller\Api;
 
@@ -10,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/api/medical-assistant')]
+#[Route('/api/medical')]  // Changé pour correspondre à l'appel JS
 #[IsGranted('ROLE_MEDECIN')]
 class MedicalAssistantController extends AbstractController
 {
@@ -49,9 +48,9 @@ class MedicalAssistantController extends AbstractController
             // Fallback de sécurité
             return $this->json([
                 'suggestions' => [
-                    'examens' => ['Bilan biologique standard'],
-                    'traitements' => ['Traitement symptomatique'],
-                    'orientation' => ['Consultation de contrôle'],
+                    'examens' => ['Bilan biologique standard (NFS, CRP, ionogramme)'],
+                    'traitements' => ['Traitement symptomatique adapté'],
+                    'orientation' => ['Consultation de contrôle à 48h'],
                     'alertes' => []
                 ],
                 'source' => 'fallback',

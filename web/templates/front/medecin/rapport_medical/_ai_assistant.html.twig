@@ -1,118 +1,329 @@
-{# templates/front/medecin/rapport_medical/_ai_assistant.html.twig #}
-
-<div class="medical-assistant mb-3">
-    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded">
+<div class="medical-assistant mb-4">
+    <!-- En-tête minimaliste -->
+    <div class="assistant-header d-flex justify-content-between align-items-center px-3 py-2">
         <div class="d-flex align-items-center">
-            <span class="badge bg-primary me-2">
-                Assistant médical
-            </span>
-            <small class="text-muted" id="assistantStatus">Prêt</small>
+            <span class="assistant-badge">Assistant clinique</span>
+            <span class="status-indicator" id="assistantStatus">Prêt</span>
         </div>
-        <div>
-            <kbd class="bg-white border">Ctrl</kbd>
-            <span class="text-muted mx-1">+</span>
-            <kbd class="bg-white border">Espace</kbd>
-            <span class="text-muted ms-2 small">pour analyser</span>
+        <div class="d-flex align-items-center gap-3">
+            <button type="button" class="btn-test" id="testOllamaBtn" title="Tester la connexion">
+                Test connexion
+            </button>
+            <div class="shortcut-hint">
+                <span class="key">⌘</span> <span class="key">K</span>
+            </div>
         </div>
     </div>
 
+    <!-- Carte patient - Informations clés -->
+    <div class="patient-card mt-2 p-3">
+        <div class="patient-info-grid">
+            <div class="info-item">
+                <span class="info-label">Patient</span>
+                <span class="info-value">{{ patientData.prenom }} {{ patientData.nom }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Âge</span>
+                <span class="info-value">{{ patientData.age ?? '--' }} ans</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Contact urgence</span>
+                <span class="info-value">{{ patientData.contact_urgence }}</span>
+            </div>
+        </div>
+        <div class="patient-details mt-2">
+            <div class="detail-row">
+                <span class="detail-label">Antécédents</span>
+                <span class="detail-value">{{ patientData.antecedents }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Allergies</span>
+                <span class="detail-value">{{ patientData.allergies }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panneau de suggestions -->
     <div id="suggestionsPanel" class="suggestions-panel mt-2" style="display: none;">
-        <!-- Examens -->
-        <div id="examensSection" class="suggestion-section" style="display: none;">
-            <div class="section-title">
-                Bilan paraclinique
-            </div>
-            <div id="examensList" class="suggestions-list"></div>
+        <div id="examensSection" class="suggestion-group" style="display: none;">
+            <div class="group-header">Examens à prescrire</div>
+            <div id="examensList" class="suggestions-container"></div>
         </div>
 
-        <!-- Traitements -->
-        <div id="traitementsSection" class="suggestion-section" style="display: none;">
-            <div class="section-title">
-                Proposition thérapeutique
-            </div>
-            <div id="traitementsList" class="suggestions-list"></div>
+        <div id="traitementsSection" class="suggestion-group" style="display: none;">
+            <div class="group-header">Proposition thérapeutique</div>
+            <div id="traitementsList" class="suggestions-container"></div>
         </div>
 
-        <!-- Orientation -->
-        <div id="orientationSection" class="suggestion-section" style="display: none;">
-            <div class="section-title">
-                Conduite à tenir
-            </div>
-            <div id="orientationList" class="suggestions-list"></div>
+        <div id="orientationSection" class="suggestion-group" style="display: none;">
+            <div class="group-header">Conduite à tenir</div>
+            <div id="orientationList" class="suggestions-container"></div>
         </div>
 
-        <!-- Alertes -->
-        <div id="alertesSection" class="suggestion-section" style="display: none;">
-            <div class="section-title">
-                Recommandations spécifiques
-            </div>
-            <div id="alertesList" class="suggestions-list"></div>
+        <div id="alertesSection" class="suggestion-group" style="display: none;">
+            <div class="group-header">Points d'attention</div>
+            <div id="alertesList" class="suggestions-container"></div>
+        </div>
+        
+        <div class="panel-footer">
+            <span>Cliquez pour ajouter • Sélection multiple active</span>
         </div>
     </div>
 </div>
 
 <style>
 .medical-assistant {
-    font-size: 0.95rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
+/* Header */
+.assistant-header {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.assistant-badge {
+    background: #1e293b;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    margin-right: 12px;
+}
+
+.status-indicator {
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+/* Bouton test */
+.btn-test {
+    background: none;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-test:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+/* Raccourci clavier */
+.shortcut-hint {
+    display: flex;
+    gap: 4px;
+}
+
+.key {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #334155;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Carte patient */
+.patient-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.patient-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #64748b;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+.patient-details {
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 8px;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+}
+
+.detail-label {
+    width: 100px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.detail-value {
+    color: #0f172a;
+    font-weight: 400;
+}
+
+/* Panneau de suggestions */
 .suggestions-panel {
     background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    max-height: 450px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    max-height: 480px;
     overflow-y: auto;
 }
 
-.suggestion-section {
-    margin-bottom: 16px;
+.suggestion-group {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.section-title {
+.suggestion-group:last-child {
+    border-bottom: none;
+}
+
+.group-header {
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #e9ecef;
-    font-size: 0.95rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+    color: #475569;
+    margin-bottom: 8px;
 }
 
-.suggestions-list {
+.suggestions-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .suggestion-item {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
-    padding: 6px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: #1e293b;
     cursor: pointer;
-    transition: all 0.2s;
-    color: #212529;
-    font-size: 0.9rem;
-    flex: 1 1 auto;
-    min-width: 250px;
+    transition: all 0.15s ease;
+    position: relative;
 }
 
 .suggestion-item:hover {
-    background: #e7f1ff;
-    border-color: #0d6efd;
+    background: #f1f5f9;
+    border-color: #94a3b8;
     transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-kbd {
-    background-color: #f8f9fa;
+.suggestion-item:active {
+    transform: translateY(0);
+}
+
+.suggestion-item.selected {
+    background: #f0f9ff;
+    border-color: #38bdf8;
+    padding-left: 24px;
+}
+
+.suggestion-item.selected::before {
+    content: "✓";
+    position: absolute;
+    left: 8px;
+    color: #0284c7;
+    font-weight: 600;
+}
+
+.panel-footer {
+    background: #f8fafc;
+    padding: 8px 16px;
+    font-size: 0.7rem;
+    color: #64748b;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Scrollbar personnalisée */
+.suggestions-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.suggestions-panel::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.suggestions-panel::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
     border-radius: 3px;
-    border: 1px solid #dee2e6;
-    color: #495057;
-    padding: 2px 6px;
-    font-size: 0.8rem;
+}
+
+.suggestions-panel::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const testBtn = document.getElementById('testOllamaBtn');
+    const assistantStatus = document.getElementById('assistantStatus');
+    
+    if (testBtn) {
+        testBtn.addEventListener('click', async function() {
+            const originalText = assistantStatus.textContent;
+            assistantStatus.textContent = 'Test...';
+            
+            try {
+                const response = await fetch('{{ path('api_medical_health') }}');
+                const data = await response.json();
+                
+                if (data.ollama.disponible) {
+                    assistantStatus.textContent = 'Ollama disponible';
+                    assistantStatus.style.color = '#059669';
+                } else {
+                    assistantStatus.textContent = 'Mode règles';
+                    assistantStatus.style.color = '#b45309';
+                }
+                
+                setTimeout(() => {
+                    assistantStatus.textContent = originalText;
+                    assistantStatus.style.color = '#475569';
+                }, 2000);
+                
+            } catch (error) {
+                assistantStatus.textContent = 'Erreur';
+                assistantStatus.style.color = '#dc2626';
+                setTimeout(() => {
+                    assistantStatus.textContent = originalText;
+                    assistantStatus.style.color = '#475569';
+                }, 2000);
+            }
+        });
+    }
+});
+</script>
