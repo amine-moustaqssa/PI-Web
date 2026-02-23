@@ -62,7 +62,8 @@ class DashboardController extends AbstractController
             ->where('d.medecin = :user')
             ->setParameter('user', $user)
             ->orderBy('d.jourSemaine', 'ASC')
-            ->addOrderBy('d.heureDebut', 'ASC');
+            ->addOrderBy('d.heureDebut', 'ASC')
+            ->addOrderBy('d.id', 'ASC');
 
         $pagination = $paginator->paginate(
             $queryBuilder,

@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Repository\RendezVousRepository;
 use App\Repository\DisponibiliteRepository;
+use App\Repository\SpecialiteRepository;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 use Knp\Component\Pager\PaginatorInterface;
@@ -16,51 +17,61 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'dashboard')]
-    public function index(RendezVousRepository $repo, DisponibiliteRepository $dispoRepo, ChartBuilderInterface $chartBuilder, Request $request): Response
-    {
+    public function index(
+        RendezVousRepository $repo,
+        DisponibiliteRepository $dispoRepo,
+        SpecialiteRepository $specialiteRepo,
+        ChartBuilderInterface $chartBuilder,
+        Request $request
+    ): Response {
         // On récupère le paramètre de recherche 'q'
         $query = $request->query->get('q');
 
         // On récupère les rendez-vous filtrés
         $rendezVousList = $repo->findBySearchQuery($query);
 
-        // --- UX ChartJS : Répartition des Créneaux ---
-        $disponibilites = $dispoRepo->findAll();
-        $specialiteCounts = [];
-        
-        foreach ($disponibilites as $dispo) {
-            $medecin = $dispo->getMedecin();
-            if ($medecin && method_exists($medecin, 'getSpecialite') && $medecin->getSpecialite()) {
-                $specName = $medecin->getSpecialite()->getNom();
-                $specialiteCounts[$specName] = ($specialiteCounts[$specName] ?? 0) + 1;
-            } else {
-                $specialiteCounts['Non assigné'] = ($specialiteCounts['Non assigné'] ?? 0) + 1;
-            }
+        // --- Chart 1: Spécialités (nombre de médecins par spécialité) ---
+        $allSpecialites = $specialiteRepo->findAll();
+        $specialiteLabels = [];
+        $specialiteData = [];
+        $specialiteColors = [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+            '#858796', '#5a5c69', '#6f42c1', '#fd7e14', '#20c997',
+            '#17a2b8', '#6610f2', '#e83e8c', '#28a745', '#dc3545',
+        ];
+
+        foreach ($allSpecialites as $spec) {
+            $specialiteLabels[] = $spec->getNom();
+            $specialiteData[] = $spec->getMedecins()->count();
         }
 
-        $chart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
-        $chart->setData([
-            'labels' => array_keys($specialiteCounts),
+        $specialiteChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $specialiteChart->setData([
+            'labels' => $specialiteLabels,
             'datasets' => [
                 [
-                    'label' => 'Créneaux',
-                    'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'],
-                    'data' => array_values($specialiteCounts),
+                    'label' => 'Médecins',
+                    'backgroundColor' => array_slice(
+                        array_merge($specialiteColors, $specialiteColors),
+                        0,
+                        count($specialiteLabels)
+                    ),
+                    'data' => $specialiteData,
                 ],
             ],
         ]);
-        
-        $chart->setOptions([
+        $specialiteChart->setOptions([
             'maintainAspectRatio' => false,
             'plugins' => [
-                'legend' => ['position' => 'bottom']
-            ]
+                'legend' => ['position' => 'bottom'],
+                'title' => ['display' => true, 'text' => 'Médecins par Spécialité'],
+            ],
         ]);
 
         return $this->render('admin/dashboard/index.html.twig', [
             'rendez_vous' => $rendezVousList,
             'search_query' => $query,
-            'chart' => $chart,
+            'specialiteChart' => $specialiteChart,
         ]);
     }
 
@@ -69,7 +80,8 @@ class DashboardController extends AbstractController
     {
         $queryBuilder = $dispoRepo->createQueryBuilder('d')
             ->orderBy('d.jourSemaine', 'ASC')
-            ->addOrderBy('d.heureDebut', 'ASC');
+            ->addOrderBy('d.heureDebut', 'ASC')
+            ->addOrderBy('d.id', 'ASC');
 
         $pagination = $paginator->paginate(
             $queryBuilder,
