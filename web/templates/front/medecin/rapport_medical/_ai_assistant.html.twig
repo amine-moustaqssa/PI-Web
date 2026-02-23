@@ -1,0 +1,118 @@
+{# templates/front/medecin/rapport_medical/_ai_assistant.html.twig #}
+
+<div class="medical-assistant mb-3">
+    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded">
+        <div class="d-flex align-items-center">
+            <span class="badge bg-primary me-2">
+                Assistant médical
+            </span>
+            <small class="text-muted" id="assistantStatus">Prêt</small>
+        </div>
+        <div>
+            <kbd class="bg-white border">Ctrl</kbd>
+            <span class="text-muted mx-1">+</span>
+            <kbd class="bg-white border">Espace</kbd>
+            <span class="text-muted ms-2 small">pour analyser</span>
+        </div>
+    </div>
+
+    <div id="suggestionsPanel" class="suggestions-panel mt-2" style="display: none;">
+        <!-- Examens -->
+        <div id="examensSection" class="suggestion-section" style="display: none;">
+            <div class="section-title">
+                Bilan paraclinique
+            </div>
+            <div id="examensList" class="suggestions-list"></div>
+        </div>
+
+        <!-- Traitements -->
+        <div id="traitementsSection" class="suggestion-section" style="display: none;">
+            <div class="section-title">
+                Proposition thérapeutique
+            </div>
+            <div id="traitementsList" class="suggestions-list"></div>
+        </div>
+
+        <!-- Orientation -->
+        <div id="orientationSection" class="suggestion-section" style="display: none;">
+            <div class="section-title">
+                Conduite à tenir
+            </div>
+            <div id="orientationList" class="suggestions-list"></div>
+        </div>
+
+        <!-- Alertes -->
+        <div id="alertesSection" class="suggestion-section" style="display: none;">
+            <div class="section-title">
+                Recommandations spécifiques
+            </div>
+            <div id="alertesList" class="suggestions-list"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.medical-assistant {
+    font-size: 0.95rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.suggestions-panel {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.suggestion-section {
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.suggestions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.suggestion-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #212529;
+    font-size: 0.9rem;
+    flex: 1 1 auto;
+    min-width: 250px;
+}
+
+.suggestion-item:hover {
+    background: #e7f1ff;
+    border-color: #0d6efd;
+    transform: translateY(-1px);
+}
+
+kbd {
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 2px 6px;
+    font-size: 0.8rem;
+}
+</style>

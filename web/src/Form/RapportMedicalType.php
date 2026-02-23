@@ -15,16 +15,30 @@ class RapportMedicalType extends AbstractType
     {
         $builder
             ->add('contenu', TextareaType::class, [
-                'label' => 'Contenu du rapport'
+                'label' => 'Contenu du rapport',
+                'attr' => [
+                    'rows' => 10,
+                    'class' => 'form-control',
+                    'placeholder' => 'Description détaillée du rapport médical...'
+                ]
             ])
             ->add('conclusion', TextareaType::class, [
-                'label' => 'Conclusion'
+                'label' => 'Conclusion',
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control',
+                    'placeholder' => 'Conclusion du rapport...'
+                ]
             ])
             ->add('url_pdf', TextType::class, [
-                'label' => 'URL PDF',
-                'required' => false
+                'label' => 'URL du PDF (optionnel)',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'https://exemple.com/document.pdf'
+                ]
             ]);
-        // date_creation et dossierClinique seront gérés dans le controller
+        // date_creation et dossierClinique sont gérés dans le contrôleur
     }
 
     public function configureOptions(OptionsResolver $resolver): void

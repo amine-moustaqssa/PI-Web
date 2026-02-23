@@ -1,53 +1,264 @@
+{# templates/front/medecin/rapport_medical/form.html.twig #}
+
 {% extends 'front/medecin/base_medecin.html.twig' %}
 
 {% block title %}{{ action }} rapport médical{% endblock %}
 
 {% block body %}
 <div class="container-fluid">
-
-    <!-- Retour + titre -->
     <div class="d-flex align-items-center mb-4">
-        <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}" class="btn btn-sm btn-light shadow-sm mr-3">
-            <i class="fas fa-arrow-left"></i>
+        <a href="{{ path('medecin_dossier_rapports', { id: dossier.id }) }}" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="fas fa-arrow-left"></i> 
         </a>
-        <h1 class="h3 mb-0 text-gray-800">{{ action }} rapport médical pour {{ dossier.profilMedical.nom }} {{ dossier.profilMedical.prenom }}</h1>
+        <h1 class="h3 mb-0">{{ action }} rapport médical</h1>
     </div>
 
-    <div class="card shadow mb-4">
+    <div class="card">
         <div class="card-body">
+            
+            {# Assistant médical #}
+            {% include 'front/medecin/rapport_medical/_ai_assistant.html.twig' with {
+                patientAge: patientAge|default(null),
+                patientAntecedents: patientAntecedents|default('')
+            } %}
 
             {{ form_start(form) }}
 
-            <div class="form-group">
-                {{ form_label(form.contenu) }}
-                {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': 5}}) }}
-                {{ form_errors(form.contenu) }}
+            <div class="mb-3">
+                {{ form_label(form.contenu, 'Observation clinique', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                {{ form_widget(form.contenu, {'attr': {
+                    'class': 'form-control',
+                    'rows': 10,
+                    'placeholder': 'Décrivez la situation clinique... (Ctrl+Espace pour analyser)'
+                }}) }}
             </div>
 
-            <div class="form-group">
-                {{ form_label(form.conclusion) }}
-                {{ form_widget(form.conclusion, {'attr': {'class': 'form-control', 'rows': 3}}) }}
-                {{ form_errors(form.conclusion) }}
+            <div class="mb-3">
+                {{ form_label(form.conclusion, 'Conclusion', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                {{ form_widget(form.conclusion, {'attr': {
+                    'class': 'form-control',
+                    'rows': 4,
+                    'placeholder': 'Conclusion du rapport...'
+                }}) }}
             </div>
 
-            <div class="form-group">
-                {{ form_label(form.url_pdf) }}
-                {{ form_widget(form.url_pdf, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.url_pdf) }}
+            <div class="mb-3">
+                {{ form_label(form.url_pdf, 'Document associé', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                {{ form_widget(form.url_pdf, {'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'URL du document PDF (optionnel)'
+                }}) }}
             </div>
 
-            <!-- Bouton Ajouter / Modifier sans icône -->
-            <button type="submit" class="btn btn-primary mt-3">
+            <button type="submit" class="btn btn-primary px-4">
                 {{ action }}
             </button>
 
             {{ form_end(form) }}
         </div>
     </div>
-
 </div>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments DOM
+    const contenuField = document.querySelector('#rapport_medical_contenu');
+    const conclusionField = document.querySelector('#rapport_medical_conclusion');
+    const assistantStatus = document.getElementById('assistantStatus');
+    const suggestionsPanel = document.getElementById('suggestionsPanel');
+    
+    // Sections
+    const examensSection = document.getElementById('examensSection');
+    const traitementsSection = document.getElementById('traitementsSection');
+    const orientationSection = document.getElementById('orientationSection');
+    const alertesSection = document.getElementById('alertesSection');
+    
+    const examensList = document.getElementById('examensList');
+    const traitementsList = document.getElementById('traitementsList');
+    const orientationList = document.getElementById('orientationList');
+    const alertesList = document.getElementById('alertesList');
+    
+    // Contexte patient
+    const patientContext = {
+        age: {{ patientAge|default('null') }},
+        antecedents: '{{ patientAntecedents|default('')|e('js') }}'
+    };
+
+    let currentField = contenuField;
+
+    /**
+     * Analyse la situation clinique
+     */
+    async function analyserSituation() {
+        const texte = currentField.value.trim();
+        
+        if (texte.length < 10) {
+            assistantStatus.textContent = 'Texte trop court';
+            return;
+        }
+
+        assistantStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Analyse en cours...';
+        suggestionsPanel.style.display = 'none';
+
+        try {
+            const response = await fetch('{{ path('api_medical_suggest') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    text: texte,
+                    context: {
+                        ...patientContext,
+                        field: currentField.id.includes('contenu') ? 'contenu' : 'conclusion'
+                    }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.suggestions) {
+                afficherSuggestions(data.suggestions);
+                assistantStatus.textContent = `Suggestions disponibles (${data.count || 0})`;
+            } else {
+                suggestionsPanel.style.display = 'none';
+                assistantStatus.textContent = 'Aucune suggestion';
+            }
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            assistantStatus.textContent = 'Erreur de connexion';
+        }
+    }
+
+    /**
+     * Affiche les suggestions structurées
+     */
+    function afficherSuggestions(suggestions) {
+        // Cacher toutes les sections d'abord
+        examensSection.style.display = 'none';
+        traitementsSection.style.display = 'none';
+        orientationSection.style.display = 'none';
+        alertesSection.style.display = 'none';
+
+        // Examens
+        if (suggestions.examens && suggestions.examens.length > 0) {
+            examensList.innerHTML = suggestions.examens.map(e => 
+                `<span class="suggestion-item" data-texte="${e.replace(/"/g, '&quot;')}">${e}</span>`
+            ).join('');
+            examensSection.style.display = 'block';
+        }
+
+        // Traitements
+        if (suggestions.traitements && suggestions.traitements.length > 0) {
+            traitementsList.innerHTML = suggestions.traitements.map(t => 
+                `<span class="suggestion-item" data-texte="${t.replace(/"/g, '&quot;')}">${t}</span>`
+            ).join('');
+            traitementsSection.style.display = 'block';
+        }
+
+        // Orientation
+        if (suggestions.orientation && suggestions.orientation.length > 0) {
+            orientationList.innerHTML = suggestions.orientation.map(o => 
+                `<span class="suggestion-item" data-texte="${o.replace(/"/g, '&quot;')}">${o}</span>`
+            ).join('');
+            orientationSection.style.display = 'block';
+        }
+
+        // Alertes
+        if (suggestions.alertes && suggestions.alertes.length > 0) {
+            alertesList.innerHTML = suggestions.alertes.map(a => 
+                `<span class="suggestion-item" data-texte="${a.replace(/"/g, '&quot;')}">${a}</span>`
+            ).join('');
+            alertesSection.style.display = 'block';
+        }
+
+        // Afficher le panel si au moins une section est visible
+        if (suggestions.examens?.length || suggestions.traitements?.length || 
+            suggestions.orientation?.length || suggestions.alertes?.length) {
+            suggestionsPanel.style.display = 'block';
+        } else {
+            suggestionsPanel.style.display = 'none';
+        }
+
+        // Ajouter les écouteurs de clic
+        document.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', function() {
+                insererSuggestion(this.dataset.texte);
+            });
+        });
+    }
+
+    /**
+     * Insère une suggestion sans icône
+     */
+    function insererSuggestion(texte) {
+        if (!currentField) return;
+
+        const cursorPos = currentField.selectionStart;
+        const textAvant = currentField.value.substring(0, cursorPos);
+        const textApres = currentField.value.substring(cursorPos);
+        
+        // Ajouter un point si nécessaire
+        const separateur = textAvant.length > 0 && !textAvant.endsWith('.') && !textAvant.endsWith(' ') ? '. ' : ' ';
+        
+        currentField.value = textAvant + separateur + texte + textApres;
+        
+        // Positionner le curseur après le texte inséré
+        const nouvellePosition = cursorPos + separateur.length + texte.length;
+        currentField.setSelectionRange(nouvellePosition, nouvellePosition);
+        
+        currentField.focus();
+        suggestionsPanel.style.display = 'none';
+        assistantStatus.textContent = 'Suggestion insérée';
+    }
+
+    /**
+     * Gestionnaire de focus
+     */
+    function onFieldFocus(event) {
+        currentField = event.target;
+    }
+
+    /**
+     * Gestionnaire de touches
+     */
+    function onKeyDown(event) {
+        // Ctrl+Espace pour analyser
+        if (event.ctrlKey && event.code === 'Space') {
+            event.preventDefault();
+            currentField = event.target;
+            analyserSituation();
+        }
+        
+        // Échap pour fermer
+        if (event.key === 'Escape' && suggestionsPanel.style.display === 'block') {
+            suggestionsPanel.style.display = 'none';
+            assistantStatus.textContent = 'Fermé';
+        }
+    }
+
+    // Initialisation des écouteurs
+    [contenuField, conclusionField].forEach(field => {
+        if (field) {
+            field.addEventListener('focus', onFieldFocus);
+            field.addEventListener('keydown', onKeyDown);
+        }
+    });
+
+    // Cacher les suggestions au clic ailleurs
+    document.addEventListener('click', function(event) {
+        if (!suggestionsPanel.contains(event.target) && 
+            !event.target.closest('textarea')) {
+            suggestionsPanel.style.display = 'none';
+        }
+    });
+
+    console.log('✅ Assistant médical prêt (version professionnelle)');
+});
+</script>
 {% endblock %}

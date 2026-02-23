@@ -23,6 +23,7 @@
     "nelmio/api-doc-bundle": "^5.9",
     "nelmio/cors-bundle": "^2.6",
     "php-flasher/flasher-symfony": "^1.15",
+    "php-llm/llm-chain-bundle": "^0.1.1",
     "phpdocumentor/reflection-docblock": "^5.2",
     "phpstan/phpdoc-parser": "^2.3",
     "symfony/asset": "6.4.*",
@@ -59,7 +60,8 @@
     "twig/extra-bundle": "^2.12|^3.0",
     "twig/string-extra": "^3.23",
     "twig/twig": "^2.12|^3.0",
-    "twilio/sdk": "^8.11"
+    "twilio/sdk": "^8.11",
+    "vich/uploader-bundle": "^2.9"
   },
   "config": {
     "allow-plugins": {
