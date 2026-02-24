@@ -57,8 +57,7 @@ class TitulaireController extends AbstractController
         $user->setTotpSecret(null); // don't persist yet
 
         // Generate QR code as a base64 PNG data URI
-        $qrCode = new QrCode($qrContent);
-        $qrCode->setSize(200);
+        $qrCode = new QrCode(data: $qrContent, size: 200);
         $result = (new SvgWriter())->write($qrCode);
         $qrCodeDataUri = $result->getDataUri();
 

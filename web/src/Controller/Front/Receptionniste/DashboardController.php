@@ -2,6 +2,7 @@
 
 namespace App\Controller\Front\Receptionniste;
 
+use App\Entity\Titulaire;
 use App\Entity\Utilisateur;
 use App\Form\ReceptionnisteTitulaireType;
 use App\Repository\DisponibiliteRepository;
@@ -120,7 +121,7 @@ class DashboardController extends AbstractController
     ): Response {
         $this->checkReceptionist();
 
-        $titulaire = new Utilisateur();
+        $titulaire = new Titulaire();
         $form = $this->createForm(ReceptionnisteTitulaireType::class, $titulaire);
         $form->handleRequest($request);
 

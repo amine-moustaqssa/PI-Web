@@ -20,9 +20,11 @@ class MedicalAssistantController extends AbstractController
     #[Route('/suggest', name: 'api_medical_suggest', methods: ['POST'])]
     public function suggest(Request $request): JsonResponse
     {
+        set_time_limit(120);
+
         try {
             $data = json_decode($request->getContent(), true);
-            
+
             if (!$data) {
                 return $this->json(['suggestions' => []], 400);
             }
@@ -37,13 +39,12 @@ class MedicalAssistantController extends AbstractController
 
             // Analyse clinique avec Ollama + règles
             $resultat = $this->assistant->analyserSituationClinique($texte, $contexte);
-            
+
             return $this->json([
                 'suggestions' => $resultat['suggestions'],
                 'source' => $resultat['source'],
                 'count' => $resultat['count']
             ]);
-
         } catch (\Exception $e) {
             // Fallback de sécurité
             return $this->json([
@@ -63,7 +64,7 @@ class MedicalAssistantController extends AbstractController
     public function health(): JsonResponse
     {
         $ollama = $this->assistant->testConnexionOllama();
-        
+
         return $this->json([
             'status' => 'operational',
             'service' => 'Medical Assistant',
