@@ -50,6 +50,13 @@
         </a>
     </li>
 
+    <li class="nav-item {% if app.request.get('_route') == 'app_titulaire_medicaments' %}active{% endif %}">
+        <a class="nav-link" href="{{ path('app_titulaire_medicaments') }}">
+            <i class="fas fa-fw fa-pills"></i>
+            <span>Médicaments</span>
+        </a>
+    </li>
+
     <div class="mt-auto w-100 px-3 mb-4">
         <hr class="sidebar-divider mb-3">
         
