@@ -1,4 +1,82 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {
+    'attr': {
+        'novalidate': 'novalidate',
+        'class': 'needs-validation'
+    }
+}) }}
+
+    {# Date Paiement — override as single datetime-local input #}
+    <div class="form-group">
+        <label class="font-weight-bold text-gray-700">
+            <i class="fas fa-calendar-alt text-primary mr-1"></i>
+            Date du Paiement
+        </label>
+        {{ form_widget(form.datePaiement, {
+            'attr': {
+                'class': 'form-control',
+                'widget': 'single_text'
+            },
+            'widget': 'single_text'
+        }) }}
+        {% if form.datePaiement.vars.errors|length > 0 %}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.datePaiement) }}
+            </div>
+        {% endif %}
+    </div>
+
+    {# Montant #}
+    <div class="form-group">
+        <label class="font-weight-bold text-gray-700">
+            <i class="fas fa-money-bill-wave text-success mr-1"></i>
+            Montant (TND)
+        </label>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text bg-success text-white font-weight-bold">TND</span>
+            </div>
+            {{ form_widget(form.montant, {
+                'attr': {
+                    'class': 'form-control',
+                    'placeholder': 'Ex: 150.00',
+                    'step': '0.01',
+                    'min': '0'
+                }
+            }) }}
+        </div>
+        {% if form.montant.vars.errors|length > 0 %}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.montant) }}
+            </div>
+        {% endif %}
+    </div>
+
+    {# Facture #}
+    <div class="form-group">
+        <label class="font-weight-bold text-gray-700">
+            <i class="fas fa-file-invoice text-primary mr-1"></i>
+            Facture associée
+        </label>
+        {{ form_widget(form.facture, {
+            'attr': { 'class': 'form-control' }
+        }) }}
+        {% if form.facture.vars.errors|length > 0 %}
+            <div class="text-danger small mt-1">
+                {{ form_errors(form.facture) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    {# Buttons #}
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ path('app_admin_paiement_index') }}" class="btn btn-secondary">
+            <i class="fas fa-times mr-1"></i> Annuler
+        </a>
+        <button type="submit" class="btn btn-success px-4">
+            <i class="fas fa-save mr-1"></i> Enregistrer le Paiement
+        </button>
+    </div>
+
 {{ form_end(form) }}

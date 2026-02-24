@@ -26,12 +26,12 @@
             </a>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-            <a href="{{ path('medecin_consultation_index', {statut: 'en cours'}) }}" class="text-decoration-none">
-                <div class="card border-left-warning shadow h-100 py-2 {{ currentStatut == 'en cours' ? 'border border-warning' : '' }}">
+            <a href="{{ path('medecin_consultation_index', {statut: 'en_cours'}) }}" class="text-decoration-none">
+                <div class="card border-left-warning shadow h-100 py-2 {{ currentStatut == 'en_cours' ? 'border border-warning' : '' }}">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">En cours</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['en cours'] }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts.en_cours }}</div>
                         </div>
                         <i class="fas fa-spinner fa-2x text-gray-300"></i>
                     </div>
@@ -39,12 +39,12 @@
             </a>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-            <a href="{{ path('medecin_consultation_index', {statut: 'planifié'}) }}" class="text-decoration-none">
-                <div class="card border-left-info shadow h-100 py-2 {{ currentStatut == 'planifié' ? 'border border-info' : '' }}">
+            <a href="{{ path('medecin_consultation_index', {statut: 'planifiée'}) }}" class="text-decoration-none">
+                <div class="card border-left-info shadow h-100 py-2 {{ currentStatut == 'planifiée' ? 'border border-info' : '' }}">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Planifiés</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['planifié'] }}</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Planifiées</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['planifiée'] }}</div>
                         </div>
                         <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
                     </div>
@@ -52,12 +52,12 @@
             </a>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-            <a href="{{ path('medecin_consultation_index', {statut: 'terminé'}) }}" class="text-decoration-none">
-                <div class="card border-left-success shadow h-100 py-2 {{ currentStatut == 'terminé' ? 'border border-success' : '' }}">
+            <a href="{{ path('medecin_consultation_index', {statut: 'terminée'}) }}" class="text-decoration-none">
+                <div class="card border-left-success shadow h-100 py-2 {{ currentStatut == 'terminée' ? 'border border-success' : '' }}">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Terminés</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['terminé'] }}</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Terminées</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['terminée'] }}</div>
                         </div>
                         <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                     </div>
@@ -98,12 +98,14 @@
                                 {{ consultation.dateEffectuee ? consultation.dateEffectuee|date('d/m/Y à H:i') : '—' }}
                             </td>
                             <td class="text-center">
-                            {% if consultation.statut == 'en cours' %}
+                                {% if consultation.statut == 'en_cours' %}
                                     <span class="badge badge-warning px-3 py-2"><i class="fas fa-spinner mr-1"></i>En cours</span>
-                                {% elseif consultation.statut == 'terminé' %}
-                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Terminé</span>
-                                {% elseif consultation.statut == 'planifié' %}
-                                    <span class="badge badge-info px-3 py-2"><i class="fas fa-calendar mr-1"></i>Planifié</span>
+                                {% elseif consultation.statut == 'terminée' %}
+                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Terminée</span>
+                                {% elseif consultation.statut == 'planifiée' %}
+                                    <span class="badge badge-info px-3 py-2"><i class="fas fa-calendar mr-1"></i>Planifiée</span>
+                                {% elseif consultation.statut == 'annulée' %}
+                                    <span class="badge badge-danger px-3 py-2"><i class="fas fa-times mr-1"></i>Annulée</span>
                                 {% else %}
                                     <span class="badge badge-secondary px-3 py-2">{{ consultation.statut }}</span>
                                 {% endif %}

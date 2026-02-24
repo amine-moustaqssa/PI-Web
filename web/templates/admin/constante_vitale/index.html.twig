@@ -1,87 +1,47 @@
-{% extends 'admin/base_admin.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Constantes Vitales{% endblock %}
 
 {% block body %}
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">
-        <i class="fas fa-heartbeat text-primary mr-2"></i>
-        {% if consultation is defined and consultation %}
-            Constantes Vitales — Consultation #{{ consultation.id }}
-        {% else %}
-            Constantes Vitales
-        {% endif %}
-    </h1>
-    <div>
-        <a href="{{ path('admin_constante_new') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus mr-1"></i> Nouvelle constante
-        </a>
-        {% if consultation is defined and consultation %}
-            <a href="{{ path('admin_consultation_index') }}" class="btn btn-secondary btn-sm ml-1">
-                <i class="fas fa-arrow-left mr-1"></i> Retour aux consultations
-            </a>
-        {% endif %}
-    </div>
-</div>
+<h1>Constantes Vitales</h1>
 
-{% if consultation is defined and consultation %}
-<div class="card shadow mb-3">
-    <div class="card-body py-2">
-        <span class="text-muted"><strong>Date :</strong> {{ consultation.dateEffectuee ? consultation.dateEffectuee|date('Y-m-d H:i') : 'N/A' }}</span>
-        <span class="mx-2">|</span>
-        <span class="text-muted"><strong>Statut :</strong> {{ consultation.statut }}</span>
-        <span class="mx-2">|</span>
-        <span class="text-muted"><strong>Médecin :</strong> {{ consultation.medecin.id }}</span>
-    </div>
-</div>
-{% endif %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Consultation</th>
+            <th>Date Prise</th>
+            <th>Type</th>
+            <th>Unité</th>
+            <th>Valeur</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for constante in constantes %}
+        <tr>
+            <td>{{ constante.id }}</td>
+            <td>{{ constante.consultationId.id }}</td>
+            <td>{{ constante.datePrise ? constante.datePrise|date('Y-m-d H:i') : '' }}</td>
+            <td>{{ constante.type }}</td>
+            <td>{{ constante.unite }}</td>
+            <td>{{ constante.valeur }}</td>
+            <td>
+                <a href="{{ path('admin_constante_show', {'id': constante.id}) }}">show</a>
+                <a href="{{ path('admin_constante_edit', {'id': constante.id}) }}">edit</a>
+                <form method="post" action="{{ path('admin_constante_delete', {'id': constante.id}) }}" style="display:inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constante.id) }}">
+                    <button class="btn btn-danger btn-sm">delete</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="7">Aucune constante trouvée</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
-<div class="card shadow mb-4">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover" width="100%" cellspacing="0">
-                <thead class="thead-light">
-                    <tr>
-                        <th>ID</th>
-                        {% if consultation is not defined or not consultation %}
-                        <th>Consultation</th>
-                        {% endif %}
-                        <th>Date Prise</th>
-                        <th>Type</th>
-                        <th>Unité</th>
-                        <th>Valeur</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for constante in constantes %}
-                    <tr>
-                        <td>{{ constante.id }}</td>
-                        {% if consultation is not defined or not consultation %}
-                        <td>{{ constante.consultationId.id }}</td>
-                        {% endif %}
-                        <td>{{ constante.datePrise ? constante.datePrise|date('Y-m-d H:i') : '' }}</td>
-                        <td>{{ constante.type }}</td>
-                        <td>{{ constante.unite }}</td>
-                        <td>{{ constante.valeur }}</td>
-                        <td>
-                            <a href="{{ path('admin_constante_edit', {'id': constante.id}) }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form method="post" action="{{ path('admin_constante_delete', {'id': constante.id}) }}" style="display:inline-block;" onsubmit="return confirm('Supprimer cette constante ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constante.id) }}">
-                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">Aucune constante trouvée</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<a href="{{ path('admin_constante_new') }}">Créer une nouvelle constante</a>
 {% endblock %}

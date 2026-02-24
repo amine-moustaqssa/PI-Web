@@ -59,7 +59,7 @@ class DossierClinique
         return $this->profilMedical;
     }
 
-    public function setProfilMedical(ProfilMedical $profilMedical): static
+    public function setProfilMedical(?ProfilMedical $profilMedical): static
     {
         $this->profilMedical = $profilMedical;
         return $this;

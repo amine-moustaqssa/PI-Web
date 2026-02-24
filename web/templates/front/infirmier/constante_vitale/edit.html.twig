@@ -20,9 +20,9 @@
         Modifier la Constante Vitale
     </h1>
 
-    <div class="card shadow">
-        <div class="card-header py-3" style="background-color: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
-            <h6 class="m-0 font-weight-bold" style="color: #0097a7;">
+    <div class="card shadow bg-dark-card">
+        <div class="card-header py-3 bg-transparent border-secondary-custom">
+            <h6 class="m-0 font-weight-bold text-primary">
                 Consultation #{{ consultation.id }}
                 {% if consultation.medecin %}
                     — Dr. {{ consultation.medecin.nom ?? '' }} {{ consultation.medecin.prenom ?? '' }}
@@ -34,26 +34,26 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold" style="color: #0097a7;">{{ form_label(form.type) }}</label>
-                    {{ form_widget(form.type, {'attr': {'class': 'form-control', 'style': 'border: 1px solid #b0bec5;'}}) }}
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.type) }}</label>
+                    {{ form_widget(form.type, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
                     {{ form_errors(form.type) }}
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold" style="color: #0097a7;">{{ form_label(form.valeur) }}</label>
-                    {{ form_widget(form.valeur, {'attr': {'class': 'form-control', 'style': 'border: 1px solid #b0bec5;'}}) }}
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.valeur) }}</label>
+                    {{ form_widget(form.valeur, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
                     {{ form_errors(form.valeur) }}
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold" style="color: #0097a7;">{{ form_label(form.unite) }}</label>
-                    {{ form_widget(form.unite, {'attr': {'class': 'form-control', 'style': 'border: 1px solid #b0bec5;'}}) }}
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.unite) }}</label>
+                    {{ form_widget(form.unite, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
                     {{ form_errors(form.unite) }}
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label font-weight-bold" style="color: #0097a7;">{{ form_label(form.date_prise) }}</label>
-                    {{ form_widget(form.date_prise, {'attr': {'class': 'form-control', 'style': 'border: 1px solid #b0bec5;'}}) }}
+                    <label class="form-label text-white font-weight-bold">{{ form_label(form.date_prise) }}</label>
+                    {{ form_widget(form.date_prise, {'attr': {'class': 'form-control bg-dark text-white border-secondary'}}) }}
                     {{ form_errors(form.date_prise) }}
                 </div>
             </div>
@@ -75,52 +75,12 @@
 
 </div>
 
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const uniteMap = {
-        'temperature': '°C',
-        'frequence cardiaque': 'bpm',
-        'pouls': 'bpm',
-        'tension systolique': 'mmHg',
-        'tension diastolique': 'mmHg',
-        'pression arterielle moyenne': 'mmHg',
-        'saturation o2': '%',
-        'frequence respiratoire': 'resp/min',
-        'glycemie a jeun': 'g/L',
-        'glycemie': 'g/L',
-        'glycemie postprandiale': 'g/L',
-        'imc': 'kg/m²',
-        'debit cardiaque': 'L/min',
-        'diurese': 'mL/kg/h',
-        'glasgow': '/15',
-        'douleur': '/10',
-        'hemoglobine': 'g/dL',
-        'creatinine': 'mg/L',
-        'potassium': 'mmol/L',
-        'sodium': 'mmol/L',
-        'plaquettes': '×10³/µL',
-        'leucocytes': '×10³/µL'
-    };
-
-    const typeSelect = document.getElementById('constante_type_select') || document.querySelector('[id$="_type"]');
-    const uniteInput = document.querySelector('[id$="_unite"]');
-
-    if (typeSelect && uniteInput) {
-        typeSelect.addEventListener('change', function() {
-            const selected = this.value;
-            if (uniteMap[selected]) {
-                uniteInput.setAttribute('placeholder', uniteMap[selected]);
-            } else {
-                uniteInput.setAttribute('placeholder', '');
-            }
-        });
-        // Trigger on page load for edit form
-        if (typeSelect.value && uniteMap[typeSelect.value]) {
-            uniteInput.setAttribute('placeholder', uniteMap[typeSelect.value]);
-        }
-    }
-});
-</script>
+<style>
+.bg-dark-card {
+    background-color: #242731 !important;
+    border: 1px solid #2d303e;
+}
+.border-secondary-custom { border-bottom: 1px solid #2d303e !important; }
+.bg-dark { background-color: #1a1c2e !important; }
+</style>
 {% endblock %}

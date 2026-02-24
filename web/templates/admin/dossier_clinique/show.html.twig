@@ -1,20 +1,22 @@
 {# templates/admin/dossier_clinique/show.html.twig #}
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Detail Dossier Clinique{% endblock %}
+{% block title %}Detail Dossier Clinique - CLINIQUE 360{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ flasher_render() }}
+{% endblock %}
 
 {% block body %}
 <div class="d-sm-flex align-items-center mb-4">
-    <!-- Bouton retour en haut gauche -->
     <a href="{{ path('admin_dossier_clinique_index') }}" class="btn btn-sm btn-light shadow-sm mr-3">
         <i class="fas fa-arrow-left"></i> 
     </a>
-
     <h1 class="h3 mb-0 text-gray-800">Detail dossier Clinique</h1>
 </div>
 
 <div class="row">
-    {# ---------------- Card Profil Médical ---------------- #}
     <div class="col-md-5">
         <div class="card shadow mb-4">
             <div class="card-header">
@@ -29,7 +31,6 @@
         </div>
     </div>
 
-    {# ---------------- Card Dossier Clinique ---------------- #}
     <div class="col-md-7">
         <div class="card shadow mb-4">
             <div class="card-header">
@@ -38,7 +39,6 @@
             <div class="card-body">
                 {% if profilMedical.dossierClinique %}
                     <p><strong>Antécédents :</strong> {{ profilMedical.dossierClinique.antecedents ?: 'Non renseigné' }}</p>
-
                     <p><strong>Allergies :</strong>
                         {% if profilMedical.dossierClinique.allergies %}
                             {{ profilMedical.dossierClinique.allergies|join(', ') }}
@@ -46,9 +46,7 @@
                             Aucune
                         {% endif %}
                     </p>
-
                     <p><strong>Nombre de rapports :</strong> {{ profilMedical.dossierClinique.rapportsMedicaux|length }}</p>
-
                     <a href="{{ path('admin_dossier_clinique_reports', {'id': profilMedical.dossierClinique.id}) }}" class="btn btn-primary mt-2">
                         Voir les rapports
                     </a>
@@ -59,4 +57,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ flasher_render() }}
 {% endblock %}

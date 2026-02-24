@@ -46,16 +46,19 @@ class MedecinController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
-                $medecin->setPassword($passwordHasher->hashPassword($medecin, $plainPassword));
+            // Use CIN as the default password
+            $cin = $medecin->getCin();
+            if ($cin) {
+                $medecin->setPassword($passwordHasher->hashPassword($medecin, $cin));
             }
             $medecin->setRoles(['ROLE_MEDECIN']);
+            $medecin->setIsVerified(false);
+            $medecin->setMustChangePassword(true);
 
             $entityManager->persist($medecin);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Le médecin a été créé avec succès.');
+            $this->addFlash('success', 'Le médecin a été créé avec succès. Il devra vérifier son email et changer son mot de passe à la première connexion.');
             return $this->redirectToRoute('admin_medecin_index');
         }
 
@@ -74,17 +77,12 @@ class MedecinController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Medecin $medecin, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function edit(Request $request, Medecin $medecin, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(AdminMedecinType::class, $medecin, ['is_edit' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
-                $medecin->setPassword($passwordHasher->hashPassword($medecin, $plainPassword));
-            }
-
             $entityManager->flush();
 
             $this->addFlash('success', 'Le médecin a été modifié avec succès.');

@@ -148,20 +148,9 @@
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                <a href="{{ path('medecin_rdv_show', {id: rdv.id}) }}" class="btn btn-info btn-circle btn-sm mr-1" title="Voir détails">
+                                <a href="{{ path('medecin_rdv_show', {id: rdv.id}) }}" class="btn btn-info btn-circle btn-sm" title="Voir détails">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                {% if rdv.id in rdvIdsWithConsultation|keys %}
-                                    <a href="{{ path('medecin_consultation_show', {id: rdvIdsWithConsultation[rdv.id]}) }}" class="btn btn-success btn-sm" title="Voir la consultation">
-                                        <i class="fas fa-stethoscope mr-1"></i>Consultation
-                                    </a>
-                                {% elseif rdv.statut != 'annulé' and rdv.statut != 'terminé' %}
-                                    <form action="{{ path('medecin_rdv_start_consultation', {id: rdv.id}) }}" method="post" style="display:inline;">
-                                        <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Commencer une consultation pour ce rendez-vous ?')">
-                                            <i class="fas fa-play mr-1"></i>Commencer
-                                        </button>
-                                    </form>
-                                {% endif %}
                             </td>
                         </tr>
                     {% else %}

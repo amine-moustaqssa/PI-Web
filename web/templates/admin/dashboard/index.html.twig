@@ -56,6 +56,48 @@
 
 </div>
 
+{# ======================================================== #}
+{# 🧠 MODULE IA : ASSISTANT DÉCISIONNEL                     #}
+{# ======================================================== #}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-left-info shadow h-100">
+            <div class="card-header py-3 bg-gradient-dark text-white d-flex align-items-center">
+                <i class="fas fa-robot fa-fw mr-2"></i>
+                <h6 class="m-0 font-weight-bold">Assistant Décisionnel IA</h6>
+                <span class="badge badge-light ml-auto">{{ alertesIA|length }} alerte{{ alertesIA|length > 1 ? 's' : '' }}</span>
+            </div>
+            <div class="card-body">
+
+                {% for alerte in alertesIA %}
+                    <div class="alert alert-{{ alerte.type }} d-flex align-items-start mb-2 shadow-sm" role="alert" style="border-radius: 8px;">
+                        <div class="mr-3 mt-1">
+                            <i class="fas {{ alerte.icon }} fa-lg"></i>
+                        </div>
+                        <div>
+                            <h6 class="alert-heading font-weight-bold mb-1" style="font-size: 0.95rem;">{{ alerte.titre }}</h6>
+                            <p class="mb-0" style="font-size: 0.88rem;">{{ alerte.message|raw }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-stethoscope mr-1"></i> Médecins par Spécialité
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-pie pt-4 pb-2" style="height: 350px;">
+            {{ render_chart(specialiteChart) }}
+        </div>
+    </div>
+</div>
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">
@@ -136,7 +178,10 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
 
+        </div>
     </div>
 </div>
 {% endblock %}

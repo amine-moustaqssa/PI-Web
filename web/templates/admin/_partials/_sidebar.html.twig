@@ -12,8 +12,8 @@
 
     <hr class="sidebar-divider my-0">
 
-    <li class="nav-item active">
-        <a class="nav-link" href="#">
+    <li class="nav-item {{ app.request.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('admin_dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Tableau de Bord</span></a>
     </li>
@@ -41,13 +41,6 @@
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="{{ path('admin_consultation_index') }}">
-            <i class="fas fa-fw fa-stethoscope"></i>
-            <span>Consultations</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
     <a class="nav-link" href="{{ path('admin_dossier_clinique_index') }}">
     <i class="fas fa-fw fa-notes-medical"></i>
 
@@ -55,13 +48,20 @@
     </a>
     </li>
 
-    <li class="nav-item {{ app.request.get('_route') and 'disponibilite' in app.request.get('_route') ? 'active' : '' }}">
+    <li class="nav-item {{ app.request.get('_route') and 'disponibilite' in app.request.get('_route') and app.request.get('_route') != 'app_disponibilite_calendar' ? 'active' : '' }}">
     {# Attention : Utilisez la route Admin (souvent app_disponibilite_index) et non medecin_ #}
     <a class="nav-link" href="{{ path('app_disponibilite_index') }}">
         <i class="fas fa-calendar-alt"></i> {# Icône FontAwesome blanche #}
         <span>Disponibilité</span>
     </a>
-</li>
+    </li>
+
+    <li class="nav-item {{ app.request.get('_route') == 'admin_app_admin_disponibilite_agenda' ? 'active' : '' }}">
+    <a class="nav-link" href="{{ path('admin_app_admin_disponibilite_agenda') }}">
+        <i class="fas fa-calendar-check"></i>
+        <span>Agenda</span>
+    </a>
+    </li>
 
     <li class="nav-item {{ app.request.get('_route') and 'specialite' in app.request.get('_route') ? 'active' : '' }}">
     {# Utilisez la route Admin pour les spécialités #}

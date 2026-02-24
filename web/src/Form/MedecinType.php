@@ -14,18 +14,19 @@ class MedecinType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email')
-            ->add('password')
-            ->add('nom')
-            ->add('prenom')
-            ->add('niveauAcces')
-            ->add('adresse')
-            ->add('codePostal')
-            ->add('matricule')
-            ->add('tarif_consultation')
+            ->add('email', null, ['required' => false])
+            ->add('password', null, ['required' => false])
+            ->add('nom', null, ['required' => false])
+            ->add('prenom', null, ['required' => false])
+            ->add('niveauAcces', null, ['required' => false])
+            ->add('adresse', null, ['required' => false])
+            ->add('codePostal', null, ['required' => false])
+            ->add('matricule', null, ['required' => false])
+            ->add('tarif_consultation', null, ['required' => false])
             ->add('specialite', EntityType::class, [
                 'class' => Specialite::class,
                 'choice_label' => 'id',
+                'required' => false,
             ])
         ;
     }

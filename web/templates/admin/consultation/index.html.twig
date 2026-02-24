@@ -1,96 +1,42 @@
-{% extends 'admin/base_admin.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block title %}Consultations{% endblock %}
+{% block title %}Consultations Admin{% endblock %}
 
 {% block body %}
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">
-        <i class="fas fa-stethoscope text-primary mr-2"></i> Gestion des Consultations
-    </h1>
-    <a href="{{ path('admin_consultation_new') }}" class="btn btn-primary btn-sm shadow-sm">
-        <i class="fas fa-plus fa-sm mr-1"></i> Nouvelle consultation
-    </a>
-</div>
+<h1>Consultations Admin</h1>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Liste des consultations</h6>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover" id="dataTableConsultations" width="100%" cellspacing="0">
-                <thead class="thead-light">
-                    <tr>
-                        <th>#</th>
-                        <th>RDV</th>
-                        <th>Date</th>
-                        <th>Statut</th>
-                        <th>Notes</th>
-                        <th>Médecin</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for consultation in consultations %}
-                    <tr>
-                        <td>{{ consultation.id }}</td>
-                        <td>{{ consultation.rdvId ?? '—' }}</td>
-                        <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('d/m/Y H:i') : '—' }}</td>
-                        <td>
-                            {% if consultation.statut == 'terminé' %}
-                                <span class="badge badge-success">Terminé</span>
-                            {% elseif consultation.statut == 'en cours' %}
-                                <span class="badge badge-warning text-dark">En cours</span>
-                            {% elseif consultation.statut == 'planifié' %}
-                                <span class="badge badge-info">Planifié</span>
-                            {% else %}
-                                <span class="badge badge-secondary">{{ consultation.statut }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ consultation.notesPrivees|length > 40 ? consultation.notesPrivees|slice(0, 40) ~ '...' : consultation.notesPrivees }}</td>
-                        <td>{{ consultation.medecin.id }}</td>
-                        <td class="text-center">
-                            <a href="{{ path('admin_consultation_show', {'id': consultation.id}) }}" class="btn btn-outline-primary btn-sm" title="Détails">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ path('admin_consultation_edit', {'id': consultation.id}) }}" class="btn btn-outline-warning btn-sm" title="Modifier">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="{{ path('admin_constante_by_consultation', {'consultationId': consultation.id}) }}" class="btn btn-outline-info btn-sm" title="Constantes Vitales">
-                                <i class="fas fa-heartbeat"></i>
-                            </a>
-                            <form method="post" action="{{ path('admin_consultation_delete', {'id': consultation.id}) }}" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer cette consultation ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ consultation.id) }}">
-                                <button class="btn btn-outline-danger btn-sm" title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                            Aucune consultation trouvée
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Rdv_id</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Notes</th>
+            <th>Médecin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for consultation in consultations %}
+        <tr>
+            <td>{{ consultation.id }}</td>
+            <td>{{ consultation.rdvId }}</td>
+            <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('Y-m-d H:i:s') : '' }}</td>
+            <td>{{ consultation.statut }}</td>
+            <td>{{ consultation.notesPrivees }}</td>
+            <td>{{ consultation.medecin.id }}</td>
+            <td>
+                <a href="{{ path('admin_consultation_show', {'id': consultation.id}) }}">show</a>
+                <a href="{{ path('admin_consultation_edit', {'id': consultation.id}) }}">edit</a>
+                {{ include('admin/consultation/_delete_form.html.twig') }}
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7">No records found</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
 
-{% block javascripts %}
-<script>
-$(document).ready(function() {
-    $('#dataTableConsultations').DataTable({
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
-        },
-        "order": [[0, "desc"]]
-    });
-});
-</script>
+<a href="{{ path('admin_consultation_new') }}">Create new</a>
 {% endblock %}
