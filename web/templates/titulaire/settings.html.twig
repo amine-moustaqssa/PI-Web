@@ -74,3 +74,8 @@
 
     </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'titulaire/_partials/_ai_chat.html.twig' %}
+{% endblock %}
