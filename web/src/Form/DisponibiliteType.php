@@ -50,6 +50,7 @@ class DisponibiliteType extends AbstractType
         if (!$options['hide_medecin']) {
             $builder->add('medecin', EntityType::class, [
                 'class' => Medecin::class,
+                // Uses Medecin::__toString() automatically
                 'placeholder' => '-- Sélectionner un médecin --',
                 'required' => false,
             ]);
