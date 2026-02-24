@@ -5,8 +5,6 @@ namespace App\Controller\Front\Medecin;
 use App\Entity\Consultation;
 use App\Form\ConsultationMedecinType;
 use App\Repository\ConsultationRepository;
-use App\Repository\ConstanteVitaleRepository;
-use App\Service\ConstanteVitaleAlertService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +20,7 @@ final class ConsultationController extends AbstractController
         $medecin = $this->getUser();
         $statut = $request->query->get('statut');
 
-        if ($statut && in_array($statut, ['en cours', 'terminé', 'planifié'], true)) {
+        if ($statut && in_array($statut, ['en_cours', 'terminée', 'planifiée', 'annulée'], true)) {
             $consultations = $repository->findByMedecinAndStatut($medecin, $statut);
         } else {
             $consultations = $repository->findByMedecin($medecin);
@@ -31,7 +29,7 @@ final class ConsultationController extends AbstractController
 
         // Count by status for the filter cards
         $allConsultations = $repository->findByMedecin($medecin);
-        $counts = ['total' => count($allConsultations), 'en cours' => 0, 'terminé' => 0, 'planifié' => 0];
+        $counts = ['total' => count($allConsultations), 'en_cours' => 0, 'terminée' => 0, 'planifiée' => 0, 'annulée' => 0];
         foreach ($allConsultations as $c) {
             $s = $c->getStatut();
             if (isset($counts[$s])) {
@@ -47,25 +45,11 @@ final class ConsultationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'medecin_consultation_show', methods: ['GET'])]
-    public function show(
-        Consultation $consultation,
-        ConstanteVitaleRepository $constanteRepository,
-        ConstanteVitaleAlertService $alertService
-    ): Response {
+    public function show(Consultation $consultation): Response
+    {
         // Security: only the owning doctor can view
         if ($consultation->getMedecin()->getId() !== $this->getUser()->getId()) {
             throw $this->createAccessDeniedException();
-        }
-
-        // Check constantes for alerts
-        $constantes = $constanteRepository->findBy(['consultation_id' => $consultation->getId()]);
-        if (!empty($constantes)) {
-            $analysis = $alertService->analyzeConstantes($constantes);
-            if ($analysis['hasCritical']) {
-                $this->addFlash('danger', $analysis['summary']);
-            } elseif ($analysis['hasWarning']) {
-                $this->addFlash('warning', $analysis['summary']);
-            }
         }
 
         return $this->render('front/medecin/consultation/show.html.twig', [

@@ -19,10 +19,18 @@ security:
       lazy: true
       # 2. CONNECT THE FIREWALL TO THE DATABASE PROVIDER
       provider: app_user_provider
-      custom_authenticator: App\Security\AppAuthenticator
+      custom_authenticator:
+        - App\Security\GoogleAuthenticator
+        - App\Security\FacebookAuthenticator
+        - App\Security\AppAuthenticator
+      entry_point: App\Security\AppAuthenticator
       logout:
         path: app_logout
         target: app_home
+
+      two_factor:
+        auth_form_path: 2fa_login
+        check_path: 2fa_login_check
 
       remember_me:
         secret: "%kernel.secret%"
@@ -33,10 +41,19 @@ security:
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
   access_control:
+    # 2FA in-progress: allow access to the 2FA check form only
+    - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+
     # Allow everyone to see the home page and the front assets
     - { path: ^/home, roles: PUBLIC_ACCESS }
     - { path: ^/login, roles: PUBLIC_ACCESS }
     - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/verify, roles: PUBLIC_ACCESS }
+    - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+    - { path: ^/connect, roles: PUBLIC_ACCESS }
+
+    # First-login flow (email verification + password change for receptionist-created accounts)
+    - { path: ^/first-login, roles: IS_AUTHENTICATED_FULLY }
 
     # Protect the Admin Dashboard (Only Admins)
     - { path: ^/admin, roles: ROLE_ADMIN }
@@ -46,6 +63,9 @@ security:
 
     # Protect Infirmier Area
     - { path: ^/infirmier, roles: ROLE_PERSONNEL }
+
+    # Protect Receptionniste Area
+    - { path: ^/receptionniste, roles: ROLE_PERSONNEL }
 
     # 3. CRITICAL: Protect the Titulaire Dashboard!
     # Do NOT set this to PUBLIC_ACCESS, or login is useless.

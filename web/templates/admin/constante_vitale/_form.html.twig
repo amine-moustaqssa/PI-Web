@@ -1,100 +1,28 @@
-{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-
-{# Afficher les erreurs globales du formulaire #}
-{% if form.vars.errors|length > 0 %}
-<div class="alert alert-danger">
-    {{ form_errors(form) }}
-</div>
-{% endif %}
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-heartbeat mr-1"></i> Informations de la constante vitale
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            {% if form.consultation_id is defined %}
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form_label(form.consultation_id, null, {'label_attr': {'class': 'font-weight-bold'}}) }}
-                    {{ form_widget(form.consultation_id, {'attr': {'class': 'form-control' ~ (form.consultation_id.vars.errors|length ? ' is-invalid' : '')}}) }}
-                    {% if form.consultation_id.vars.errors|length %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.consultation_id.vars.errors %}
-                                {{ error.message }}<br>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form_label(form.date_prise, null, {'label_attr': {'class': 'font-weight-bold'}}) }}
-                    {{ form_widget(form.date_prise, {'attr': {'class': 'form-control' ~ (form.date_prise.vars.errors|length ? ' is-invalid' : '')}}) }}
-                    {% if form.date_prise.vars.errors|length %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.date_prise.vars.errors %}
-                                {{ error.message }}<br>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <hr>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form_label(form.type, null, {'label_attr': {'class': 'font-weight-bold'}}) }}
-                    {{ form_widget(form.type, {'attr': {'class': 'form-control' ~ (form.type.vars.errors|length ? ' is-invalid' : '')}}) }}
-                    {% if form.type.vars.errors|length %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.type.vars.errors %}
-                                {{ error.message }}<br>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form_label(form.valeur, null, {'label_attr': {'class': 'font-weight-bold'}}) }}
-                    {{ form_widget(form.valeur, {'attr': {'class': 'form-control' ~ (form.valeur.vars.errors|length ? ' is-invalid' : '')}}) }}
-                    {% if form.valeur.vars.errors|length %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.valeur.vars.errors %}
-                                {{ error.message }}<br>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form_label(form.unite, null, {'label_attr': {'class': 'font-weight-bold'}}) }}
-                    {{ form_widget(form.unite, {'attr': {'class': 'form-control' ~ (form.unite.vars.errors|length ? ' is-invalid' : '')}}) }}
-                    {% if form.unite.vars.errors|length %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.unite.vars.errors %}
-                                {{ error.message }}<br>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+<div class="form-group">
+    {{ form_label(form.consultation_id) }}
+    {{ form_widget(form.consultation_id, {'attr': {'class': 'form-control'}}) }}
 </div>
 
-<div class="mt-3">
-    <button class="btn btn-primary">
-        <i class="fas fa-save mr-1"></i> {{ button_label|default('Enregistrer') }}
-    </button>
+<div class="form-group">
+    {{ form_label(form.date_prise) }}
+    {{ form_widget(form.date_prise, {'attr': {'class': 'form-control'}}) }}
 </div>
 
+<div class="form-group">
+    {{ form_label(form.type) }}
+    {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.unite) }}
+    {{ form_widget(form.unite, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group">
+    {{ form_label(form.valeur) }}
+    {{ form_widget(form.valeur, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<button class="btn btn-primary mt-2">{{ button_label|default('Enregistrer') }}</button>
 {{ form_end(form) }}

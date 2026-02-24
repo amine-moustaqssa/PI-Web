@@ -1,6 +1,7 @@
+{# templates/admin/rapport_medical/form.html.twig #}
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}{{ action }} rapport médical{% endblock %}
+{% block title %}{{ action }} rapport médical - CLINIQUE 360{% endblock %}
 
 {% block body %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -15,7 +16,7 @@
 </div>
 
 <div class="card shadow mb-4 p-3">
-    {{ form_start(form) }}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
         {{ form_widget(form) }}
         <!-- Bouton bleu un peu foncé -->
         <button class="btn btn-sm btn-primary mt-3">
@@ -27,6 +28,7 @@
 {% endblock %}
 
 {% block javascripts %}
+{{ parent() }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {

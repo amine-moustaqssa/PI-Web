@@ -1,16 +1,11 @@
-{% extends 'admin/base_admin.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Nouvelle Constante Vitale{% endblock %}
 
 {% block body %}
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">
-        <i class="fas fa-heartbeat text-primary mr-2"></i> Nouvelle Constante Vitale
-    </h1>
-    <a href="{{ path('admin_constante_index') }}" class="btn btn-secondary btn-sm">
-        <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
-    </a>
-</div>
+<h1>Créer une nouvelle Constante Vitale</h1>
 
 {{ include('admin/constante_vitale/_form.html.twig', {'button_label': 'Créer'}) }}
+
+<a href="{{ path('admin_constante_index') }}" class="btn btn-secondary mt-2">Retour à la liste</a>
 {% endblock %}

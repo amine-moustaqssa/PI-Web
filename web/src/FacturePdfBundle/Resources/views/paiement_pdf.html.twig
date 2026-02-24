@@ -1,0 +1,47 @@
+{# src/FacturePdfBundle/Resources/views/paiement_pdf.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body  { font-family: Arial, sans-serif; font-size: 12px; }
+        h1    { color: #2c3e50; border-bottom: 2px solid #27ae60; padding-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th    { background: #27ae60; color: white; padding: 10px; }
+        td    { padding: 8px; border-bottom: 1px solid #eee; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .footer { margin-top: 30px; font-size: 10px; color: #888; text-align:center; }
+    </style>
+</head>
+<body>
+    <h1>💳 Rapport des Paiements</h1>
+    <p>Généré le : {{ generated_at|date('d/m/Y à H:i') }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Date Paiement</th>
+                <th>Montant</th>
+                <th>Facture Réf.</th>
+                <th>Titulaire</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paiement in paiements %}
+            <tr>
+                <td>{{ paiement.id }}</td>
+                <td>{{ paiement.datePaiement|date('d/m/Y H:i') }}</td>
+                <td><strong>{{ paiement.montant|number_format(2, ',', ' ') }} TND</strong></td>
+                <td>{{ paiement.facture.reference }}</td>
+                <td>{{ paiement.facture.titulaire.nom ?? '' }} {{ paiement.facture.titulaire.prenom ?? '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Clinique — Rapport Paiements — {{ generated_at|date('Y') }}
+    </div>
+</body>
+</html>

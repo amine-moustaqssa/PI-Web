@@ -5,15 +5,25 @@
 {% block body %}
 <div class="container-fluid">
 
-    <h1 class="h3 mb-4 text-gray-800">Liste des Profils Médicaux</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Liste des Profils Médicaux</h1>
+    </div>
 
     <div class="card shadow">
         <div class="card-body">
 
-            <!-- Barre de recherche -->
-            <div class="row mb-3">
+            <!-- Barre de recherche et limite -->
+            <div class="row mb-3 align-items-center">
                 <div class="col-md-4">
                     <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher par nom ou prénom...">
+                </div>
+                <div class="col-md-2">
+                    <select id="limitSelect" class="form-control">
+                        <option value="10" {{ app.request.get('limit') == 10 ? 'selected' : '' }}>10 par page</option>
+                        <option value="20" {{ app.request.get('limit') == 20 ? 'selected' : '' }}>20 par page</option>
+                        <option value="50" {{ app.request.get('limit') == 50 ? 'selected' : '' }}>50 par page</option>
+                        <option value="100" {{ app.request.get('limit') == 100 ? 'selected' : '' }}>100 par page</option>
+                    </select>
                 </div>
             </div>
 
@@ -34,19 +44,19 @@
 
                                 {% if profil.dossierClinique %}
 
-                                    {# Bouton Voir dossier - bleu, icône œil #}
+                                    {# Bouton Voir dossier - bleu #}
                                     <a href="{{ path('medecin_dossier_show', { id: profil.id }) }}"
                                        class="btn btn-sm btn-primary" title="Voir">
                                         <i class="fas fa-eye"></i>
                                     </a>
 
-                                    {# Bouton Modifier dossier - vert, icône crayon #}
+                                    {# Bouton Modifier dossier - vert #}
                                     <a href="{{ path('medecin_dossier_edit', { id: profil.id }) }}"
                                        class="btn btn-sm btn-success ml-1" title="Modifier">
                                         <i class="fas fa-edit"></i>
                                     </a>
 
-                                    {# Formulaire pour suppression SweetAlert2 #}
+                                    {# Formulaire pour suppression #}
                                     <form method="post"
                                           action="{{ path('medecin_dossier_delete', { id: profil.dossierClinique.id }) }}"
                                           style="display:inline-block;">
@@ -71,6 +81,21 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            <!-- Pagination -->
+            {% if profils|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        {% set firstItem = (profils.currentPageNumber - 1) * profils.itemNumberPerPage + 1 %}
+                        {% set lastItem = firstItem + profils|length - 1 %}
+                        Affichage de {{ firstItem }} à {{ lastItem }} sur {{ profils.totalItemCount }} profils
+                    </div>
+                    <div class="pagination-wrapper">
+                        {{ knp_pagination_render(profils, 'pagination/bootstrap_v5_pagination_fr.html.twig') }}
+                    </div>
+                </div>
+            {% endif %}
+
         </div>
     </div>
 
@@ -84,8 +109,16 @@
 <script>
     $(document).ready(function() {
 
+        // Gestionnaire de changement de limite
+        $('#limitSelect').on('change', function() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', this.value);
+            url.searchParams.set('page', 1); // Retour à la première page
+            window.location.href = url.toString();
+        });
+
         // ----------------------
-        // Recherche dynamique
+        // Recherche dynamique (fonctionne sur la page courante)
         // ----------------------
         $('#searchInput').on('keyup', function() {
             const search = $(this).val().toLowerCase();
@@ -114,8 +147,8 @@
                 text: "Cette action est irréversible !",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#6c757d', // gris neutre
-                cancelButtonColor: '#adb5bd',  // gris clair
+                confirmButtonColor: '#6c757d',
+                cancelButtonColor: '#adb5bd',
                 confirmButtonText: 'Oui, supprimer !',
                 cancelButtonText: 'Annuler'
             }).then((result) => {
@@ -133,7 +166,7 @@
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
-                    icon: '{{ type }}' == 'success' ? 'info' : 'error',
+                    icon: '{{ type }}' == 'success' ? 'success' : 'error',
                     title: '{{ message|e('js') }}',
                     showConfirmButton: false,
                     timer: 3000,
@@ -144,4 +177,56 @@
 
     });
 </script>
+
+<style>
+.pagination-wrapper .pagination {
+    margin-bottom: 0;
+    justify-content: flex-end;
+}
+
+.pagination-wrapper .page-link {
+    color: #3498db;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+
+.pagination-wrapper .page-item.active .page-link {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+}
+
+.pagination-wrapper .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #2980b9;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.ml-1 {
+    margin-left: 0.25rem;
+}
+
+/* Style pour le sélecteur de limite */
+#limitSelect {
+    cursor: pointer;
+}
+
+/* Animation pour le changement de page */
+.pagination .page-item {
+    transition: all 0.2s ease;
+}
+
+.pagination .page-item:hover {
+    transform: translateY(-1px);
+}
+</style>
 {% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Triage IA des symptômes{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .triage-header {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        .card-modern {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .result-badge {
+            font-size: 0.95rem;
+            padding: 0.5em 1em;
+            border-radius: 8px;
+        }
+        /* Bordures dynamiques pour les résultats */
+        .border-left-danger { border-left: 5px solid #dc3545 !important; }
+        .border-left-warning { border-left: 5px solid #ffc107 !important; }
+        .border-left-success { border-left: 5px solid #28a745 !important; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    
+    {# --- EN-TÊTE MODERNISÉE --- #}
+    <div class="d-flex justify-content-between align-items-center mb-4 triage-header shadow-sm">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 55px; height: 55px;">
+                <i class="fas fa-robot fa-lg"></i>
+            </div>
+            <div>
+                <h1 class="h3 mb-1 text-dark font-weight-bold">Assistant de Triage</h1>
+                <p class="text-muted mb-0">Décrivez ce que vous ressentez, notre IA vous orientera vers la bonne spécialité.</p>
+            </div>
+        </div>
+        <a class="btn btn-outline-secondary rounded-pill px-4" href="{{ path('app_mes_rendez_vous') }}">
+            <i class="fas fa-arrow-left mr-2"></i> Retour
+        </a>
+    </div>
+
+    <div class="row">
+        {# --- COLONNE FORMULAIRE --- #}
+        {# Si on a un résultat, on réduit la taille du formulaire à 6 colonnes pour mettre le résultat à côté #}
+        <div class="col-lg-{% if result %}6{% else %}8 mx-auto{% endif %} mb-4">
+            <div class="card card-modern h-100">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 font-weight-bold text-dark">
+                        <i class="fas fa-stethoscope text-primary mr-2"></i>Saisie des symptômes
+                    </h5>
+                    
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'd-flex flex-column h-100'}}) }}
+                        
+                        <div class="mb-4 flex-grow-1">
+                            {{ form_label(form.symptomes, 'Comment vous sentez-vous aujourd\'hui ?', {'label_attr': {'class': 'font-weight-bold text-secondary mb-2'}}) }}
+                            
+                            {{ form_widget(form.symptomes, {
+                                'attr': {
+                                    'class': 'form-control form-control-lg bg-light border-0 shadow-sm', 
+                                    'rows': '6', 
+                                    'placeholder': 'Ex: Je ressens des maux de tête intenses depuis ce matin, accompagnés d\'une légère fièvre...'
+                                }
+                            }) }}
+                            <div class="text-danger mt-2 font-weight-bold">{{ form_errors(form.symptomes) }}</div>
+                        </div>
+
+                        {# NOTRE UNIQUE BOUTON SUBMIT #}
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-auto">
+                            <i class="fas fa-magic mr-2"></i> Analyser mes symptômes
+                        </button>
+
+                        {# L'ASTUCE ICI : On cache les champs restants (comme le bouton en trop généré par le PHP) #}
+                        <div class="d-none">
+                            {{ form_rest(form) }}
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        {# --- COLONNE RÉSULTATS (Ne s'affiche qu'après analyse) --- #}
+        {% if result %}
+        <div class="col-lg-6 mb-4">
+            <div class="card card-modern h-100 border-left-{{ result.urgency == 'Urgence Vitale' ? 'danger' : (result.urgency == 'Urgent' ? 'warning' : 'success') }}">
+                <div class="card-body p-4 d-flex flex-column">
+                    <h2 class="h4 mb-4 font-weight-bold"><i class="fas fa-poll-h text-muted mr-2"></i>Résultat de l'analyse</h2>
+
+                    <div class="bg-light rounded p-3 mb-4">
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-sm-5 text-muted">Niveau d'urgence</div>
+                            <div class="col-sm-7 font-weight-bold">
+                                <span class="badge result-badge badge-{{ result.urgency == 'Urgence Vitale' ? 'danger' : (result.urgency == 'Urgent' ? 'warning' : 'success') }}">
+                                    {% if result.urgency == 'Urgence Vitale' %}<i class="fas fa-ambulance mr-1"></i>{% endif %}
+                                    {{ result.urgency }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-sm-5 text-muted">Spécialité suggérée</div>
+                            <div class="col-sm-7 font-weight-bold text-primary" style="font-size: 1.1rem;">
+                                <i class="fas fa-user-md mr-1"></i> {{ result.specialty }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 flex-grow-1">
+                        <strong class="d-block mb-2 text-dark"><i class="fas fa-info-circle text-info mr-2"></i>Explication :</strong>
+                        <p class="text-muted" style="line-height: 1.6;">{{ result.reasoning }}</p>
+                    </div>
+
+                    {# ALERTE URGENCE VITALE #}
+                    {% if result.urgency == 'Urgence Vitale' %}
+                        <div class="alert alert-danger d-flex align-items-center rounded shadow-sm mb-4">
+                            <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+                            <div>
+                                <h5 class="alert-heading font-weight-bold mb-1">Danger Immédiat</h5>
+                                <p class="mb-0">Ne prenez pas de rendez-vous classique. <strong>Appelez les urgences immédiatement.</strong></p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {# ACTIONS FINALES #}
+                    <div class="mt-auto">
+                        {% if matchedSpecialite %}
+                            <a class="btn btn-success btn-lg w-100 rounded-pill shadow-sm" href="{{ path('app_mes_rendez_vous', {open_rdv: 1, triage_spec_id: matchedSpecialite.id, triage_spec_name: matchedSpecialite.nom}) }}">
+                                <i class="fas fa-calendar-check mr-2"></i> Prendre RDV en {{ matchedSpecialite.nom }}
+                            </a>
+                        {% else %}
+                            <a class="btn btn-outline-primary btn-lg w-100 rounded-pill" href="{{ path('app_mes_rendez_vous') }}">
+                                <i class="fas fa-calendar-alt mr-2"></i> Aller à la prise de RDV
+                            </a>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

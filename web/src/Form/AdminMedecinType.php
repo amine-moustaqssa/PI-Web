@@ -8,12 +8,9 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AdminMedecinType extends AbstractType
 {
@@ -24,29 +21,24 @@ class AdminMedecinType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Nom du médecin'],
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Prénom du médecin'],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Adresse e-mail',
+                'required' => false,
                 'attr' => ['class' => 'form-control', 'placeholder' => 'exemple@clinique360.tn'],
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => $isEdit ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe',
-                'mapped' => false,
-                'required' => !$isEdit,
-                'attr' => ['class' => 'form-control', 'placeholder' => '••••••••'],
-                'constraints' => $isEdit ? [] : [
-                    new NotBlank(['message' => 'Veuillez entrer un mot de passe.']),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
-                        'max' => 4096,
-                    ]),
-                ],
+            ->add('cin', TextType::class, [
+                'label' => 'CIN',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 12345678'],
+                'help' => $isEdit ? null : 'Le CIN sera utilisé comme mot de passe initial.',
             ])
             ->add('matricule', TextType::class, [
                 'label' => 'Matricule',

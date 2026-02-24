@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ConstanteVitale;
-use App\Entity\Consultation;
 use App\Form\ConstanteVitaleAdminType;
 use App\Repository\ConstanteVitaleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,22 +14,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/constante')]
 class ConstanteVitaleAdminController extends AbstractController
 {
-    #[Route('/consultation/{consultationId}', name: 'admin_constante_by_consultation', methods: ['GET'])]
-    public function byConsultation(int $consultationId, ConstanteVitaleRepository $repository, EntityManagerInterface $em): Response
-    {
-        $consultation = $em->getRepository(Consultation::class)->find($consultationId);
-        if (!$consultation) {
-            throw $this->createNotFoundException('Consultation non trouvée');
-        }
-
-        $constantes = $repository->findBy(['consultation_id' => $consultation]);
-
-        return $this->render('admin/constante_vitale/index.html.twig', [
-            'constantes' => $constantes,
-            'consultation' => $consultation,
-        ]);
-    }
-
     #[Route('', name: 'admin_constante_index', methods: ['GET'])]
     public function index(ConstanteVitaleRepository $repository): Response
     {
@@ -69,18 +52,11 @@ class ConstanteVitaleAdminController extends AbstractController
     #[Route('/{id}/edit', name: 'admin_constante_edit', methods: ['GET','POST'])]
     public function edit(Request $request, ConstanteVitale $constante, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(ConstanteVitaleAdminType::class, $constante, [
-            'hide_consultation' => true,
-        ]);
+        $form = $this->createForm(ConstanteVitaleAdminType::class, $constante);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-
-            $consultationId = $constante->getConsultationId()?->getId();
-            if ($consultationId) {
-                return $this->redirectToRoute('admin_constante_by_consultation', ['consultationId' => $consultationId]);
-            }
             return $this->redirectToRoute('admin_constante_index');
         }
 

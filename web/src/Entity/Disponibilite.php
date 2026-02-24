@@ -16,15 +16,14 @@ class Disponibilite
     #[ORM\Column]
     private ?int $id = null;
 
-    // 1 = Monday, 7 = Sunday
+    // 1 = Monday, 7 = Sunday OR Unix Timestamp (if estRecurrent = false)
     #[ORM\Column]
     #[Assert\NotNull(message: 'Le jour de la semaine est obligatoire.')]
-    #[Assert\Range(
-        min: 1,
-        max: 7,
-        notInRangeMessage: 'Le jour doit être compris entre {{ min }} (lundi) et {{ max }} (dimanche).'
-    )]
     private ?int $jourSemaine = null;
+
+    // Propriété non mappée (sert uniquement de raccourci formulaire)
+    #[Assert\NotNull(message: 'La date est obligatoire.')]
+    private ?\DateTimeInterface $dateSpecifique = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     #[Assert\NotNull(message: "L'heure de début est obligatoire.")]
@@ -35,12 +34,11 @@ class Disponibilite
     private ?\DateTimeInterface $heureFin = null;
 
     #[ORM\Column]
-    #[Assert\NotNull(message: 'Le champ récurrent est obligatoire.')]
-    private ?bool $estRecurrent = null;
+    private ?bool $estRecurrent = false;
 
-    #[ORM\ManyToOne(targetEntity: Medecin::class, inversedBy: 'disponibilites')]
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Le médecin est obligatoire.')]
+    #[Assert\NotNull(message: "Veuillez sélectionner un médecin.")]
     private ?Utilisateur $medecin = null;
 
     public function getId(): ?int
@@ -53,7 +51,7 @@ class Disponibilite
         return $this->jourSemaine;
     }
 
-    public function setJourSemaine(int $jourSemaine): static
+    public function setJourSemaine(?int $jourSemaine): static
     {
         $this->jourSemaine = $jourSemaine;
 
@@ -65,7 +63,7 @@ class Disponibilite
         return $this->heureDebut;
     }
 
-    public function setHeureDebut(\DateTimeInterface $heureDebut): static
+    public function setHeureDebut(?\DateTimeInterface $heureDebut): static
     {
         $this->heureDebut = $heureDebut;
 
@@ -77,7 +75,7 @@ class Disponibilite
         return $this->heureFin;
     }
 
-    public function setHeureFin(\DateTimeInterface $heureFin): static
+    public function setHeureFin(?\DateTimeInterface $heureFin): static
     {
         $this->heureFin = $heureFin;
 
@@ -104,6 +102,21 @@ class Disponibilite
     public function setMedecin(?Utilisateur $medecin): static
     {
         $this->medecin = $medecin;
+
+        return $this;
+    }
+
+    public function getDateSpecifique(): ?\DateTimeInterface
+    {
+        return $this->dateSpecifique;
+    }
+
+    public function setDateSpecifique(?\DateTimeInterface $dateSpecifique): static
+    {
+        $this->dateSpecifique = $dateSpecifique;
+        if ($dateSpecifique) {
+            $this->jourSemaine = (int) $dateSpecifique->format('N');
+        }
 
         return $this;
     }
