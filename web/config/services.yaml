@@ -25,6 +25,25 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # 👇 LES SERVICES SPÉCIFIQUES VIENNENT ICI (APRÈS App\)
+    App\Service\MedicalScoreCalculator:
+        # Pas besoin d'arguments, Symfony injectera automatiquement
+
+    App\Service\SmsService:
+        arguments:
+            $accountSid: '%env(TWILIO_SID)%'      # ← correspond à TWILIO_SID
+            $authToken: '%env(TWILIO_TOKEN)%'     # ← correspond à TWILIO_TOKEN
+            $fromNumber: '%env(TWILIO_FROM)%'     # ← correspond à TWILIO_FROM
+
+    App\Service\PdfGeneratorService:
+        arguments:
+            $apiKey: '%env(PDF_CO_API_KEY)%'
+
+    App\Service\AIConclusionService:
+        arguments:
+            $httpClient: '@http_client'
+            $logger: '@logger'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     App\Service\NewsHealthService:

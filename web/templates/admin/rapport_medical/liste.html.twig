@@ -1,6 +1,7 @@
+{# templates/admin/rapport_medical/liste.html.twig #}
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Rapports médicaux{% endblock %}
+{% block title %}Rapports médicaux - CLINIQUE 360{% endblock %}
 
 {% block body %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -35,8 +36,14 @@
     </div>
 
     <div class="card-body">
+        {# Affichage du nombre total de rapports #}
+        <div class="mb-3 text-muted">
+            Total : <strong>{{ pagination.getTotalItemCount }}</strong> rapport(s)
+        </div>
+
         <div class="table-responsive">
-            {% if rapports|length > 0 %}
+            {# ICI : on utilise pagination au lieu de rapports #}
+            {% if pagination|length > 0 %}
             <table class="table table-bordered" id="rapportTable">
                 <thead>
                     <tr>
@@ -48,10 +55,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rapport in rapports %}
+                    {# ICI : on parcourt pagination #}
+                    {% for rapport in pagination %}
                     <tr data-date="{{ rapport.dateCreation|date('Y-m-d H:i:s') }}">
-                        <td>{{ rapport.contenu }}</td>
-                        <td>{{ rapport.conclusion }}</td>
+                        <td>{{ rapport.contenu|slice(0, 100) ~ '...' }}</td>
+                        <td>{{ rapport.conclusion|slice(0, 100) ~ '...' }}</td>
                         <td>
                             {% if rapport.urlPdf %}
                                 <a href="{{ asset('uploads/' ~ rapport.urlPdf) }}" target="_blank" class="btn btn-sm btn-info">
@@ -75,14 +83,23 @@
                 </tbody>
             </table>
             {% else %}
-                <p>Aucun rapport médical pour ce dossier.</p>
+                <p class="text-center text-muted py-4">
+                    <i class="fas fa-file-alt fa-3x mb-3"></i><br>
+                    Aucun rapport médical pour ce dossier.
+                </p>
             {% endif %}
+        </div>
+
+        {# Affichage de la pagination #}
+        <div class="d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(pagination) }}
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block javascripts %}
+{{ parent() }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
@@ -107,23 +124,8 @@ $(document).ready(function() {
         });
     });
 
-    // Toast pour messages flash
-    {% for type, messages in app.flashes %}
-        {% for message in messages %}
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: '{{ type }}' == 'success' ? 'info' : 'error',
-                title: '{{ message|e('js') }}',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-            });
-        {% endfor %}
-    {% endfor %}
-
     // ----------------------------
-    // Recherche et tri
+    // Recherche et tri (côté client)
     // ----------------------------
     const searchInput = $('#searchInput');
     const sortSelect = $('#sortDate');
@@ -141,18 +143,33 @@ $(document).ready(function() {
         });
 
         // Trier
-        rows.sort(function(a, b){
+        const visibleRows = rows.filter(':visible').toArray();
+        visibleRows.sort(function(a, b){
             const dateA = new Date($(a).data('date'));
             const dateB = new Date($(b).data('date'));
             return sortSelect.val() === 'asc' ? dateA - dateB : dateB - dateA;
         });
 
-        tableBody.append(rows);
+        tableBody.append(visibleRows);
     }
 
     searchInput.on('keyup', filterAndSort);
     sortSelect.on('change', filterAndSort);
 
+    // Toast pour messages flash
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: '{{ type }}' == 'success' ? 'success' : 'error',
+                title: '{{ message|e('js') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        {% endfor %}
+    {% endfor %}
 });
 </script>
 {% endblock %}
