@@ -18,7 +18,7 @@ class NewsHealthService
     public function getHealthNews(string $query): array
 {
     // On force l'ajout de mots-clés médicaux pour filtrer les résultats
-    $refinedQuery = $query . ' AND (santé OR médical OR hôpital OR Pédiatre OR Pharmacie)';
+    $refinedQuery = $query . ' AND (santé OR médical OR hôpital OR Pharmacie OR Pédiatre OR Dermatologue OR Cardiologue OR Neurologue OR Oncologue OR Gastro-entérologue)';
 
     $response = $this->httpClient->request('GET', 'https://newsapi.org/v2/everything', [
         'query' => [
