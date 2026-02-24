@@ -5,13 +5,13 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Détails Facture #{{ facture.reference }}</h1>
+        {# Fixed the route name to match your controller #}
         <a href="{{ path('app_admin_facture_index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour
         </a>
     </div>
 
     <div class="row">
-        {# ── Left Column ── #}
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -42,6 +42,7 @@
                         <tr>
                             <th>Titulaire</th>
                             <td>
+                                {# Safety check: If titulaire is null, display 'N/A' #}
                                 {% if facture.titulaire %}
                                     {{ facture.titulaire.nom }} {{ facture.titulaire.prenom }}
                                 {% else %}
@@ -84,164 +85,25 @@
             {% endif %}
         </div>
 
-        {# ── Right Column ── #}
         <div class="col-lg-4">
-
-            {# Actions Card #}
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
                 </div>
                 <div class="card-body">
+                    {# Fixed: Changed 'app_patient_paiement_new' to your actual route name if it exists #}
                     {% if facture.statut == 'EN_ATTENTE' %}
-                        <a href="{{ path('app_admin_paiement_new', {'factureId': facture.id}) }}" class="btn btn-success btn-block mb-2">
+                        <a href="#" class="btn btn-success btn-block mb-2">
                             <i class="fas fa-credit-card"></i> Effectuer un paiement
                         </a>
                     {% endif %}
+                    
                     <a href="{{ path('app_admin_facture_index') }}" class="btn btn-secondary btn-block">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
                 </div>
             </div>
-
-            {# ── Currency Converter Card (External API) ── #}
-            <div class="card shadow mb-4 border-left-info">
-                <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-exchange-alt mr-1"></i> Convertisseur de Devise
-                    </h6>
-                    <small class="text-muted">
-                        <i class="fas fa-wifi"></i> Temps réel
-                    </small>
-                </div>
-                <div class="card-body">
-
-                    {# Amount from facture passed to JS #}
-                    <input type="hidden" id="montant-tnd" value="{{ facture.montantTotal }}">
-
-                    {# From #}
-                    <div class="mb-3">
-                        <label class="font-weight-bold text-gray-700 small">Montant en TND</label>
-                        <div class="input-group">
-                            <input type="number"
-                                   id="amount-input"
-                                   class="form-control"
-                                   value="{{ facture.montantTotal }}"
-                                   step="0.01">
-                            <div class="input-group-append">
-                                <span class="input-group-text font-weight-bold">TND</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {# Currency selector #}
-                    <div class="mb-3">
-                        <label class="font-weight-bold text-gray-700 small">Convertir en</label>
-                        <select id="currency-select" class="form-control">
-                            <option value="EUR">🇪🇺 Euro (EUR)</option>
-                            <option value="USD">🇺🇸 Dollar US (USD)</option>
-                            <option value="GBP">🇬🇧 Livre Sterling (GBP)</option>
-                            <option value="CAD">🇨🇦 Dollar Canadien (CAD)</option>
-                            <option value="CHF">🇨🇭 Franc Suisse (CHF)</option>
-                            <option value="SAR">🇸🇦 Riyal Saoudien (SAR)</option>
-                            <option value="AED">🇦🇪 Dirham Émirati (AED)</option>
-                            <option value="MAD">🇲🇦 Dirham Marocain (MAD)</option>
-                        </select>
-                    </div>
-
-                    {# Convert Button #}
-                    <button id="convert-btn" class="btn btn-info btn-block mb-3">
-                        <i class="fas fa-sync-alt"></i> Convertir
-                    </button>
-
-                    {# Result #}
-                    <div id="converter-result" style="display:none;">
-                        <hr>
-                        <div class="text-center">
-                            <p class="text-muted small mb-1">Résultat de la conversion</p>
-                            <h4 class="font-weight-bold text-success" id="result-amount">--</h4>
-                            <p class="text-muted small" id="result-rate">Taux: --</p>
-                            <p class="text-muted" style="font-size:10px;" id="result-source">
-                                Source: exchangerate-api.com
-                            </p>
-                        </div>
-                    </div>
-
-                    {# Loading #}
-                    <div id="converter-loading" style="display:none;" class="text-center py-2">
-                        <div class="spinner-border spinner-border-sm text-info" role="status"></div>
-                        <span class="ml-2 text-muted small">Récupération du taux...</span>
-                    </div>
-
-                    {# Error #}
-                    <div id="converter-error" style="display:none;" class="alert alert-danger small mt-2">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Impossible de récupérer le taux de change.
-                    </div>
-
-                </div>
-            </div>
-            {# ── End Currency Converter ── #}
-
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block javascripts %}
-{{ parent() }}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const convertBtn    = document.getElementById('convert-btn');
-    const amountInput   = document.getElementById('amount-input');
-    const currencySelect = document.getElementById('currency-select');
-    const resultDiv     = document.getElementById('converter-result');
-    const loadingDiv    = document.getElementById('converter-loading');
-    const errorDiv      = document.getElementById('converter-error');
-    const resultAmount  = document.getElementById('result-amount');
-    const resultRate    = document.getElementById('result-rate');
-
-    convertBtn.addEventListener('click', function () {
-        const amount   = parseFloat(amountInput.value);
-        const currency = currencySelect.value;
-
-        if (!amount || amount <= 0) {
-            alert('Veuillez entrer un montant valide.');
-            return;
-        }
-
-        // Reset UI
-        resultDiv.style.display  = 'none';
-        errorDiv.style.display   = 'none';
-        loadingDiv.style.display = 'block';
-        convertBtn.disabled      = true;
-
-        // ── Call external API ──────────────────────────────────
-        fetch(`https://api.exchangerate-api.com/v4/latest/TND`)
-            .then(response => {
-                if (!response.ok) throw new Error('API error');
-                return response.json();
-            })
-            .then(data => {
-                const rate      = data.rates[currency];
-                const converted = (amount * rate).toFixed(2);
-
-                resultAmount.textContent = `${converted} ${currency}`;
-                resultRate.textContent   = `1 TND = ${rate.toFixed(4)} ${currency}`;
-                resultDiv.style.display  = 'block';
-            })
-            .catch(() => {
-                errorDiv.style.display = 'block';
-            })
-            .finally(() => {
-                loadingDiv.style.display = 'none';
-                convertBtn.disabled      = false;
-            });
-    });
-
-    // ── Auto-convert on page load with default currency ────────
-    convertBtn.click();
-});
-</script>
 {% endblock %}

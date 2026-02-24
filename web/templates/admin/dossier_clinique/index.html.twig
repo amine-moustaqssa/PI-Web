@@ -1,12 +1,6 @@
-{# templates/admin/dossier_clinique/index.html.twig #}
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Dossiers Cliniques - CLINIQUE 360{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    {{ flasher_render() }}
-{% endblock %}
+{% block title %}Dossiers Cliniques{% endblock %}
 
 {% block body %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -55,92 +49,111 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-    {{ flasher_render() }}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-    $(document).ready(function() {
-        // DataTable avec filtre multi-critères
-        let table = $('#profilTable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": "{{ path('admin_dossier_clinique_data') }}",
-            "columns": [
-                { "data": "id" },
-                { "data": "nom" },
-                { "data": "prenom" },
-                { "data": "dateNaissance" },
-                { "data": "score" },
-                { "data": "actions", "orderable": false, "searchable": false }
-            ]
-        });
+<script>
+$(document).ready(function() {
+    // ----------------------
+    // DataTable avec filtre multi-critères
+    // ----------------------
+    let table = $('#profilTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": "{{ path('admin_dossier_clinique_data') }}",
+        "columns": [
+            { "data": "id" },
+            { "data": "nom" },
+            { "data": "prenom" },
+            { "data": "dateNaissance" },
+            { "data": "score" },
+            { "data": "actions", "orderable": false, "searchable": false }
+        ]
+    });
 
-        // Filtre par colonne
-        $('.column-filter').on('keyup change', function() {
-            let index = $(this).parent().index();
-            table.column(index).search(this.value).draw();
-        });
+    // Filtre par colonne
+    $('.column-filter').on('keyup change', function() {
+        let index = $(this).parent().index();
+        table.column(index).search(this.value).draw();
+    });
 
-        // Modifier dossier via modal AJAX
-        $('#profilTable').on('click', '.edit-btn', function() {
-            let profilId = $(this).data('id');
-            $.get("{{ path('admin_dossier_clinique_edit', {'id': 0}) }}".replace('0', profilId), function(data) {
-                $('#editModalContent').html(data);
-                $('#editModal').modal('show');
+    // ----------------------
+    // Modifier dossier via modal AJAX
+    // ----------------------
+    $('#profilTable').on('click', '.edit-btn', function() {
+        let profilId = $(this).data('id');
+        $.get("{{ path('admin_dossier_clinique_edit', {'id': 0}) }}".replace('0', profilId), function(data) {
+            $('#editModalContent').html(data);
+            $('#editModal').modal('show');
 
-                // Soumission AJAX du formulaire
-                $('#editForm').on('submit', function(e) {
-                    e.preventDefault();
-                    let form = $(this);
+            // Soumission AJAX du formulaire
+            $('#editForm').on('submit', function(e) {
+                e.preventDefault();
+                let form = $(this);
 
-                    $.ajax({
-                        url: form.attr('action'),
-                        type: form.attr('method'),
-                        data: form.serialize(),
-                        success: function(response) {
-                            $('#editModal').modal('hide');
-                            table.ajax.reload(null, false);
-                            if(response && response.message) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'info',
-                                    title: response.message,
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true
-                                });
-                            }
-                        },
-                        error: function() {
-                            Swal.fire('Erreur', 'Impossible de mettre à jour le dossier.', 'error');
-                        }
-                    });
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(response) {
+                        $('#editModal').modal('hide');
+                        table.ajax.reload(null, false);
+                        if(response && response.message) Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info', // couleur neutre
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    },
+                    error: function() {
+                        Swal.fire('Erreur', 'Impossible de mettre à jour le dossier.', 'error');
+                    }
                 });
             });
         });
+    });
 
-        // Confirmation suppression SweetAlert2
-        $('#profilTable').on('click', '.delete-btn', function(e) {
-            e.preventDefault();
-            let form = $(this).closest('form');
+    // ----------------------
+    // Confirmation suppression SweetAlert2
+    // ----------------------
+    $('#profilTable').on('click', '.delete-btn', function(e) {
+        e.preventDefault();
+        let form = $(this).closest('form');
 
-            Swal.fire({
-                title: 'Êtes-vous sûr ?',
-                text: "Cette action est irréversible !",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#6c757d',
-                cancelButtonColor: '#adb5bd',
-                confirmButtonText: 'Oui, supprimer !',
-                cancelButtonText: 'Annuler'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
+        Swal.fire({
+            title: 'Êtes-vous sûr ?',
+            text: "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6c757d', // gris neutre pour confirmer
+            cancelButtonColor: '#adb5bd',  // gris clair pour annuler
+            confirmButtonText: 'Oui, supprimer !',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
     });
-    </script>
+
+    // ----------------------
+    // Toast pour les flash messages Symfony
+    // ----------------------
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: '{{ type }}' == 'success' ? 'info' : 'error', // bleu neutre pour succès
+                title: '{{ message|e('js') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        {% endfor %}
+    {% endfor %}
+});
+</script>
 {% endblock %}

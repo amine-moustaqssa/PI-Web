@@ -7,8 +7,11 @@ use App\Entity\Consultation;
 use App\Form\ConstanteVitaleInfirmierType;
 use App\Repository\ConstanteVitaleRepository;
 use App\Repository\ConsultationRepository;
+use App\Service\ConstanteVitaleAlertService;
+use App\Service\GeminiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,11 +22,22 @@ class ConstanteVitaleInfirmierController extends AbstractController
     #[Route('', name: 'infirmier_constante_index', methods: ['GET'])]
     public function index(
         Consultation $consultation,
-        ConstanteVitaleRepository $constanteRepository
+        ConstanteVitaleRepository $constanteRepository,
+        ConstanteVitaleAlertService $alertService
     ): Response {
+        $constantes = $constanteRepository->findBy(['consultation_id' => $consultation->getId()]);
+        $analysis = $alertService->analyzeConstantes($constantes);
+
+        if ($analysis['hasCritical']) {
+            $this->addFlash('danger', $analysis['summary']);
+        } elseif ($analysis['hasWarning']) {
+            $this->addFlash('warning', $analysis['summary']);
+        }
+
         return $this->render('front/infirmier/constante_vitale/index.html.twig', [
             'consultation' => $consultation,
-            'constantes' => $constanteRepository->findBy(['consultation_id' => $consultation->getId()]),
+            'constantes' => $constantes,
+            'analysis' => $analysis,
         ]);
     }
 
@@ -82,5 +96,58 @@ class ConstanteVitaleInfirmierController extends AbstractController
             'form' => $form->createView(),
             'consultation' => $consultation
         ]);
+    }
+
+    /**
+     * Analyse les constantes vitales via l'API externe Google Gemini (IA).
+     * Retourne un résumé médical intelligent en JSON.
+     */
+    #[Route('/ai-analysis', name: 'infirmier_constante_ai_analysis', methods: ['POST'])]
+    public function aiAnalysis(
+        Consultation $consultation,
+        ConstanteVitaleRepository $constanteRepository,
+        ConstanteVitaleAlertService $alertService,
+        GeminiService $geminiService
+    ): JsonResponse {
+        $constantes = $constanteRepository->findBy(['consultation_id' => $consultation->getId()]);
+
+        if (empty($constantes)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Aucune constante vitale à analyser.'
+            ], 400);
+        }
+
+        // Préparer les données pour l'IA
+        $constantesData = [];
+        foreach ($constantes as $c) {
+            $constantesData[] = [
+                'type' => $c->getType(),
+                'valeur' => $c->getValeur(),
+                'unite' => $c->getUnite(),
+                'date' => $c->getDatePrise() ? $c->getDatePrise()->format('d/m/Y H:i') : 'N/A',
+            ];
+        }
+
+        $analysis = $alertService->analyzeConstantes($constantes);
+
+        try {
+            $aiResult = $geminiService->analyzeConstantesVitales($constantesData, $analysis);
+
+            return new JsonResponse([
+                'success' => true,
+                'analysis' => $aiResult,
+                'stats' => [
+                    'total' => count($constantes),
+                    'critical' => $analysis['criticalCount'],
+                    'warning' => $analysis['warningCount'],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Erreur lors de l\'analyse IA : ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

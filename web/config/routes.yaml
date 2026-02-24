@@ -3,14 +3,3 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-
-# fc_load_events:
-#     path: /fc-load-events
-#     controller: tattali.calendar.controller.ajax::loadEventsAction
-#     methods: [POST]
-
-facture_pdf_bundle:
-    resource:
-        path: ../src/FacturePdfBundle/Controller/
-        namespace: App\FacturePdfBundle\Controller
-    type: attribute

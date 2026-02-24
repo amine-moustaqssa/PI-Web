@@ -51,9 +51,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                {{ form_label(form.cin) }}
-                                {{ form_widget(form.cin) }}
-                                {{ form_errors(form.cin) }}
+                                {{ form_label(form.plainPassword) }}
+                                {{ form_widget(form.plainPassword) }}
+                                {{ form_errors(form.plainPassword) }}
                             </div>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                 <ul class="small text-muted pl-3">
                     <li>Le <strong>niveau d'accès</strong> définit les permissions du personnel.</li>
                     <li>L'<strong>adresse</strong> et le <strong>code postal</strong> sont facultatifs.</li>
-                    <li>Le <strong>CIN</strong> sera utilisé comme mot de passe initial. Le personnel devra le changer à sa première connexion.</li>
+                    <li>Le mot de passe doit contenir au moins 6 caractères.</li>
                 </ul>
             </div>
         </div>

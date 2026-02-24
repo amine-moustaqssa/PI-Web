@@ -14,17 +14,15 @@ class ConsultationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('rdv_id', null, ['required' => false])
+            ->add('rdv_id')
             ->add('date_effectuee', null, [
-                'widget' => 'single_text',
-                'required' => false,
+                'widget' => 'single_text'
             ])
-            ->add('statut', null, ['required' => false])
-            ->add('notes_privees', null, ['required' => false])
+            ->add('statut')
+            ->add('notes_privees')
             ->add('medecin', EntityType::class, [
                 'class' => Medecin::class,
                 'choice_label' => 'id',
-                'required' => false,
             ])
         ;
     }

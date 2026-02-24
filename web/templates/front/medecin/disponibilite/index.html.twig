@@ -23,51 +23,6 @@
         {% endfor %}
     {% endfor %}
 
-    {# Filter Card #}
-    <div class="card shadow mb-4 border-left-primary">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-filter mr-2"></i>Filtrer les disponibilités</h6>
-        </div>
-        <div class="card-body">
-            <form method="get" class="form-row align-items-end">
-                {# Filtre par Jour #}
-                <div class="col-md-4 mb-3">
-                    <label class="small font-weight-bold text-gray-700">Jour de la semaine</label>
-                    <select name="jour" class="form-control shadow-sm">
-                        <option value="">Tous les jours</option>
-                        <option value="1" {{ app.request.query.get('jour') == '1' ? 'selected' : '' }}>Lundi</option>
-                        <option value="2" {{ app.request.query.get('jour') == '2' ? 'selected' : '' }}>Mardi</option>
-                        <option value="3" {{ app.request.query.get('jour') == '3' ? 'selected' : '' }}>Mercredi</option>
-                        <option value="4" {{ app.request.query.get('jour') == '4' ? 'selected' : '' }}>Jeudi</option>
-                        <option value="5" {{ app.request.query.get('jour') == '5' ? 'selected' : '' }}>Vendredi</option>
-                        <option value="6" {{ app.request.query.get('jour') == '6' ? 'selected' : '' }}>Samedi</option>
-                        <option value="7" {{ app.request.query.get('jour') == '7' ? 'selected' : '' }}>Dimanche</option>
-                    </select>
-                </div>
-
-                {# Filtre par Récurrence #}
-                <div class="col-md-4 mb-3">
-                    <label class="small font-weight-bold text-gray-700">Récurrence</label>
-                    <select name="recurrent" class="form-control shadow-sm">
-                        <option value="">Toutes</option>
-                        <option value="1" {{ app.request.query.get('recurrent') == '1' ? 'selected' : '' }}>Récurrent (Hebdomadaire)</option>
-                        <option value="0" {{ app.request.query.get('recurrent') == '0' ? 'selected' : '' }}>Ponctuel</option>
-                    </select>
-                </div>
-
-                {# Boutons d'action #}
-                <div class="col-md-4 mb-3">
-                    <button type="submit" class="btn btn-primary shadow-sm px-4 mr-2">
-                        <i class="fas fa-search fa-sm mr-2"></i>Filtrer
-                    </button>
-                    <a href="{{ path('medecin_disponibilite_index') }}" class="btn btn-light shadow-sm">
-                        Effacer
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
     {# Table Card #}
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -119,8 +74,8 @@
                     {% else %}
                         <tr>
                             <td colspan="5" class="text-center py-5">
-                                <i class="fas fa-search fa-3x text-gray-300 mb-3 d-block"></i>
-                                <h6 class="text-gray-500">Aucun créneau ne correspond à votre recherche.</h6>
+                                <i class="fas fa-calendar-times fa-3x text-gray-300 mb-3 d-block"></i>
+                                <h6 class="text-gray-500">Aucun créneau de disponibilité</h6>
                                 <a href="{{ path('medecin_disponibilite_new') }}" class="btn btn-success btn-sm mt-2">
                                     <i class="fas fa-plus mr-1"></i> Ajouter un créneau
                                 </a>
@@ -136,8 +91,6 @@
 </div>
 
 <script>
-    // Si DataTables est utilisé, on peut vouloir désactiver sa propre fonction de recherche ou tri si on gère ça côté serveur, 
-    // ou le laisser gérer la pagination sur les résultats déjà filtrés.
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof $ !== 'undefined' && $.fn.DataTable) {
             $('#dispoTable').DataTable({
@@ -145,8 +98,6 @@
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
                 },
                 pageLength: 10,
-                searching: false, // On désactive la recherche JS car on a notre propre filtre
-                lengthChange: false, // On simplifie l'interface
                 order: [[0, 'asc'], [1, 'asc']]
             });
         }

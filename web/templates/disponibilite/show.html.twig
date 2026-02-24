@@ -56,19 +56,13 @@
                 </table>
 
                 {# Zone des boutons d'action #}
-                <div class="mt-4 d-flex align-items-center justify-content-end">
-                    <a href="{{ path('app_disponibilite_index') }}" class="btn btn-secondary btn-icon-split btn-sm shadow-sm mr-2">
-                        <span class="icon text-white-50">
-                            <i class="fas fa-arrow-left"></i>
-                        </span>
-                        <span class="text">Retour</span>
+                <div class="mt-4 d-flex align-items-center">
+                    <a href="{{ path('app_disponibilite_index') }}" class="btn btn-secondary mr-2">
+                        <i class="fas fa-arrow-left"></i> Retour
                     </a>
 
-                    <a href="{{ path('app_disponibilite_edit', {'id': disponibilite.id}) }}" class="btn btn-warning btn-icon-split btn-sm shadow-sm mr-2">
-                        <span class="icon text-white-50">
-                            <i class="fas fa-edit"></i>
-                        </span>
-                        <span class="text">Modifier</span>
+                    <a href="{{ path('app_disponibilite_edit', {'id': disponibilite.id}) }}" class="btn btn-warning mr-2">
+                        <i class="fas fa-edit"></i> Modifier
                     </a>
 
                     {# Inclusion du formulaire de suppression #}

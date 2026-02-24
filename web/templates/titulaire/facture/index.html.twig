@@ -92,7 +92,7 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 {% if facture.statut == 'EN_ATTENTE' %}
-                                    <a href="{{ path('app_patient_paiement_new', {'factureId': facture.id}) }}" class="btn btn-success btn-circle btn-sm" title="Payer">
+                                    <a href="{{ path('app_patient_paiement_new') }}" class="btn btn-success btn-circle btn-sm" title="Payer">
                                         <i class="fas fa-credit-card"></i>
                                     </a>
                                 {% endif %}

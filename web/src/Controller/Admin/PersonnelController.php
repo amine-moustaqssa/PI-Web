@@ -65,19 +65,16 @@ class PersonnelController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Use CIN as the default password
-            $cin = $personnel->getCin();
-            if ($cin) {
-                $personnel->setPassword($passwordHasher->hashPassword($personnel, $cin));
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $personnel->setPassword($passwordHasher->hashPassword($personnel, $plainPassword));
             }
             $personnel->setRoles(['ROLE_PERSONNEL']);
-            $personnel->setIsVerified(false);
-            $personnel->setMustChangePassword(true);
 
             $em->persist($personnel);
             $em->flush();
 
-            $this->addFlash('success', 'Le personnel a été créé avec succès. Il devra vérifier son email et changer son mot de passe à la première connexion.');
+            $this->addFlash('success', 'Le personnel a été créé avec succès.');
             return $this->redirectToRoute('admin_personnel_index');
         }
 
@@ -96,12 +93,17 @@ class PersonnelController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Utilisateur $personnel, EntityManagerInterface $em): Response
+    public function edit(Request $request, Utilisateur $personnel, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $form = $this->createForm(AdminPersonnelType::class, $personnel, ['is_edit' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $personnel->setPassword($passwordHasher->hashPassword($personnel, $plainPassword));
+            }
+
             $em->flush();
 
             $this->addFlash('success', 'Le personnel a été modifié avec succès.');

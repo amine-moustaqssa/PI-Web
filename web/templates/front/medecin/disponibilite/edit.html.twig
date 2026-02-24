@@ -1,6 +1,6 @@
 {% extends 'front/medecin/base_medecin.html.twig' %}
 
-{% block title %}Modifier Créneau | Clinic360{% endblock %}
+{% block title %}Modifier créneau | Clinic360{% endblock %}
 
 {% block body %}
 <div class="container-fluid py-4">
@@ -16,7 +16,7 @@
     {# Flash messages #}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div class="alert alert-{{ label }} alert-dismissible fade show shadow-sm" role="alert">
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
             </div>
@@ -25,9 +25,8 @@
 
     {% set jours = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche'} %}
 
-    <div class="row justify-content-center">
-        {# Colonne Formulaire (Centrée) #}
-        <div class="col-xl-10 col-lg-12">
+    <div class="row">
+        <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
@@ -36,24 +35,14 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    {{ form_start(form, {'action': path('medecin_disponibilite_edit', {id: disponibilite.id}), 'method': 'POST', 'attr': {'novalidate': 'novalidate'}}) }}
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
 
-                    {% if form.vars.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form_errors(form) }}
-                        </div>
-                    {% endif %}
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold text-gray-700">
-                                    <i class="fas fa-calendar mr-1 text-primary"></i> Date de la disponibilité
-                                </label>
-                                {{ form_widget(form.dateSpecifique, {'attr': {'class': 'form-control'}}) }}
-                                <div class="text-danger small mt-1">{{ form_errors(form.dateSpecifique) }}</div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold text-gray-700">
+                            <i class="fas fa-calendar-day mr-1 text-primary"></i> Jour de la semaine
+                        </label>
+                        {{ form_widget(form.jourSemaine, {'attr': {'class': 'form-control'}}) }}
+                        <div class="text-danger small mt-1">{{ form_errors(form.jourSemaine) }}</div>
                     </div>
 
                     <div class="row">
@@ -77,65 +66,48 @@
                         </div>
                     </div>
 
-                    <div class="card border-left-info shadow-sm py-2 mb-3">
-                        <div class="card-body py-2">
-                            <div class="form-check">
-                                {{ form_widget(form.estRecurrent, {'attr': {'class': 'form-check-input'}}) }}
-                                <label class="form-check-label font-weight-bold text-primary small" for="{{ form.estRecurrent.vars.id }}">
-                                    <i class="fas fa-sync-alt mr-2"></i> Répéter ce créneau chaque semaine
-                                </label>
-                            </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            {{ form_widget(form.estRecurrent, {'attr': {'class': 'custom-control-input', 'id': 'estRecurrent'}}) }}
+                            <label class="custom-control-label font-weight-bold text-gray-700" for="estRecurrent">
+                                <i class="fas fa-redo mr-1 text-info"></i> Créneau récurrent (hebdomadaire)
+                            </label>
                         </div>
+                        <div class="text-danger small mt-1">{{ form_errors(form.estRecurrent) }}</div>
                     </div>
-                    <div class="text-danger small mt-1">{{ form_errors(form.estRecurrent) }}</div>
 
                     <hr>
 
-                    <div class="d-flex justify-content-between">
-                        {# Bouton suppression intégré en bas à gauche pour cohérence #}
-                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteModal">
-                            <i class="fas fa-trash mr-1"></i> Supprimer ce créneau
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ path('medecin_disponibilite_index') }}" class="btn btn-light mr-2">Annuler</a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save mr-1"></i> Mettre à jour
                         </button>
-
-                        <div class="d-flex">
-                            <a href="{{ path('medecin_disponibilite_index') }}" class="btn btn-secondary mr-2">
-                                <i class="fas fa-times mr-1"></i> Annuler
-                            </a>
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-save mr-1"></i> Mettre à jour
-                            </button>
-                        </div>
                     </div>
 
                     {{ form_end(form) }}
                 </div>
             </div>
         </div>
-    </div>
 
-</div>
-
-{# Modal de suppression séparée pour propreté #}
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteModalLabel"><i class="fas fa-exclamation-triangle mr-2"></i>Confirmation de suppression</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Êtes-vous sûr de vouloir supprimer définitivement ce créneau ? Cette action est irréversible.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                <form method="post" action="{{ path('medecin_disponibilite_delete', {id: disponibilite.id}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ disponibilite.id) }}">
-                    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
-                </form>
+        {# Delete zone #}
+        <div class="col-lg-4">
+            <div class="card shadow mb-4 border-left-danger">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger"><i class="fas fa-exclamation-triangle mr-1"></i> Zone de danger</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-gray-600 mb-3">Supprimer définitivement ce créneau. Cette action est irréversible.</p>
+                    <form method="post" action="{{ path('medecin_disponibilite_delete', {id: disponibilite.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce créneau ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ disponibilite.id) }}">
+                        <button type="submit" class="btn btn-danger btn-block">
+                            <i class="fas fa-trash mr-1"></i> Supprimer
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

@@ -2,7 +2,6 @@
 
 namespace App\Security;
 
-use App\Entity\Utilisateur;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,26 +42,13 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        // 0. First-login flow: check if the user needs email verification or password change
-        /** @var Utilisateur $user */
-        $user = $token->getUser();
-
-        if (!$user->isVerified()) {
-            // Redirect to email verification (step 1 of first-login)
-            return new RedirectResponse($this->urlGenerator->generate('first_login_verify_email'));
-        }
-
-        if ($user->isMustChangePassword()) {
-            // Redirect to password change (step 2 of first-login)
-            return new RedirectResponse($this->urlGenerator->generate('first_login_change_password'));
-        }
-
         // 1. If the user tried to access a protected page before logging in, send them back there.
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
 
         // 2. Get the User roles to decide where to send them
+        $user = $token->getUser();
         $roles = $user->getRoles();
 
         // 3. Role-based redirects
@@ -76,11 +62,6 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
         // Redirect infirmiers to infirmier dashboard
         if (in_array('ROLE_PERSONNEL', $roles, true) && method_exists($user, 'getNiveauAcces') && $user->getNiveauAcces() === 'INFIRMIER') {
             return new RedirectResponse($this->urlGenerator->generate('infirmier_dashboard'));
-        }
-
-        // Redirect receptionnistes to receptionniste dashboard
-        if (in_array('ROLE_PERSONNEL', $roles, true) && method_exists($user, 'getNiveauAcces') && $user->getNiveauAcces() === 'RECEPTIONIST') {
-            return new RedirectResponse($this->urlGenerator->generate('receptionniste_dashboard'));
         }
 
         // 4. Default Redirect: Send Titulaires/Patients to their dashboard

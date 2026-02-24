@@ -14,19 +14,12 @@ class PaiementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('datePaiement', \Symfony\Component\Form\Extension\Core\Type\DateTimeType::class, [
-                'widget'   => 'single_text',  // ✅ renders as one clean <input type="datetime-local">
-                'required' => false,
-                'label'    => false,
-            ])
-            ->add('montant', null, [
-                'required' => false,
-            ])
+            ->add('datePaiement')
+            ->add('montant')
             ->add('facture', EntityType::class, [
-                'class' => Facture::class,
-                'choice_label' => 'id',
-                'required' => false,
-            ])
+        'class' => Facture::class,
+        'choice_label' => 'id', // ou un autre champ de Facture
+    ])
         ;
     }
 

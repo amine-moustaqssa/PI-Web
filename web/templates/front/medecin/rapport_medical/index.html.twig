@@ -5,6 +5,7 @@
 {% block body %}
 <div class="container-fluid">
 
+    <!-- Titre + retour -->
     <div class="d-flex align-items-center mb-4">
         <a href="{{ path('medecin_dossier_show', { id: profil.id }) }}"
            class="btn btn-sm btn-light shadow-sm mr-3">
@@ -19,27 +20,19 @@
     <div class="card shadow">
         <div class="card-body">
 
+            <!-- Recherche + tri + ajouter -->
             <div class="row mb-3 align-items-center">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <input type="text"
                            id="searchInput"
                            class="form-control"
                            placeholder="🔍 Rechercher dans les rapports...">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <select id="sortDate" class="form-control">
                         <option value="desc">📅 Plus récent</option>
                         <option value="asc">📅 Plus ancien</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <select id="limitSelect" class="form-control">
-                        <option value="10" {{ app.request.get('limit') == 10 ? 'selected' : '' }}>10 par page</option>
-                        <option value="20" {{ app.request.get('limit') == 20 ? 'selected' : '' }}>20 par page</option>
-                        <option value="50" {{ app.request.get('limit') == 50 ? 'selected' : '' }}>50 par page</option>
-                        <option value="100" {{ app.request.get('limit') == 100 ? 'selected' : '' }}>100 par page</option>
                     </select>
                 </div>
 
@@ -52,110 +45,57 @@
             </div>
 
             {% if rapports|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="rapportTable">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Date</th>
-                                <th>Contenu</th>
-                                <th>Conclusion</th>
-                                <th>Document PDF</th>
-                                <th class="text-center">Actions</th>
+                <table class="table table-bordered table-hover" id="rapportTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Contenu</th>
+                            <th>Conclusion</th>
+                            <th>URL PDF</th>  {# Nouvelle colonne #}
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rapport in rapports %}
+                            <tr data-date="{{ rapport.dateCreation|date('Y-m-d') }}">
+                                <td>{{ rapport.dateCreation|date('d/m/Y') }}</td>
+
+                                <td class="contenu">{{ rapport.contenu }}</td>
+                                <td class="conclusion">{{ rapport.conclusion }}</td>
+
+                                <td class="url_pdf">
+                                    {% if rapport.urlPdf %}
+                                        <a href="{{ rapport.urlPdf }}" target="_blank">Voir PDF</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="{{ path('medecin_rapport_medical_edit', { id: rapport.id }) }}"
+                                       class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <form method="post"
+                                          action="{{ path('medecin_rapport_medical_delete', { id: rapport.id }) }}"
+                                          style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-secondary ml-1 delete-btn">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for rapport in rapports %}
-                                <tr data-date="{{ rapport.dateCreation|date('Y-m-d') }}" data-id="{{ rapport.id }}">
-                                    <td>{{ rapport.dateCreation|date('d/m/Y H:i') }}</td>
-
-                                    <td class="contenu">{{ rapport.contenu|length > 100 ? rapport.contenu|slice(0, 100) ~ '...' : rapport.contenu }}</td>
-                                    <td class="conclusion">{{ rapport.conclusion|length > 100 ? rapport.conclusion|slice(0, 100) ~ '...' : rapport.conclusion }}</td>
-
-                                    <td class="url_pdf">
-                                        {% if rapport.urlPdf %}
-                                            <a href="{{ path('medecin_rapport_visualiser_fichier', { id: rapport.id }) }}" 
-                                               target="_blank"
-                                               class="badge badge-info text-decoration-none"
-                                               title="Visualiser le PDF uploadé">
-                                                <i class="fas fa-file-pdf me-1"></i> Voir PDF
-                                            </a>
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-
-                                    <td class="text-center">
-                                        <div class="action-buttons">
-                                            <a href="{{ path('medecin_rapport_medical_pdf_api', { id: rapport.id }) }}"
-                                               class="action-btn btn-view" 
-                                               target="_blank"
-                                               title="Visualiser le PDF généré"
-                                               data-toggle="tooltip">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-
-                                            <a href="{{ path('medecin_rapport_medical_pdf_download', { id: rapport.id }) }}"
-                                               class="action-btn btn-download"
-                                               title="Télécharger le PDF généré"
-                                               data-toggle="tooltip">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-
-                                            <a href="{{ path('medecin_rapport_medical_edit', { id: rapport.id }) }}"
-                                               class="action-btn btn-edit" 
-                                               title="Modifier le rapport"
-                                               data-toggle="tooltip">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-
-                                            <form method="post"
-                                                  action="{{ path('medecin_rapport_medical_delete', { id: rapport.id }) }}"
-                                                  style="display:inline;"
-                                                  class="delete-form">
-                                                <button type="submit" class="action-btn btn-delete" 
-                                                        title="Supprimer le rapport"
-                                                        data-toggle="tooltip">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination avec les bonnes méthodes -->
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted small">
-                        {% set firstItem = (rapports.currentPageNumber - 1) * rapports.itemNumberPerPage + 1 %}
-                        {% set lastItem = firstItem + rapports|length - 1 %}
-                        Affichage de {{ firstItem }} à {{ lastItem }} sur {{ rapports.totalItemCount }} rapports
-                    </div>
-                    <div class="pagination-wrapper">
-                        {{ knp_pagination_render(rapports, 'pagination/bootstrap_v5_pagination_fr.html.twig') }}
-                    </div>
-                </div>
-
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
                 <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle fa-3x mb-3"></i>
-                    <h4>Aucun rapport médical</h4>
-                    <p class="mb-3">Aucun rapport médical n'a encore été ajouté pour ce patient.</p>
-                    <a href="{{ path('medecin_rapport_medical_new', { id: dossier.id }) }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Créer le premier rapport
-                    </a>
+                    Aucun rapport médical n’a encore été ajouté.
                 </div>
             {% endif %}
 
         </div>
-    </div>
-
-    <div class="mt-3 text-right">
-        <span class="badge badge-warning">
-            <i class="fas fa-cloud"></i> Génération PDF via API externe
-        </span>
     </div>
 
 </div>
@@ -168,69 +108,55 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    if (typeof bootstrap !== 'undefined') {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
-
-    // Gestionnaire de changement de limite
-    const limitSelect = document.getElementById('limitSelect');
-    if (limitSelect) {
-        limitSelect.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('limit', this.value);
-            url.searchParams.set('page', 1); // Retour à la première page
-            window.location.href = url.toString();
-        });
-    }
-
+    // ----------------------
+    // Recherche + Tri
+    // ----------------------
     const searchInput = document.getElementById('searchInput');
     const sortSelect = document.getElementById('sortDate');
     const tableBody = document.querySelector('#rapportTable tbody');
-    
-    if (tableBody) {
-        function filterAndSort() {
-            const search = searchInput.value.toLowerCase();
-            const rows = Array.from(tableBody.querySelectorAll('tr'));
 
-            rows.forEach(row => {
-                const contenu = row.querySelector('.contenu').innerText.toLowerCase();
-                const conclusion = row.querySelector('.conclusion').innerText.toLowerCase();
+    function filterAndSort() {
+        const search = searchInput.value.toLowerCase();
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
 
-                row.style.display =
-                    contenu.includes(search) || conclusion.includes(search)
-                        ? ''
-                        : 'none';
-            });
+        rows.forEach(row => {
+            const contenu = row.querySelector('.contenu').innerText.toLowerCase();
+            const conclusion = row.querySelector('.conclusion').innerText.toLowerCase();
+            const urlPdf = row.querySelector('.url_pdf').innerText.toLowerCase();
 
-            const visibleRows = rows.filter(row => row.style.display !== 'none');
-            visibleRows.sort((a, b) => {
-                const dateA = new Date(a.dataset.date);
-                const dateB = new Date(b.dataset.date);
-                return sortSelect.value === 'asc' ? dateA - dateB : dateB - dateA;
-            });
+            row.style.display =
+                contenu.includes(search) || conclusion.includes(search) || urlPdf.includes(search)
+                    ? ''
+                    : 'none';
+        });
 
-            visibleRows.forEach(row => tableBody.appendChild(row));
-        }
+        rows.sort((a, b) => {
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
+            return sortSelect.value === 'asc' ? dateA - dateB : dateB - dateA;
+        });
 
-        if (searchInput) searchInput.addEventListener('keyup', filterAndSort);
-        if (sortSelect) sortSelect.addEventListener('change', filterAndSort);
+        rows.forEach(row => tableBody.appendChild(row));
     }
 
-    document.querySelectorAll('.btn-delete').forEach(function(button) {
+    searchInput.addEventListener('keyup', filterAndSort);
+    sortSelect.addEventListener('change', filterAndSort);
+
+    // ----------------------
+    // Confirmation suppression SweetAlert2
+    // ----------------------
+    document.querySelectorAll('.delete-btn').forEach(function(button) {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            let form = this.closest('.delete-form');
+            let form = this.closest('form');
 
             Swal.fire({
                 title: 'Êtes-vous sûr ?',
                 text: "Cette action est irréversible !",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#e74c3c',
-                cancelButtonColor: '#6c757d',
+                confirmButtonColor: '#6c757d', // gris neutre
+                cancelButtonColor: '#adb5bd',  // gris clair
                 confirmButtonText: 'Oui, supprimer !',
                 cancelButtonText: 'Annuler'
             }).then((result) => {
@@ -241,207 +167,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.btn-view, .btn-download').forEach(function(button) {
-        button.addEventListener('click', function(e) {
-            const icon = this.querySelector('i');
-            const originalClass = icon.className;
-            
-            icon.className = 'fas fa-spinner fa-spin';
-            this.classList.add('loading');
-            
-            setTimeout(() => {
-                icon.className = originalClass;
-                this.classList.remove('loading');
-            }, 2000);
-        });
-    });
-
+    // ----------------------
+    // Toast pour flash messages
+    // ----------------------
     {% for type, messages in app.flashes %}
         {% for message in messages %}
             Swal.fire({
                 toast: true,
                 position: 'top-end',
-                icon: '{{ type }}' === 'success' ? 'success' : 
-                      '{{ type }}' === 'warning' ? 'warning' : 'error',
+                icon: '{{ type }}' == 'success' ? 'success' : 'error',
                 title: '{{ message|e('js') }}',
                 showConfirmButton: false,
-                timer: 4000,
+                timer: 3000,
                 timerProgressBar: true
             });
         {% endfor %}
     {% endfor %}
 });
 </script>
-
-<style>
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-}
-
-.action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    font-size: 16px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    color: white;
-}
-
-.action-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    color: white;
-    text-decoration: none;
-}
-
-.action-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-}
-
-.action-btn.loading {
-    opacity: 0.7;
-    cursor: wait;
-}
-
-.btn-view {
-    background-color: #3498db;
-}
-.btn-view:hover {
-    background-color: #2980b9;
-}
-
-.btn-download {
-    background-color: #27ae60;
-}
-.btn-download:hover {
-    background-color: #229954;
-}
-
-.btn-edit {
-    background-color: #f39c12;
-}
-.btn-edit:hover {
-    background-color: #e67e22;
-}
-
-.btn-delete {
-    background-color: #e74c3c;
-    border: none;
-    padding: 0;
-    font-size: 16px;
-}
-.btn-delete:hover {
-    background-color: #c0392b;
-}
-
-.table {
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 20px rgba(0,0,0,0.05);
-}
-
-.table thead th {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #3498db;
-    color: #2c3e50;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-}
-
-.table tbody tr:hover {
-    background-color: #f0f7ff;
-}
-
-.contenu, .conclusion {
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: help;
-}
-
-.pagination-wrapper .pagination {
-    margin-bottom: 0;
-    justify-content: flex-end;
-}
-
-.pagination-wrapper .page-link {
-    color: #3498db;
-    border: 1px solid #dee2e6;
-    padding: 0.5rem 0.75rem;
-}
-
-.pagination-wrapper .page-item.active .page-link {
-    background-color: #3498db;
-    border-color: #3498db;
-    color: white;
-}
-
-.pagination-wrapper .page-link:hover {
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-    color: #2980b9;
-}
-
-@media (max-width: 768px) {
-    .action-buttons {
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-    
-    .action-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-    }
-    
-    .table td {
-        font-size: 13px;
-    }
-}
-
-.btn-primary {
-    background-color: #3498db;
-    border-color: #3498db;
-    border-radius: 25px;
-    padding: 8px 20px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background-color: #2980b9;
-    border-color: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-}
-
-.alert-info {
-    background-color: #d4e6f1;
-    border-color: #a9cce3;
-    color: #1f618d;
-    border-radius: 10px;
-}
-
-.badge-warning {
-    background-color: #f39c12;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 25px;
-    font-weight: 500;
-}
-</style>
 {% endblock %}

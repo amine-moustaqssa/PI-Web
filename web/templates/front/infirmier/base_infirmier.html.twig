@@ -9,8 +9,235 @@
     <title>{% block title %}Espace Infirmier | Clinic360{% endblock %}</title>
 
     <link href="{{ asset('backoffice/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('backoffice/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    <style>
+        /* ─── Infirmier Light Theme Global ─── */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            background-color: #83a5c7 !important;
+            color: #37474f;
+        }
+
+        #content-wrapper {
+            background-color: #f0f4f8 !important;
+        }
+
+        .container-fluid {
+            padding: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background-color: #ffffff !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .card-header {
+            background-color: #fafafa !important;
+            border-bottom: 1px solid #eeeeee !important;
+            border-radius: 12px 12px 0 0 !important;
+        }
+
+        /* Tables */
+        .table {
+            color: #37474f !important;
+            background-color: #ffffff !important;
+        }
+
+        .table thead th {
+            background-color: #e0f2f1 !important;
+            color: #00838f !important;
+            border-bottom: 2px solid #b2ebf2 !important;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #ffffff !important;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8fafb !important;
+        }
+
+        .table tbody tr:hover {
+            background-color: #fff3e0 !important;
+        }
+
+        .table tbody tr:hover td,
+        .table tbody tr:hover td * {
+            color: rgb(17, 227, 246) !important;
+        }
+
+        .table td, .table th {
+            color: #37474f !important;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #0097a7, #00bcd4) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 151, 167, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 12px rgba(0, 151, 167, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #0097a7, #26c6da) !important;
+            border: none !important;
+            border-radius: 8px !important;
+        }
+
+        .btn-info {
+            background-color: #e0f7fa !important;
+            color: #00838f !important;
+            border: 1px solid #b2ebf2 !important;
+            border-radius: 8px !important;
+        }
+
+        .btn-info:hover {
+            background-color: #b2ebf2 !important;
+        }
+
+        .btn-outline-secondary {
+            color: #78909c !important;
+            border-color: #b0bec5 !important;
+            border-radius: 8px !important;
+        }
+
+        /* Badges */
+        .badge-primary {
+            background-color: #0097a7 !important;
+        }
+
+        .badge-success {
+            background-color: #26a69a !important;
+        }
+
+        .badge-warning {
+            background-color: #ffa726 !important;
+            color: #fff !important;
+        }
+
+        .badge-danger {
+            background-color: #ef5350 !important;
+        }
+
+        /* Forms */
+        .form-control {
+            border-radius: 8px !important;
+            border: 1px solid #cfd8dc !important;
+            background-color: #fff !important;
+            color: #37474f !important;
+            padding: 0.6rem 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #0097a7 !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 151, 167, 0.15) !important;
+        }
+
+        .form-control::placeholder {
+            color: #b0bec5;
+        }
+
+        .form-label, label {
+            color: #546e7a !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* Alerts */
+        .alert-success {
+            background-color: #e0f7fa;
+            border-color: #b2ebf2;
+            color: #00838f;
+        }
+
+        .alert-danger {
+            background-color: #ffebee;
+            border-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        /* Headings */
+        h1, h2, h3, .h1, .h2, .h3 {
+            color: #263238 !important;
+            font-weight: 700;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: transparent;
+        }
+
+        .breadcrumb-item a {
+            color: #0097a7;
+        }
+
+        .breadcrumb-item.active {
+            color: #90a4ae;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0f4f8;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #b2ebf2;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0097a7;
+        }
+
+        /* Override dark backgrounds from child templates */
+        .bg-dark-card {
+            background-color: #ffffff !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 12px !important;
+        }
+
+        .bg-dark {
+            background-color: #f8f9fc !important;
+        }
+
+        .text-white {
+            color: #37474f !important;
+        }
+
+        .text-light {
+            color: #546e7a !important;
+        }
+
+        .border-secondary {
+            border-color: #e0e0e0 !important;
+        }
+
+        .border-secondary-custom {
+            border-bottom: 1px solid #e0e0e0 !important;
+        }
+    </style>
 </head>
 
 <body id="page-top">

@@ -6,12 +6,9 @@ use App\Repository\RapportMedicalRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Table(name: "RapportMedical")]
 #[ORM\Entity(repositoryClass: RapportMedicalRepository::class)]
-#[Vich\Uploadable]
 class RapportMedical
 {
     #[ORM\Id]
@@ -19,6 +16,7 @@ class RapportMedical
     #[ORM\Column]
     private ?int $id = null;
 
+    // Relation ManyToOne avec DossierClinique
     #[ORM\ManyToOne(inversedBy: 'rapportsMedicaux')]
     #[ORM\JoinColumn(name: 'dossier_id', referencedColumnName: 'id', nullable: false)]
     #[Assert\NotNull(message: "Le dossier clinique est obligatoire.")]
@@ -44,21 +42,18 @@ class RapportMedical
     )]
     private ?string $conclusion = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Url(message: "L'URL du PDF doit être valide.")]
     private ?string $url_pdf = null;
-
-    #[Vich\UploadableField(mapping: 'rapport_medical_pdfs', fileNameProperty: 'url_pdf')]
-    #[Assert\File(
-        maxSize: '5M',
-        mimeTypes: ['application/pdf'],
-        mimeTypesMessage: 'Veuillez uploader un fichier PDF valide'
-    )]
-    private ?File $pdfFile = null;
 
     #[ORM\Column]
     #[Assert\NotNull(message: "La date de création est obligatoire.")]
     #[Assert\Type(\DateTime::class)]
     private ?\DateTime $date_creation = null;
+
+    // ------------------------
+    // Getters & Setters
+    // ------------------------
 
     public function getId(): ?int
     {
@@ -81,7 +76,7 @@ class RapportMedical
         return $this->contenu;
     }
 
-    public function setContenu(?string $contenu): static
+    public function setContenu(string $contenu): static
     {
         $this->contenu = $contenu;
         return $this;
@@ -92,7 +87,7 @@ class RapportMedical
         return $this->conclusion;
     }
 
-    public function setConclusion(?string $conclusion): static
+    public function setConclusion(string $conclusion): static
     {
         $this->conclusion = $conclusion;
         return $this;
@@ -114,24 +109,13 @@ class RapportMedical
         return $this->date_creation;
     }
 
-    public function setDateCreation(?\DateTime $date_creation): static
+    public function setDateCreation(\DateTime $date_creation): static
     {
         $this->date_creation = $date_creation;
         return $this;
     }
 
-    public function setPdfFile(?File $pdfFile = null): void
-    {
-        $this->pdfFile = $pdfFile;
-        
-        // IMPORTANT: On met à jour date_creation au lieu d'ajouter updated_at
-        if (null !== $pdfFile) {
-            $this->date_creation = new \DateTime();
-        }
-    }
 
-    public function getPdfFile(): ?File
-    {
-        return $this->pdfFile;
-    }
+
+    
 }

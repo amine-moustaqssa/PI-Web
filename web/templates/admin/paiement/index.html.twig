@@ -1,156 +1,38 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Mes Paiements{% endblock %}
+{% block title %}Paiement index{% endblock %}
 
 {% block body %}
-    <h1>Mes Paiements</h1>
+    <h1>Paiement index</h1>
 
-    {# Search Form #}
-    <div class="mb-4">
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text"
-                       id="search-input"
-                       class="form-control"
-                       placeholder="Rechercher par montant ou date...">
-            </div>
-            <div class="col-md-3">
-                <select id="facture-filter" class="form-control">
-                    <option value="">Toutes les factures</option>
-                    {% for paiement in paiements %}
-                        <option value="{{ paiement.facture.reference }}">
-                            {{ paiement.facture.reference }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button id="reset-search" class="btn btn-secondary">
-                    <i class="fas fa-redo"></i> Réinitialiser
-                </button>
-            </div>
-        </div>
-    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DatePaiement</th>
+                <th>Montant</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for paiement in paiements %}
+            <tr>
+                <td>{{ paiement.id }}</td>
+                <td>{{ paiement.datePaiement ? paiement.datePaiement|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ paiement.montant }}</td>
+                <td>
+                    <a href="{{ path('app_admin_paiement_show', {'id': paiement.id}) }}">show</a>
+                    <a href="{{ path('app_admin_paiement_edit', {'id': paiement.id}) }}">edit</a>
+                    {{ include('admin/paiement/_delete_form.html.twig') }}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-    {# Loading Indicator #}
-    <div id="loading-indicator" class="text-center my-3" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Chargement...</span>
-        </div>
-    </div>
-
-    {# Paiements Table #}
-    <div id="paiements-table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Date Paiement</th>
-                    <th>Montant</th>
-                    <th>Facture Réf.</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="paiements-tbody">
-                {% for paiement in paiements %}
-                <tr data-search="{{ paiement.montant }} {{ paiement.datePaiement|date('Y-m-d') }} {{ paiement.facture.reference }}">
-                    <td>{{ paiement.id }}</td>
-                    <td>{{ paiement.datePaiement ? paiement.datePaiement|date('d/m/Y H:i') : 'N/A' }}</td>
-                    <td>{{ paiement.montant }} DT</td>
-                    <td>
-                        <span class="badge badge-info">
-                            {{ paiement.facture.reference }}
-                        </span>
-                    </td>
-                    <td>
-                        {# ── Same buttons as facture ── #}
-                        <a href="{{ path('app_admin_paiement_show', {'id': paiement.id}) }}" class="btn btn-info btn-sm">
-                            <i class="fas fa-eye"></i> Voir
-                        </a>
-                        <a href="{{ path('app_admin_paiement_edit', {'id': paiement.id}) }}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> Modifier
-                        </a>
-                        <form method="post" action="{{ path('app_admin_paiement_delete', {'id': paiement.id}) }}"
-                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?');"
-                              style="display:inline-block;">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ paiement.id) }}">
-                            <button class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash-alt"></i> Supprimer
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" class="text-center">Aucun paiement trouvé</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {# No results message shown by JS #}
-    <div id="no-results" class="text-center text-muted py-4" style="display:none;">
-        <i class="fas fa-search fa-2x mb-2 d-block"></i>
-        Aucun résultat trouvé.
-    </div>
-
-    <div class="mt-4 d-flex gap-2">
-        <a href="{{ path('app_admin_paiement_new') }}" class="btn btn-primary">
-            <i class="fas fa-plus-circle"></i> Créer un nouveau paiement
-        </a>
-        <a href="{{ path('pdf_all_paiements') }}" class="btn btn-danger" target="_blank">
-            <i class="fas fa-file-pdf"></i> Imprimer PDF
-        </a>
-    </div>
-
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput   = document.getElementById('search-input');
-            const factureFilter = document.getElementById('facture-filter');
-            const resetButton   = document.getElementById('reset-search');
-            const tbody         = document.getElementById('paiements-tbody');
-            const noResults     = document.getElementById('no-results');
-
-            function filterTable() {
-                const searchTerm  = searchInput.value.toLowerCase();
-                const factureRef  = factureFilter.value.toLowerCase();
-                const rows        = tbody.querySelectorAll('tr[data-search]');
-                let visibleCount  = 0;
-
-                rows.forEach(row => {
-                    const text         = row.getAttribute('data-search').toLowerCase();
-                    const matchSearch  = text.includes(searchTerm);
-                    const matchFacture = factureRef === '' || text.includes(factureRef);
-
-                    if (matchSearch && matchFacture) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-            }
-
-            let searchTimeout;
-            searchInput.addEventListener('input', function () {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(filterTable, 300);
-            });
-
-            factureFilter.addEventListener('change', filterTable);
-
-            resetButton.addEventListener('click', function () {
-                searchInput.value   = '';
-                factureFilter.value = '';
-                filterTable();
-            });
-        });
-    </script>
+    <a href="{{ path('app_admin_paiement_new') }}">Create new</a>
 {% endblock %}
