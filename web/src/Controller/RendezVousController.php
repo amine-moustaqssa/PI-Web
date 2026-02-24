@@ -10,6 +10,7 @@ use App\Repository\RendezVousRepository;
 use App\Repository\ProfilMedicalRepository;
 use App\Repository\DisponibiliteRepository;
 use App\Service\NewsHealthService;
+use App\Service\QrCodeGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,12 +31,14 @@ class RendezVousController extends AbstractController
         SpecialiteRepository $specRepo,
         EntityManagerInterface $em,
         NewsHealthService $newsService,
+        QrCodeGenerator $qrCodeGenerator,
         MailerInterface $mailer,
         PaginatorInterface $paginator
     ): Response {
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
+        // 1. Initialisation du nouveau Rendez-vous et du formulaire
         $rendezVous = new RendezVous();
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
         $form->handleRequest($request);
@@ -112,12 +115,43 @@ class RendezVousController extends AbstractController
             5
         );
 
+        $qrCodes = [];
+        foreach ($pagination as $rdv) {
+            if (!$rdv instanceof RendezVous) {
+                continue;
+            }
+
+            $profil = $rdv->getProfil();
+            $nomPatient = $profil ? (string) $profil->getNom() : '';
+            $dateDebut = $rdv->getDateDebut();
+            if (!$dateDebut) {
+                continue;
+            }
+
+            $qrCodes[$rdv->getId()] = $qrCodeGenerator->generateRdvDataUri(
+                (int) $rdv->getId(),
+                $nomPatient,
+                $dateDebut
+            );
+        }
+
+        // 4. LOGIQUE NEWS API
+        $sujetNews = 'Santé'; // Sujet par défaut
+        if (!empty($mesRendezVous)) {
+            $dernierRDV = $mesRendezVous[0];
+            // On extrait un mot clé, ou on utilise le type du dernier RDV
+            $sujetNews = $dernierRDV->getType() ?: 'Médecine';
+        }
+
+        $articles = $newsService->getHealthNews($sujetNews);
+
         return $this->render('rendez_vous/index_client.html.twig', [
             'rendez_vous' => $pagination,
+            'qr_codes'    => $qrCodes,
             'form'        => $form->createView(),
             'specialites' => $specRepo->findAll(),
-            'articles'    => $newsService->getHealthNews('Santé'),
-            'sujet'       => 'Santé'
+            'articles'    => $articles,
+            'sujet'       => $sujetNews,
         ]);
     }
 
