@@ -7,9 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
-use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
-use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -22,13 +19,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\DiscriminatorColumn(name: "type_utilisateur", type: "string")]
 // 2. We match the exact ENUM values from your DB ('ADMIN', 'TITULAIRE', 'PERSONNEL', 'MEDECIN')
 #[ORM\DiscriminatorMap([
-    "ADMIN" => Admin::class,
-    "TITULAIRE" => Titulaire::class,
-    "PERSONNEL" => Personnel::class,
+    "ADMIN" => Utilisateur::class,
+    "TITULAIRE" => Utilisateur::class, // Mapped to self for now (until you create Titulaire.php)
+    "PERSONNEL" => Utilisateur::class, // Mapped to self for now (until you create Personnel.php)
     "MEDECIN" => Medecin::class
 ])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwoFactorInterface
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -43,7 +40,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
     #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
@@ -91,22 +88,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
     #[ORM\Column]
     private bool $isVerified = false;
 
-    #[ORM\Column(name: 'must_change_password', options: ['default' => false])]
-    private bool $mustChangePassword = false;
-
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\Regex(pattern: '/^\d{8}$/', message: 'Le CIN doit contenir exactement 8 chiffres.')]
-    private ?string $cin = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $googleId = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $facebookId = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $totpSecret = null;
-
     public function __construct()
     {
         $this->profilsMedicaux = new ArrayCollection();
@@ -122,7 +103,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
         return $this->email;
     }
 
-    public function setEmail(?string $email): static
+    public function setEmail(string $email): static
     {
         $this->email = $email;
         return $this;
@@ -159,12 +140,12 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
 
-    public function setPassword(?string $password): static
+    public function setPassword(string $password): static
     {
         $this->password = $password;
         return $this;
@@ -183,7 +164,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
         return $this->nom;
     }
 
-    public function setNom(?string $nom): static
+    public function setNom(string $nom): static
     {
         $this->nom = $nom;
         return $this;
@@ -194,7 +175,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
         return $this->prenom;
     }
 
-    public function setPrenom(?string $prenom): static
+    public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
         return $this;
@@ -283,89 +264,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
-
-        return $this;
-    }
-
-    public function isMustChangePassword(): bool
-    {
-        return $this->mustChangePassword;
-    }
-
-    public function setMustChangePassword(bool $mustChangePassword): static
-    {
-        $this->mustChangePassword = $mustChangePassword;
-
-        return $this;
-    }
-
-    public function getCin(): ?string
-    {
-        return $this->cin;
-    }
-
-    public function setCin(?string $cin): static
-    {
-        $this->cin = $cin;
-
-        return $this;
-    }
-
-    public function getGoogleId(): ?string
-    {
-        return $this->googleId;
-    }
-
-    public function setGoogleId(?string $googleId): static
-    {
-        $this->googleId = $googleId;
-
-        return $this;
-    }
-
-    public function getFacebookId(): ?string
-    {
-        return $this->facebookId;
-    }
-
-    public function setFacebookId(?string $facebookId): static
-    {
-        $this->facebookId = $facebookId;
-
-        return $this;
-    }
-
-    // -------------------------------------------------------------------
-    // TOTP Two-Factor Authentication (Scheb\TwoFactorBundle)
-    // -------------------------------------------------------------------
-
-    public function isTotpAuthenticationEnabled(): bool
-    {
-        return $this->totpSecret !== null;
-    }
-
-    public function getTotpAuthenticationUsername(): string
-    {
-        return $this->email ?? '';
-    }
-
-    public function getTotpAuthenticationConfiguration(): TotpConfigurationInterface|null
-    {
-        if ($this->totpSecret === null) {
-            return null;
-        }
-
-        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
-    }
-
-    public function getTotpSecret(): ?string
-    {
-        return $this->totpSecret;
-    }
-
-    public function setTotpSecret(?string $totpSecret): static
-    {
-        $this->totpSecret = $totpSecret;
 
         return $this;
     }

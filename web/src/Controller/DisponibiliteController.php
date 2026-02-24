@@ -16,21 +16,14 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class DisponibiliteController extends AbstractController
 {
     #[Route('/', name: 'app_disponibilite_index', methods: ['GET'])]
-    public function index(Request $request, DisponibiliteRepository $disponibiliteRepository): Response
+    public function index(DisponibiliteRepository $disponibiliteRepository): Response
     {
         $user = $this->getUser();
-        
-        // 1. On récupère les filtres du formulaire
-        $jour = $request->query->get('jour');
-        $recurrent = $request->query->get('recurrent');
 
-        // 2. Logique de filtrage par Rôle et par Recherche
         if ($this->isGranted('ROLE_MEDECIN') && !$this->isGranted('ROLE_ADMIN')) {
-            // Le médecin est limité à ses propres données + ses filtres
-            $disponibilites = $disponibiliteRepository->findByFilters($jour, $recurrent, $user);
+            $disponibilites = $disponibiliteRepository->findBy(['medecin' => $user]);
         } else {
-            // L'admin peut tout filtrer
-            $disponibilites = $disponibiliteRepository->findByFilters($jour, $recurrent);
+            $disponibilites = $disponibiliteRepository->findAll();
         }
 
         return $this->render('disponibilite/index.html.twig', [
@@ -38,10 +31,8 @@ class DisponibiliteController extends AbstractController
         ]);
     }
 
-
-
     #[Route('/new', name: 'app_disponibilite_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, \App\Service\HolidayApiService $holidayApi): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         if (!$this->isGranted('ROLE_MEDECIN') && !$this->isGranted('ROLE_ADMIN')) {
             throw new AccessDeniedException('Patients cannot create shifts.');
@@ -57,19 +48,6 @@ class DisponibiliteController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($disponibilite->getDateSpecifique()) {
-                // Ensure jourSemaine is strictly 1-7 to prevent SQL check constraint violations
-                $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
-            }
-
-            if ($disponibilite->getDateSpecifique() && $holidayApi->isHoliday($disponibilite->getDateSpecifique())) {
-                $this->addFlash('warning', "⚠️ Attention : Vous essayez de créer un créneau le jour d'une fête nationale. Ce n'est pas permis.");
-                return $this->render('disponibilite/new.html.twig', [
-                    'disponibilite' => $disponibilite,
-                    'form' => $form->createView(),
-                ]);
-            }
-
             $entityManager->persist($disponibilite);
             $entityManager->flush();
 
@@ -91,7 +69,7 @@ class DisponibiliteController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_disponibilite_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Disponibilite $disponibilite, EntityManagerInterface $entityManager, \App\Service\HolidayApiService $holidayApi): Response
+    public function edit(Request $request, Disponibilite $disponibilite, EntityManagerInterface $entityManager): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
             if (!$this->isGranted('ROLE_MEDECIN') || $disponibilite->getMedecin() !== $this->getUser()) {
@@ -99,29 +77,10 @@ class DisponibiliteController extends AbstractController
             }
         }
 
-        if (!$disponibilite->getDateSpecifique() && $disponibilite->getJourSemaine()) {
-            $days = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
-            $dayName = $days[$disponibilite->getJourSemaine()];
-            $disponibilite->setDateSpecifique(new \DateTime("next $dayName"));
-        }
-
         $form = $this->createForm(DisponibiliteType::class, $disponibilite);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($disponibilite->getDateSpecifique()) {
-                // Ensure jourSemaine is strictly 1-7 to prevent SQL check constraint violations
-                $disponibilite->setJourSemaine((int) $disponibilite->getDateSpecifique()->format('N'));
-            }
-
-            if ($disponibilite->getDateSpecifique() && $holidayApi->isHoliday($disponibilite->getDateSpecifique())) {
-                $this->addFlash('warning', "⚠️ Attention : Vous essayez de modifier un créneau vers un jour de fête nationale. Ce n'est pas permis.");
-                return $this->render('disponibilite/edit.html.twig', [
-                    'disponibilite' => $disponibilite,
-                    'form' => $form->createView(),
-                ]);
-            }
-
             $entityManager->flush();
 
             return $this->redirectToRoute('app_disponibilite_index', [], Response::HTTP_SEE_OTHER);

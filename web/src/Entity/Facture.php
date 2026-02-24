@@ -68,7 +68,7 @@ class Facture
         return $this->reference;
     }
 
-    public function setReference(?string $reference): static
+    public function setReference(string $reference): static
     {
         $this->reference = $reference;
         return $this;
@@ -79,7 +79,7 @@ class Facture
         return $this->montantTotal;
     }
 
-    public function setMontantTotal(?string $montantTotal): static
+    public function setMontantTotal(string $montantTotal): static
     {
         $this->montantTotal = $montantTotal;
         return $this;
@@ -90,7 +90,7 @@ class Facture
         return $this->statut;
     }
 
-    public function setStatut(?string $statut): static
+    public function setStatut(string $statut): static
     {
         $this->statut = $statut;
         return $this;
@@ -128,7 +128,7 @@ class Facture
         return $this->consultation;
     }
 
-    public function setConsultation(?Consultation $consultation): static
+    public function setConsultation(Consultation $consultation): static
     {
         $this->consultation = $consultation;
         return $this;

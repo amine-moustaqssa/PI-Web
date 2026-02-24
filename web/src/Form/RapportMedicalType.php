@@ -7,7 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Vich\UploaderBundle\Form\Type\VichFileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class RapportMedicalType extends AbstractType
 {
@@ -15,35 +15,16 @@ class RapportMedicalType extends AbstractType
     {
         $builder
             ->add('contenu', TextareaType::class, [
-                'label' => 'Contenu du rapport',
-                'required' => false,
-                'attr' => [
-                    'rows' => 10,
-                    'class' => 'form-control',
-                    'placeholder' => 'Description détaillée du rapport médical...'
-                ]
+                'label' => 'Contenu du rapport'
             ])
             ->add('conclusion', TextareaType::class, [
-                'label' => 'Conclusion',
-                'required' => false,
-                'attr' => [
-                    'rows' => 5,
-                    'class' => 'form-control',
-                    'placeholder' => 'Conclusion du rapport...'
-                ]
+                'label' => 'Conclusion'
             ])
-            ->add('pdfFile', VichFileType::class, [
-                'label' => 'Document PDF',
-                'required' => false,
-                'allow_delete' => true,
-                'delete_label' => 'Supprimer le fichier',
-                'download_uri' => true,
-                'download_label' => 'Télécharger le fichier actuel',
-                'attr' => [
-                    'class' => 'form-control',
-                    'accept' => 'application/pdf'
-                ]
+            ->add('url_pdf', TextType::class, [
+                'label' => 'URL PDF',
+                'required' => false
             ]);
+        // date_creation et dossierClinique seront gérés dans le controller
     }
 
     public function configureOptions(OptionsResolver $resolver): void

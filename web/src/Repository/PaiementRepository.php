@@ -15,16 +15,7 @@ class PaiementRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Paiement::class);
     }
-    public function getMonthlyRevenue(): array
-    {
-        return $this->createQueryBuilder('p')
-            ->select("DATE_FORMAT(p.datePaiement, '%Y-%m') AS month")
-            ->addSelect('SUM(p.montant) AS total')
-            ->groupBy('month')
-            ->orderBy('month', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
+
     //    /**
     //     * @return Paiement[] Returns an array of Paiement objects
     //     */

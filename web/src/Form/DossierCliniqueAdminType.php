@@ -22,7 +22,7 @@ class DossierCliniqueAdminType extends AbstractType
                 'choice_label' => fn(ProfilMedical $p) => $p->getNom().' '.$p->getPrenom(),
                 'placeholder' => 'Sélectionner un profil',
                 'attr' => ['class' => 'form-control select2', 'style' => 'width: 100%'],
-                'required' => false,
+                'required' => true,
             ]);
         }
 

@@ -2,476 +2,274 @@
 
 {% block title %}Mes Rendez-vous{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Modern Modal Styles */
+        .modal-content-modern { border: none; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .modal-header-modern { border-bottom: none; padding-bottom: 0; background-color: white; border-radius: 12px 12px 0 0; }
+        .modal-title-modern { font-weight: 700; color: #1a1f36; font-size: 1.1rem; }
+        .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #3c4257; margin-bottom: 6px; display: block; }
+        .form-control-modern { border-radius: 6px; border: 1px solid #e3e8ee; padding: 10px 12px; font-size: 0.9rem; color: #1a1f36; width: 100%; }
+        .btn-ghost-modern { background: transparent; border: 1px solid #e3e8ee; color: #3c4257; font-weight: 600; border-radius: 6px; padding: 8px 16px; }
+        .btn-primary-modern { background-color: #2e3b55; border: none; color: white; font-weight: 600; border-radius: 6px; padding: 8px 20px; }
+        
+        /* Wizard Cards */
+        .spec-card { border: 1px solid #e3e8ee; border-radius: 8px; padding: 15px; cursor: pointer; text-align: center; background: white; transition: all 0.2s; }
+        .spec-card:hover { border-color: #2e3b55; background-color: #f7f9fc; transform: translateY(-2px); }
+        .spec-icon { font-size: 1.5rem; margin-bottom: 10px; color: #4e73df; }
+        .spec-name { font-weight: 600; font-size: 0.9rem; color: #1a1f36; }
+        
+        .step-section { display: none; }
+        .step-section.active { display: block; }
+        .required-star { color: #e51c00; }
+        .modal-subtitle { font-size: 0.85rem; color: #697386; margin-top: 4px; }
+    </style>
+{% endblock %}
+
 {% block sidebar %}
     {% include 'titulaire/_partials/_sidebar.html.twig' %}
 {% endblock %}
 
 {% block topbar %}{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
-        .modal-content-modern { border: none; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .modal-header-modern { border-bottom: none; background-color: white; border-radius: 12px 12px 0 0; }
-        .spec-card { border: 1px solid #e3e8ee; border-radius: 8px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s; }
-        .spec-card:hover { border-color: #2e3b55; background-color: #f7f9fc; transform: translateY(-2px); }
-        .step-section { display: none; }
-        .step-section.active { display: block; }
-        .invalid-feedback { display: block; color: #dc3545; font-weight: bold; }
-        .is-invalid { border-color: #dc3545 !important; }
-
-        .pagination { gap: 6px; }
-        .pagination .page-item .page-link {
-            border-radius: 10px;
-            border: 1px solid rgba(0, 153, 255, 0.25);
-            color: #0099ff;
-            background: rgba(0, 153, 255, 0.06);
-            font-weight: 600;
-            transition: all 0.15s ease-in-out;
-            box-shadow: 0 6px 16px rgba(0, 153, 255, 0.12);
-        }
-        .pagination .page-item .page-link:hover {
-            color: #ffffff;
-            background: #0099ff;
-            border-color: #0099ff;
-            transform: translateY(-1px);
-            box-shadow: 0 10px 24px rgba(0, 153, 255, 0.30);
-        }
-        .pagination .page-item.active .page-link {
-            color: #ffffff;
-            background: #007bff;
-            border-color: #007bff;
-            box-shadow: 0 12px 28px rgba(0, 123, 255, 0.40);
-        }
-        .pagination .page-item.disabled .page-link {
-            color: rgba(0, 153, 255, 0.45);
-            background: rgba(0, 153, 255, 0.03);
-            border-color: rgba(0, 153, 255, 0.12);
-            box-shadow: none;
-        }
-        .pagination .page-item .page-link:focus {
-            box-shadow: 0 0 0 0.2rem rgba(0, 153, 255, 0.25);
-        }
-     
-    /* Style du Badge Soft */
-    .badge-soft-primary {
-        background-color: rgba(0, 123, 255, 0.1);
-        color: #007bff;
-        border: 1px solid rgba(0, 123, 255, 0.2);
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-
-    /* Animation de la Carte */
-    .news-card {
-        border-radius: 15px !important;
-        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-    }
-
-    .news-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 123, 255, 0.15) !important;
-    }
-
-    /* Image et Date Overlay */
-    .news-image {
-        height: 180px;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .news-card:hover .news-image {
-        transform: scale(1.1);
-    }
-
-    .news-image-placeholder {
-        height: 180px;
-    }
-
-    .news-date {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 5px 12px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 0.8rem;
-        color: #007bff;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    /* Typographie */
-    .leading-tight {
-        line-height: 1.3;
-        min-height: 3.9em; /* Aligne les titres sur 3 lignes */
-    }
-
-    .transition-all {
-        transition: all 0.2s ease-in-out;
-    }
-
-    .btn-outline-primary:hover {
-        background-color: #007bff;
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-    }
-    </style>
-{% endblock %}
-
 {% block body %}
-<div class="container-fluid mt-4">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Mes Rendez-vous</h1>
-        <div>
-            <a class="btn btn-outline-secondary shadow-sm mr-2" href="{{ path('app_symptom_triage') }}">
-                <i class="fas fa-brain mr-2"></i> Triage IA
-            </a>
-            <button class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#newRdvModal">
-                <i class="fas fa-calendar-plus mr-2"></i> Nouveau RDV
+    
+    <div class="mt-4">
+        
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Mes Rendez-vous</h1>
+            <button class="btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#newRdvModal">
+                <i class="fas fa-calendar-plus fa-sm text-white-50 mr-2"></i> Nouveau RDV
             </button>
         </div>
-    </div>
 
-    {# --- SECTION NEWS AMÉLIORÉE --- #}
-<div class="news-section my-5">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h3 class="font-weight-bold text-dark mb-0">
-            <i class="fas fa-newspaper text-primary mr-2"></i>Actualités Santé
-        </h3>
-        <span class="badge badge-pill badge-soft-primary text-md px- py-3">
-            Focus : {{ sujet|upper }}
-        </span>
-    </div>
-
-    <div class="row">
-        {% for article in articles %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-70 news-card border-0 shadow-sm">
-                    <div class="position-relative overflow-hidden">
-                        {% if article.urlToImage %}
-                            <img src="{{ article.urlToImage }}" class="card-img-top news-image" alt="Article image">
-                        {% else %}
-                            <div class="news-image-placeholder d-flex align-items-center justify-content-center bg-light">
-                                <i class="fas fa-medkit fa-3x text-muted"></i>
-                            </div>
-                        {% endif %}
-                        <div class="news-date">
-                            {{ article.publishedAt ? article.publishedAt|date('d M') : 'Récent' }}
-                        </div>
-                    </div>
-                    
-                    <div class="card-body d-flex flex-column">
-                        <small class="text-uppercase text-primary font-weight-bold mb-2">{{ article.source.name|default('Santé Mag') }}</small>
-                        <h5 class="card-title font-weight-bold text-dark leading-tight">
-                            {{ article.title|slice(0, 65) }}...
-                        </h5>
-                        <p class="card-text text-muted small flex-grow-1">
-                            {{ article.description|default('Découvrez les dernières avancées et conseils sur ce sujet de santé...')|slice(0, 100) }}...
-                        </p>
-                        <div class="mt-3">
-                            <a href="{{ article.url }}" target="_blank" class="btn btn-outline-primary btn-sm btn-block rounded-pill transition-all">
-                                Lire l'article complet <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Historique et gestion des consultations</h6>
             </div>
-        {% endfor %}
-    </div>
-</div>
-
-    {# --- LISTE DES RDV --- #}
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            {% for label, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ label }}">{{ message }}</div>
-                {% endfor %}
-            {% endfor %}
-
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="bg-light">
-                        <tr>
-                            <th>Date et Heure</th>
-                            <th>Détails</th>
-                            <th>Statut</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for rdv in rendez_vous %}
-                        <tr>
-                            <td><strong>{{ rdv.dateDebut|date('d/m/Y') }}</strong> à {{ rdv.dateDebut|date('H:i') }}</td>
-                            <td>{{ rdv.type }}</td>
-                            <td>
-                                <span class="badge badge-{{ rdv.statut == 'annulé' ? 'danger' : (rdv.statut == 'confirmé' ? 'success' : 'warning') }}">
-                                    {{ rdv.statut|capitalize }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                {% if rdv.statut != 'annulé' %}
-                                    <button class="btn btn-sm btn-outline-primary btn-edit-rdv" data-url="{{ path('app_rendez_vous_edit', {'id': rdv.id}) }}"><i class="fas fa-pen"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#qrRdvModal-{{ rdv.id }}"><i class="fas fa-qrcode"></i></button>
-                                    <a href="{{ path('app_rendez_vous_cancel', {'id': rdv.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Annuler ce RDV ?')"><i class="fas fa-times"></i></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-
-                        <div class="modal fade" id="qrRdvModal-{{ rdv.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                <div class="modal-content modal-content-modern">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">QR Code RDV #{{ rdv.id }}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body text-center">
-                                        {% set qr = qr_codes[rdv.id]|default(null) %}
-                                        {% if qr %}
-                                            <img src="{{ qr }}" alt="QR Code RDV" style="max-width: 240px; width: 100%; height: auto; border-radius: 12px; background: #fff; padding: 10px;" />
-                                            <div class="text-muted mt-2" style="font-size: 0.9rem;">
-                                                Patient: <strong>{{ rdv.profil.nom }}</strong><br>
-                                                Date: <strong>{{ rdv.dateDebut|date('d/m/Y H:i') }}</strong>
-                                            </div>
-                                        {% else %}
-                                            <div class="text-danger">QR Code indisponible pour ce rendez-vous.</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
+            <div class="card-body">
+                {# Display Flash Messages if any (especially the error we just added) #}
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                    {% else %}
-                        <tr><td colspan="4" class="text-center">Aucun rendez-vous.</td></tr>
                     {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% endfor %}
 
-            {% if rendez_vous.getTotalItemCount > 5 %}
-                {{ knp_pagination_render(rendez_vous, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
-            {% endif %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width: 20%;">Date et Heure</th>
+                                <th>Détails / Patient</th>
+                                <th class="text-center" style="width: 15%;">Statut</th>
+                                <th class="text-center" style="width: 15%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for rdv in rendez_vous %}
+                            <tr>
+                                <td class="align-middle">
+                                    <div class="font-weight-bold text-gray-800">{{ rdv.dateDebut|date('d/m/Y') }}</div>
+                                    <div class="small text-muted"><i class="far fa-clock mr-1"></i>{{ rdv.dateDebut|date('H:i') }}</div>
+                                </td>
+                                <td class="align-middle"><span class="text-dark">{{ rdv.type }}</span></td>
+                                <td class="text-center align-middle">
+                                    {% if rdv.statut in ['en attente de confirmation', 'En attente'] %}
+                                        <span class="badge badge-warning px-2 py-1">En attente</span>
+                                    {% elseif rdv.statut in ['annulé', 'Annulé'] %}
+                                        <span class="badge badge-danger px-2 py-1">Annulé</span>
+                                    {% elseif rdv.statut in ['confirmé', 'Confirmé'] %}
+                                        <span class="badge badge-success px-2 py-1">Confirmé</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-2 py-1">{{ rdv.statut }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center align-middle">
+                                    {% if rdv.statut not in ['annulé', 'Annulé'] %}
+                                        <button class="btn btn-primary btn-circle btn-sm btn-edit-rdv" 
+                                                data-url="{{ path('app_rendez_vous_edit', {'id': rdv.id}) }}"
+                                                title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <a href="{{ path('app_rendez_vous_cancel', {'id': rdv.id}) }}" 
+                                           class="btn btn-danger btn-circle btn-sm ml-1"
+                                           onclick="return confirm('Voulez-vous vraiment annuler ?');" title="Annuler">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="small text-gray-500">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5">
+                                    <h6 class="text-gray-600">Aucun rendez-vous trouvé</h6>
+                                    <button class="btn btn-primary btn-sm mt-3" data-toggle="modal" data-target="#newRdvModal">Prendre un rendez-vous</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-{# --- MODAL NOUVEAU RDV (WIZARD) --- #}
-<div class="modal fade" id="newRdvModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content modal-content-modern">
-            <div class="modal-header">
-                <h5 class="modal-title">Prendre un Rendez-vous</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                {# ETAPE 1 : SPECIALITES #}
-                <div id="step-specialite" class="step-section active">
-                    <p class="text-muted">Étape 1 : Choisissez une spécialité</p>
-                    <div class="row">
-                        {% for spec in specialites %}
-                            <div class="col-md-4 mb-3">
-                                <div class="spec-card" onclick="selectSpecialty({{ spec.id }}, '{{ spec.nom }}')">
-                                    <i class="fas fa-user-md fa-2x text-primary mb-2"></i>
-                                    <div class="font-weight-bold">{{ spec.nom }}</div>
+    {# --- MODAL NOUVEAU RDV --- #}
+    <div class="modal fade" id="newRdvModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modal-content-modern">
+                <div class="modal-header modal-header-modern">
+                    <div>
+                        <h5 class="modal-title modal-title-modern">Prendre un Rendez-vous</h5>
+                        <p class="modal-subtitle" id="rdvModalSubtitle">Étape 1 : Choisissez une spécialité</p>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-4">
+                    
+                    {# STEP 1: SPECIALITES #}
+                    <div id="step-specialite" class="step-section active">
+                        <div class="row">
+                            {% if specialites is defined %}
+                                {% for spec in specialites %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="spec-card" onclick="selectSpecialty({{ spec.id }}, '{{ spec.nom }}')">
+                                            <div class="spec-icon"><i class="fas fa-stethoscope"></i></div>
+                                            <div class="spec-name">{{ spec.nom }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# STEP 2: FORMULAIRE #}
+                    <div id="step-form" class="step-section">
+                        {% if form is defined %}
+                            {{ form_start(form) }}
+                                {# --- FIX: CHAMPS CACHÉ POUR L'ID SPECIALITE --- #}
+                                <input type="hidden" name="specialite_id" id="specialite_input" value="{{ app.request.get('specialite_id') }}">
+
+                                <div class="alert alert-info border-0 bg-light-primary text-primary small mb-4">
+                                    <i class="fas fa-info-circle mr-1"></i> Réservation pour : <strong id="selected_spec_name">...</strong>
                                 </div>
-                            </div>
-                        {% endfor %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label-modern">Patient concerné <span class="required-star">*</span></label>
+                                            {{ form_widget(form.profil, {'attr': {'class': 'form-control form-control-modern'}}) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label-modern">Date et Heure <span class="required-star">*</span></label>
+                                            {{ form_widget(form.date_debut, {'attr': {'class': 'form-control form-control-modern'}}) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label-modern">Motif</label>
+                                    {{ form_widget(form.motif, {'attr': {'class': 'form-control form-control-modern', 'rows': '3'}}) }}
+                                </div>
+                                {{ form_rest(form) }}
+                                <div class="modal-footer border-top-0 px-0 pb-0">
+                                    <button type="button" class="btn btn-ghost-modern" onclick="goBackToStep1()">Retour</button>
+                                    <button type="submit" class="btn btn-primary-modern">Confirmer</button>
+                                </div>
+                            {{ form_end(form) }}
+                        {% endif %}
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                {# ETAPE 2 : FORMULAIRE #}
-                <div id="step-form" class="step-section">
-                    {{ form_start(form, {'attr': {'id': 'form-rdv-new', 'novalidate': 'novalidate'}}) }}
-                        <input type="hidden" name="specialite_id" id="specialite_input">
-                        <div class="alert alert-info">Spécialité : <strong id="selected_spec_name"></strong></div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Patient</label>
-                                {{ form_widget(form.profil, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(form.profil) }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Médecin</label>
-                                {{ form_widget(form.medecin, {'attr': {'class': 'form-control' ~ (form.medecin.vars.errors|length ? ' is-invalid' : '')}}) }}
-                                <div class="invalid-feedback">{{ form_errors(form.medecin) }}</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Date et Heure</label>
-                            {{ form_widget(form.date_debut, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.date_debut) }}
-                        </div>
-
-                        {{ form_widget(form.heure_choisie) }}
-
-                        <div class="mb-3">
-                            <label>Créneaux disponibles</label>
-                            <div id="creneaux-container" class="d-flex flex-wrap" style="gap: 8px;"></div>
-                            <div class="invalid-feedback" id="creneaux-error" style="display:none;">Veuillez choisir un créneau horaire.</div>
-                            {{ form_errors(form.heure_choisie) }}
-                        </div>
-                        <div class="mb-3">
-                            <label>Motif</label>
-                            {{ form_widget(form.motif, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(form.motif) }}
-                        </div>
-                        
-                        <div class="modal-footer px-0">
-                            <button type="button" class="btn btn-secondary" onclick="goBackToStep1()">Retour</button>
-                            <button type="submit" class="btn btn-primary">Confirmer le RDV</button>
-                        </div>
-                    {{ form_end(form) }}
+    {# --- MODAL EDIT RDV --- #}
+    <div class="modal fade" id="editRdvModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modal-content-modern">
+                <div class="modal-header modal-header-modern">
+                    <h5 class="modal-title modal-title-modern">Modifier le Rendez-vous</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body pt-4" id="editRdvModalBody">
+                    {# Content loaded via AJAX #}
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-{# MODAL EDIT #}
-<div class="modal fade" id="editRdvModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-body" id="editRdvModalBody"></div></div></div>
-</div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script>
-        // 1. Sélection de la spécialité et chargement AJAX des médecins
-        function selectSpecialty(id, name) {
-            $('#selected_spec_name').text(name);
-            $('#specialite_input').val(id);
+        $(document).ready(function() {
+            // Error Handling: If validation fails, reopen modal at Step 2
+            // Also check if we have a server-side flash error regarding the specialty
+            if ($('#newRdvModal').find('.is-invalid, .invalid-feedback').length > 0 || $('.alert-danger').length > 0) {
+                
+                // If there is a specialty ID already (from previous submit), go to step 2
+                if(document.getElementById('specialite_input').value) {
+                    $('#newRdvModal').modal('show');
+                    $('#step-specialite').removeClass('active');
+                    $('#step-form').addClass('active');
+                }
+            }
 
-            // Charger les médecins via API
-            const $medecinSelect = $('select[name*="[medecin]"]');
-            $medecinSelect.html('<option>Chargement...</option>');
+            // --- EDIT BUTTON LOGIC ---
+            $('.btn-edit-rdv').on('click', function(e) {
+                e.preventDefault();
+                var url = $(this).data('url');
 
-            $.get('{{ path("api_medecins_by_specialite") }}?specialite_id=' + id, function(data) {
-                $medecinSelect.empty().append('<option value="">Choisir un médecin</option>');
-                data.forEach(m => $medecinSelect.append(`<option value="${m.id}">${m.nom}</option>`));
+                $('#editRdvModal').modal('show');
+                $('#editRdvModalBody').html('<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>');
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function(response) {
+                        $('#editRdvModalBody').html(response);
+                    },
+                    error: function() {
+                        $('#editRdvModalBody').html('<div class="alert alert-danger">Erreur de chargement</div>');
+                    }
+                });
             });
+        });
 
-            $('#step-specialite').hide();
-            $('#step-form').fadeIn().addClass('active');
+        function selectSpecialty(id, name) {
+            // Visual Update
+            document.getElementById('selected_spec_name').innerText = name;
+            
+            // --- FIX: Fill the hidden input for the controller ---
+            document.getElementById('specialite_input').value = id;
+
+            // Transition
+            $('#step-specialite').fadeOut(200, function() {
+                $('#step-specialite').removeClass('active');
+                $('#step-form').fadeIn(200).addClass('active');
+            });
         }
 
         function goBackToStep1() {
-            $('#step-form').hide();
-            $('#step-specialite').fadeIn();
+            $('#step-form').fadeOut(200, function() {
+                $('#step-form').removeClass('active');
+                $('#step-specialite').fadeIn(200).addClass('active');
+            });
         }
-
-        $(document).ready(function() {
-            // 2. Validation simple
-            $('#form-rdv-new').on('submit', function(e) {
-                let valid = true;
-                const $form = $(this);
-
-                $form.find('.invalid-feedback.client-required').remove();
-                $('#creneaux-error').hide();
-
-                $form.find('select, input[type="date"], textarea').each(function() {
-                    const $field = $(this);
-                    if (!$field.val()) {
-                        $field.addClass('is-invalid');
-                        if (!$field.next('.invalid-feedback.client-required').length) {
-                            $field.after('<div class="invalid-feedback client-required">Ce champ est obligatoire.</div>');
-                        }
-                        valid = false;
-                    } else {
-                        $field.removeClass('is-invalid');
-                    }
-                });
-
-                const $heureChoisie = $form.find('input[name*="[heure_choisie]"]');
-                if (!$heureChoisie.val()) {
-                    $('#creneaux-error').show();
-                    valid = false;
-                }
-                if (!valid) e.preventDefault();
-            });
-
-            function renderCreneaux(slots) {
-                const $container = $('#creneaux-container');
-                $container.empty();
-
-                if (!slots || !slots.length) {
-                    $container.html('<div class="text-muted">Aucun créneau disponible pour cette date.</div>');
-                    return;
-                }
-
-                slots.forEach(function(time) {
-                    const $btn = $('<button type="button" class="btn btn-outline-primary creneau-btn"></button>');
-                    $btn.text(time);
-                    $btn.attr('data-time', time);
-                    $container.append($btn);
-                });
-            }
-
-            function clearCreneauxSelection() {
-                const $form = $('#form-rdv-new');
-                $form.find('input[name*="[heure_choisie]"]').val('');
-                $('#creneaux-container .creneau-btn').removeClass('btn-primary').addClass('btn-outline-primary');
-                $('#creneaux-error').hide();
-            }
-
-            function loadCreneaux() {
-                const $form = $('#form-rdv-new');
-                const medecinId = $form.find('select[name*="[medecin]"]').val();
-                const date = $form.find('input[name*="[date_debut]"]').val();
-
-                clearCreneauxSelection();
-
-                if (!medecinId || !date) {
-                    renderCreneaux([]);
-                    return;
-                }
-
-                $('#creneaux-container').html('<div class="text-muted">Chargement des créneaux...</div>');
-
-                $.get('{{ path("api_creneaux") }}', { medecin_id: medecinId, date: date }, function(data) {
-                    renderCreneaux(data);
-                }).fail(function() {
-                    $('#creneaux-container').html('<div class="text-danger">Erreur lors du chargement des créneaux.</div>');
-                });
-            }
-
-            $(document).on('change', 'select[name*="[medecin]"], input[name*="[date_debut]"]', function() {
-                loadCreneaux();
-            });
-
-            $(document).on('click', '.creneau-btn', function() {
-                const $btn = $(this);
-                const time = $btn.data('time');
-                const $form = $('#form-rdv-new');
-
-                $form.find('input[name*="[heure_choisie]"]').val(time);
-
-                $('#creneaux-container .creneau-btn').removeClass('btn-primary').addClass('btn-outline-primary');
-                $btn.removeClass('btn-outline-primary').addClass('btn-primary');
-                $('#creneaux-error').hide();
-            });
-
-            // 2bis. Si on arrive depuis le triage, on ouvre automatiquement le modal et on sélectionne la spécialité.
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('open_rdv') === '1') {
-                const specId = params.get('triage_spec_id');
-                const specName = params.get('triage_spec_name') || '';
-
-                $('#newRdvModal').modal('show');
-                if (specId) {
-                    // On réutilise la fonction existante pour déclencher le chargement des médecins.
-                    selectSpecialty(specId, specName);
-                }
-            }
-
-            // 3. Edit via AJAX
-            $('.btn-edit-rdv').on('click', function() {
-                const url = $(this).data('url');
-
-                $('#editRdvModal').modal('show');
-                $('#editRdvModalBody').load(url);
-            });
-        });
     </script>
 {% endblock %}

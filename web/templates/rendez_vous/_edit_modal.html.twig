@@ -11,7 +11,7 @@
 <div class="modal-body pt-4">
     {# --- CORRECTION MAJEURE ICI --- #}
     {# On force l'action vers la route d'édition, sinon ça repart vers la création #}
-    {{ form_start(form, {'action': path('app_rendez_vous_edit', {'id': rendezVous.id}), 'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_start(form, {'action': path('app_rendez_vous_edit', {'id': rendezVous.id})}) }}
     
         <div class="form-group-modern">
             <label class="form-label-modern">Patient concerné <span class="required-star">*</span></label>

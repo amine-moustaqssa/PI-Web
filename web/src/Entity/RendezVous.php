@@ -17,7 +17,7 @@ class RendezVous
     private ?string $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: 'Veuillez choisir une date.')]
+    #[Assert\NotNull(message: 'La date de début est obligatoire.')]
     private ?\DateTimeInterface $date_debut = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -31,15 +31,12 @@ class RendezVous
 
     #[ORM\Column(length: 60, nullable: true)]
     #[Assert\Length(max: 60, maxMessage: 'Le motif ne doit pas dépasser {{ limit }} caractères.')]
-    private ?string $motif = '';
+    private ?string $motif = null;
 
     #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
     #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
-    #[Assert\NotNull(message: 'Veuillez sélectionner un patient.')]
+    #[Assert\NotNull(message: 'Le profil médical est obligatoire.')]
     private ?ProfilMedical $profil = null;
-
-    #[ORM\ManyToOne(inversedBy: 'rendezVouses')]
-    private ?Medecin $medecin = null;
 
     public function getId(): ?string
     {
@@ -51,7 +48,7 @@ class RendezVous
         return $this->date_debut;
     }
 
-    public function setDateDebut(?\DateTimeInterface $date_debut): static
+    public function setDateDebut(\DateTimeInterface $date_debut): static
     {
         $this->date_debut = $date_debut;
         return $this;
@@ -62,7 +59,7 @@ class RendezVous
         return $this->date_fin;
     }
 
-    public function setDateFin(?\DateTimeInterface $date_fin): static
+    public function setDateFin(\DateTimeInterface $date_fin): static
     {
         $this->date_fin = $date_fin;
         return $this;
@@ -73,7 +70,7 @@ class RendezVous
         return $this->statut;
     }
 
-    public function setStatut(?string $statut): static
+    public function setStatut(string $statut): static
     {
         $this->statut = $statut;
         return $this;
@@ -84,7 +81,7 @@ class RendezVous
         return $this->type;
     }
 
-    public function setType(?string $type): static
+    public function setType(string $type): static
     {
         $this->type = $type;
         return $this;
@@ -95,9 +92,9 @@ class RendezVous
         return $this->motif;
     }
 
-    public function setMotif(?string $motif): static
+    public function setMotif(string $motif): static
     {
-        $this->motif = $motif ?? '';
+        $this->motif = $motif;
         return $this;
     }
 
@@ -109,18 +106,6 @@ class RendezVous
     public function setProfil(?ProfilMedical $profil): static
     {
         $this->profil = $profil;
-        return $this;
-    }
-
-    public function getMedecin(): ?Medecin
-    {
-        return $this->medecin;
-    }
-
-    public function setMedecin(?Medecin $medecin): static
-    {
-        $this->medecin = $medecin;
-
         return $this;
     }
 }

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Controller;
 
+namespace App\Controller;
 use App\Entity\Paiement;
 use App\Form\PaiementType;
 use App\Repository\PaiementRepository;
-use App\Repository\FactureRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,37 +22,25 @@ final class PaiementController extends AbstractController
         ]);
     }
 
-   #[Route('/new', name: 'app_patient_paiement_new', methods: ['GET', 'POST'])]
-public function new(
-    Request $request,
-    EntityManagerInterface $entityManager,
-    FactureRepository $factureRepository
-): Response {
-    $paiement = new Paiement();
+    #[Route('/new', name: 'app_patient_paiement_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $paiement = new Paiement();
+        $form = $this->createForm(PaiementType::class, $paiement);
+        $form->handleRequest($request);
 
-    // ✅ Pre-fill facture from URL parameter
-    $factureId = $request->query->get('factureId');
-    if ($factureId) {
-        $facture = $factureRepository->find($factureId);
-        if ($facture) {
-            $paiement->setFacture($facture);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($paiement);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_patient_paiement_index');
         }
+
+        return $this->render('titulaire/paiement/new.html.twig', [
+            'paiement' => $paiement,
+            'form' => $form,
+        ]);
     }
 
-    $form = $this->createForm(PaiementType::class, $paiement);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $entityManager->persist($paiement);
-        $entityManager->flush();
-        return $this->redirectToRoute('app_patient_facture_index');
-    }
-
-    return $this->render('titulaire/paiement/new.html.twig', [
-        'paiement' => $paiement,
-        'form'     => $form,
-    ]);
-}
     #[Route('/{id}', name: 'app_patient_paiement_show', methods: ['GET'])]
     public function show(Paiement $paiement): Response
     {
