@@ -126,6 +126,23 @@ class TitulaireController extends AbstractController
         }
     }
 
+    #[Route('/medicaments', name: 'app_titulaire_medicaments')]
+    public function medicaments(Request $request, \App\Service\PharmacieApiService $pharmacieApi): Response
+    {
+        $search = $request->query->get('q');
+        try {
+            $medicaments = $pharmacieApi->getAllMedicaments($search);
+        } catch (\Throwable $e) {
+            $medicaments = [];
+            $this->addFlash('danger', 'Impossible de charger les médicaments : ' . $e->getMessage());
+        }
+
+        return $this->render('titulaire/medicaments.html.twig', [
+            'medicaments' => $medicaments,
+            'search' => $search,
+        ]);
+    }
+
     #[Route('/dashboard', name: 'app_titulaire_dashboard')]
     #[Route('/{id}/dashboard', name: 'app_titulaire_dashboard_profil')]
     public function index(
