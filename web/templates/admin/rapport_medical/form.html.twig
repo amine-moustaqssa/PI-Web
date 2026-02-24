@@ -16,7 +16,7 @@
 </div>
 
 <div class="card shadow mb-4 p-3">
-    {{ form_start(form) }}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
         {{ form_widget(form) }}
         <!-- Bouton bleu un peu foncé -->
         <button class="btn btn-sm btn-primary mt-3">

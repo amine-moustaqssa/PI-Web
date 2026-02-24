@@ -8,9 +8,9 @@
 <div class="modal-body">
 
     {{ form_start(form, {
-        attr: {'id': 'editForm'},
-        action: path('admin_dossier_clinique_edit', {'id': profil.id}),
-        method: 'POST'
+        'attr': {'id': 'editForm', 'novalidate': 'novalidate'},
+        'action': path('admin_dossier_clinique_edit', {'id': profil.id}),
+        'method': 'POST'
     }) }}
 
         {{ form_widget(form) }}

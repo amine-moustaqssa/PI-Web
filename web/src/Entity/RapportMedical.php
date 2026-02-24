@@ -81,7 +81,7 @@ class RapportMedical
         return $this->contenu;
     }
 
-    public function setContenu(string $contenu): static
+    public function setContenu(?string $contenu): static
     {
         $this->contenu = $contenu;
         return $this;
@@ -92,7 +92,7 @@ class RapportMedical
         return $this->conclusion;
     }
 
-    public function setConclusion(string $conclusion): static
+    public function setConclusion(?string $conclusion): static
     {
         $this->conclusion = $conclusion;
         return $this;
@@ -114,7 +114,7 @@ class RapportMedical
         return $this->date_creation;
     }
 
-    public function setDateCreation(\DateTime $date_creation): static
+    public function setDateCreation(?\DateTime $date_creation): static
     {
         $this->date_creation = $date_creation;
         return $this;

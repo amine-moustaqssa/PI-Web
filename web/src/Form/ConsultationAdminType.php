@@ -28,10 +28,10 @@ class ConsultationAdminType extends AbstractType
                     'Planifié' => 'planifié',
                     'Terminé' => 'terminé',
                 ],
-                'required' => true,
+                'required' => false,
             ])
             ->add('notesPrivees', TextareaType::class, [
-                'required' => true,
+                'required' => false,
             ])
             ->add('medecin', EntityType::class, [
                 'class' => Medecin::class,

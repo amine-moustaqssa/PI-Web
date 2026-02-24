@@ -16,6 +16,7 @@ class RapportMedicalType extends AbstractType
         $builder
             ->add('contenu', TextareaType::class, [
                 'label' => 'Contenu du rapport',
+                'required' => false,
                 'attr' => [
                     'rows' => 10,
                     'class' => 'form-control',
@@ -24,6 +25,7 @@ class RapportMedicalType extends AbstractType
             ])
             ->add('conclusion', TextareaType::class, [
                 'label' => 'Conclusion',
+                'required' => false,
                 'attr' => [
                     'rows' => 5,
                     'class' => 'form-control',

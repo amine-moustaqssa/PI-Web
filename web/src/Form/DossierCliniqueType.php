@@ -14,11 +14,12 @@ class DossierCliniqueType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('allergies')
-            ->add('antecedents')
+            ->add('allergies', null, ['required' => false])
+            ->add('antecedents', null, ['required' => false])
             ->add('profilMedical', EntityType::class, [
                 'class' => ProfilMedical::class,
                 'choice_label' => 'id',
+                'required' => false,
             ])
         ;
     }

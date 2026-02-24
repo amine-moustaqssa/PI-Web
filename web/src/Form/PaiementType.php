@@ -14,12 +14,17 @@ class PaiementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('datePaiement')
-            ->add('montant')
+            ->add('datePaiement', null, [
+                'required' => false,
+            ])
+            ->add('montant', null, [
+                'required' => false,
+            ])
             ->add('facture', EntityType::class, [
-        'class' => Facture::class,
-        'choice_label' => 'id', // ou un autre champ de Facture
-    ])
+                'class' => Facture::class,
+                'choice_label' => 'id',
+                'required' => false,
+            ])
         ;
     }
 
