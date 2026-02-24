@@ -7,6 +7,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,13 +22,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\DiscriminatorColumn(name: "type_utilisateur", type: "string")]
 // 2. We match the exact ENUM values from your DB ('ADMIN', 'TITULAIRE', 'PERSONNEL', 'MEDECIN')
 #[ORM\DiscriminatorMap([
-    "ADMIN" => Utilisateur::class,
-    "TITULAIRE" => Utilisateur::class, // Mapped to self for now (until you create Titulaire.php)
-    "PERSONNEL" => Utilisateur::class, // Mapped to self for now (until you create Personnel.php)
+    "ADMIN" => Admin::class,
+    "TITULAIRE" => Titulaire::class,
+    "PERSONNEL" => Personnel::class,
     "MEDECIN" => Medecin::class
 ])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -100,6 +103,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $facebookId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $totpSecret = null;
 
     public function __construct()
     {
@@ -325,6 +331,41 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setFacebookId(?string $facebookId): static
     {
         $this->facebookId = $facebookId;
+
+        return $this;
+    }
+
+    // -------------------------------------------------------------------
+    // TOTP Two-Factor Authentication (Scheb\TwoFactorBundle)
+    // -------------------------------------------------------------------
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->totpSecret !== null;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->email ?? '';
+    }
+
+    public function getTotpAuthenticationConfiguration(): TotpConfigurationInterface|null
+    {
+        if ($this->totpSecret === null) {
+            return null;
+        }
+
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): static
+    {
+        $this->totpSecret = $totpSecret;
 
         return $this;
     }
