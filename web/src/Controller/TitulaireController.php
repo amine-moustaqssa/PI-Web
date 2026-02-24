@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\DisponibiliteRepository;
+use App\Service\GeminiChatService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/espace-client')]
 class TitulaireController extends AbstractController
@@ -98,6 +100,30 @@ class TitulaireController extends AbstractController
 
         $this->addFlash('success', 'L\'authentification à deux facteurs a été désactivée.');
         return $this->redirectToRoute('app_titulaire_settings');
+    }
+
+    #[Route('/ai-chat', name: 'app_titulaire_ai_chat', methods: ['POST'])]
+    public function aiChat(Request $request, GeminiChatService $gemini): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $message = trim($data['message'] ?? '');
+        $history = $data['history'] ?? [];
+
+        if ($message === '') {
+            return new JsonResponse(['error' => 'Message vide'], 400);
+        }
+
+        try {
+            $reply = $gemini->chat($message, $history);
+            return new JsonResponse(['reply' => $reply]);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => 'Erreur du service IA : ' . $e->getMessage()], 500);
+        }
     }
 
     #[Route('/dashboard', name: 'app_titulaire_dashboard')]
