@@ -203,11 +203,11 @@ class MedicalAssistantService
         try {
             $ollamaDispo = $this->isOllamaDisponible();
             $this->logger->info('🔌 Ollama disponible: ' . ($ollamaDispo ? '✅ OUI' : '❌ NON'));
-            
+
             if ($ollamaDispo) {
                 $this->logger->info('🤖 Tentative d\'utilisation d\'Ollama...');
                 $suggestionsOllama = $this->getSuggestionsParOllama($texte, $contextePatient);
-                
+
                 if (!empty($suggestionsOllama) && $this->hasValidSuggestions($suggestionsOllama)) {
                     $this->logger->info('✅ Utilisation d\'Ollama réussie');
                     return [
@@ -239,10 +239,10 @@ class MedicalAssistantService
      */
     private function hasValidSuggestions(array $suggestions): bool
     {
-        return !empty($suggestions['examens']) || 
-               !empty($suggestions['traitements']) || 
-               !empty($suggestions['orientation']) || 
-               !empty($suggestions['alertes']);
+        return !empty($suggestions['examens']) ||
+            !empty($suggestions['traitements']) ||
+            !empty($suggestions['orientation']) ||
+            !empty($suggestions['alertes']);
     }
 
     /**
@@ -266,19 +266,19 @@ class MedicalAssistantService
     {
         try {
             $this->logger->info('🔍 Test de connexion à Ollama...');
-            
+
             $response = $this->httpClient->request('GET', 'http://localhost:11434/api/tags', [
                 'timeout' => 3
             ]);
-            
+
             $statusCode = $response->getStatusCode();
             $this->logger->info('📡 Code réponse Ollama: ' . $statusCode);
-            
+
             if ($statusCode === 200) {
                 $data = $response->toArray();
                 $modeles = array_column($data['models'] ?? [], 'name');
                 $this->logger->info('✅ Modèles disponibles: ' . implode(', ', $modeles));
-                
+
                 if (in_array('mistral:latest', $modeles) || in_array('mistral', $modeles)) {
                     $this->logger->info('✅ Modèle mistral trouvé');
                     return true;
@@ -287,10 +287,9 @@ class MedicalAssistantService
                     return false;
                 }
             }
-            
+
             $this->logger->warning('⚠️ Ollama a répondu avec le code: ' . $statusCode);
             return false;
-            
         } catch (\Exception $e) {
             $this->logger->error('❌ Erreur connexion Ollama: ' . $e->getMessage());
             return false;
@@ -330,15 +329,15 @@ class MedicalAssistantService
             arsort($scores);
             $bestMatch = array_key_first($scores);
             $this->logger->info("🏆 Meilleure correspondance: {$bestMatch} (score: {$scores[$bestMatch]})");
-            
+
             $regleChoisie = $this->reglesCliniques[$bestMatch];
-            
+
             $suggestions['examens'] = $regleChoisie['examens'];
             $suggestions['traitements'] = $regleChoisie['traitements'];
             $suggestions['orientation'] = $regleChoisie['orientation'];
         } else {
             $this->logger->info('📌 Aucune règle spécifique trouvée, utilisation des suggestions génériques');
-            
+
             $suggestions['examens'] = [
                 'Bilan biologique standard (NFS, CRP, ionogramme)',
                 'Examens complémentaires orientés par la clinique'
@@ -365,17 +364,21 @@ class MedicalAssistantService
         }
 
         // Ajouter des alertes selon les antécédents
-        if (!empty($contexte['antecedents']) && 
-            $contexte['antecedents'] !== 'Aucun antécédent notable' && 
+        if (
+            !empty($contexte['antecedents']) &&
+            $contexte['antecedents'] !== 'Aucun antécédent notable' &&
             $contexte['antecedents'] !== 'aucun antécédent notable' &&
-            $contexte['antecedents'] !== 'Dossier créé automatiquement.') {
+            $contexte['antecedents'] !== 'Dossier créé automatiquement.'
+        ) {
             $suggestions['alertes'][] = '📋 Tenir compte des antécédents: ' . $contexte['antecedents'];
         }
 
         // Ajouter des alertes selon les allergies
-        if (!empty($contexte['allergies']) && 
-            $contexte['allergies'] !== 'Aucune allergie connue' && 
-            $contexte['allergies'] !== 'aucune allergie connue') {
+        if (
+            !empty($contexte['allergies']) &&
+            $contexte['allergies'] !== 'Aucune allergie connue' &&
+            $contexte['allergies'] !== 'aucune allergie connue'
+        ) {
             $suggestions['alertes'][] = '⚠️ Allergies: ' . $contexte['allergies'];
         }
 
@@ -389,12 +392,12 @@ class MedicalAssistantService
     {
         $this->logger->info('🤖 Construction du prompt pour Ollama...');
         $prompt = $this->construirePromptMedical($texte, $contexte);
-        
+
         $this->logger->info('📝 Prompt envoyé (premiers 300 caractères): ' . substr($prompt, 0, 300) . '...');
 
         try {
             $this->logger->info('📡 Envoi de la requête à Ollama...');
-            
+
             $response = $this->httpClient->request('POST', 'http://localhost:11434/api/generate', [
                 'json' => [
                     'model' => 'mistral',
@@ -402,17 +405,17 @@ class MedicalAssistantService
                     'stream' => false,
                     'options' => [
                         'temperature' => 0.3,
-                        'num_predict' => 800,
+                        'num_predict' => 600,
                         'top_k' => 40,
                         'top_p' => 0.9
                     ]
                 ],
-                'timeout' => 30
+                'timeout' => 90
             ]);
 
             $statusCode = $response->getStatusCode();
             $this->logger->info('📡 Code réponse Ollama: ' . $statusCode);
-            
+
             if ($statusCode !== 200) {
                 throw new \Exception("Ollama a répondu avec le code HTTP $statusCode");
             }
@@ -420,12 +423,11 @@ class MedicalAssistantService
             $data = $response->toArray();
             $reponseBrute = $data['response'] ?? '';
             $this->logger->info('📨 Réponse brute (premiers 300 caractères): ' . substr($reponseBrute, 0, 300));
-            
+
             $structuree = $this->structurerReponseOllama($reponseBrute);
             $this->logger->info('✅ Suggestions structurées: ' . json_encode($structuree));
-            
+
             return $structuree;
-            
         } catch (\Exception $e) {
             $this->logger->error('❌ Erreur détaillée Ollama: ' . $e->getMessage());
             $this->logger->error('Trace: ' . $e->getTraceAsString());
@@ -443,7 +445,7 @@ class MedicalAssistantService
         $allergies = $contexte['allergies'] ?? 'aucune allergie connue';
 
         $texteNettoye = substr($texte, 0, 1000);
-        
+
         $ageContext = '';
         if (is_numeric($age)) {
             if ($age < 16) {
@@ -452,7 +454,7 @@ class MedicalAssistantService
                 $ageContext = " (patient âgé)";
             }
         }
-        
+
         return "Tu es un médecin urgentiste expérimenté. Analyse cette situation clinique et propose des recommandations médicales PRÉCISES et ADAPTÉES.
 
 CONTEXTE PATIENT:
@@ -505,7 +507,7 @@ FORMAT JSON ATTENDU:
     {
         // Nettoyer la réponse (enlever les éventuels textes avant/après JSON)
         preg_match('/\{.*\}/s', $reponse, $matches);
-        
+
         if (!empty($matches[0])) {
             try {
                 $data = json_decode($matches[0], true);
@@ -539,16 +541,16 @@ FORMAT JSON ATTENDU:
     {
         try {
             $this->logger->info('🧪 Test de connexion Ollama demandé');
-            
+
             $response = $this->httpClient->request('GET', 'http://localhost:11434/api/tags', [
                 'timeout' => 3
             ]);
             $data = $response->toArray();
-            
+
             $modeles = array_column($data['models'] ?? [], 'name');
-            
+
             $this->logger->info('✅ Test connexion réussi. Modèles: ' . implode(', ', $modeles));
-            
+
             return [
                 'disponible' => true,
                 'modeles' => $modeles,
@@ -556,7 +558,7 @@ FORMAT JSON ATTENDU:
             ];
         } catch (\Exception $e) {
             $this->logger->error('❌ Test connexion échoué: ' . $e->getMessage());
-            
+
             return [
                 'disponible' => false,
                 'message' => '❌ Ollama non disponible',
