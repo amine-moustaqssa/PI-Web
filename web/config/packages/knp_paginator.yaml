@@ -9,4 +9,4 @@ knp_paginator:
         default_limit: 10
     template:
         sortable: '@KnpPaginator/Pagination/bootstrap_v5_bi_sortable_link.html.twig'
-        pagination: 'pagination/bootstrap_v5_pagination_fr.html.twig'  # ← Ton template français
+        pagination: 'pagination/bootstrap_v5_pagination_fr.html.twig'

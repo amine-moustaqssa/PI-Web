@@ -16,15 +16,14 @@ class Disponibilite
     #[ORM\Column]
     private ?int $id = null;
 
-    // 1 = Monday, 7 = Sunday
+    // 1 = Monday, 7 = Sunday OR Unix Timestamp (if estRecurrent = false)
     #[ORM\Column]
     #[Assert\NotNull(message: 'Le jour de la semaine est obligatoire.')]
-    #[Assert\Range(
-        min: 1,
-        max: 7,
-        notInRangeMessage: 'Le jour doit être compris entre {{ min }} (lundi) et {{ max }} (dimanche).'
-    )]
     private ?int $jourSemaine = null;
+
+    // Propriété non mappée (sert uniquement de raccourci formulaire)
+    #[Assert\NotNull(message: 'La date est obligatoire.')]
+    private ?\DateTimeInterface $dateSpecifique = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     #[Assert\NotNull(message: "L'heure de début est obligatoire.")]
@@ -103,6 +102,21 @@ class Disponibilite
     public function setMedecin(?Utilisateur $medecin): static
     {
         $this->medecin = $medecin;
+
+        return $this;
+    }
+
+    public function getDateSpecifique(): ?\DateTimeInterface
+    {
+        return $this->dateSpecifique;
+    }
+
+    public function setDateSpecifique(?\DateTimeInterface $dateSpecifique): static
+    {
+        $this->dateSpecifique = $dateSpecifique;
+        if ($dateSpecifique) {
+            $this->jourSemaine = (int) $dateSpecifique->format('N');
+        }
 
         return $this;
     }
