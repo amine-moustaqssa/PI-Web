@@ -104,6 +104,17 @@
                     <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-bolt mr-2"></i>Actions</h6>
                 </div>
                 <div class="card-body text-center">
+                    {% if existingConsultation %}
+                        <a href="{{ path('medecin_consultation_show', {id: existingConsultation.id}) }}" class="btn btn-success btn-block mb-2">
+                            <i class="fas fa-stethoscope mr-1"></i> Voir la consultation
+                        </a>
+                    {% elseif rdv.statut != 'annulé' and rdv.statut != 'terminé' %}
+                        <form action="{{ path('medecin_rdv_start_consultation', {id: rdv.id}) }}" method="post">
+                            <button type="submit" class="btn btn-primary btn-block mb-2" onclick="return confirm('Commencer une consultation pour ce rendez-vous ?')">
+                                <i class="fas fa-play mr-1"></i> Commencer une consultation
+                            </button>
+                        </form>
+                    {% endif %}
                     <a href="{{ path('medecin_rdv_index') }}" class="btn btn-outline-primary btn-block">
                         <i class="fas fa-list mr-1"></i> Tous les rendez-vous
                     </a>

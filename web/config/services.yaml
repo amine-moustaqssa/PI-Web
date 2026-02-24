@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    gemini_api_key: "%env(GEMINI_API_KEY)%"
     app.news_api_key: '%env(NEWS_API_KEY)%'
     app.ai_triage_api_key: '%env(default::AI_TRIAGE_API_KEY)%'
     app.ai_triage_endpoint: '%env(default::AI_TRIAGE_ENDPOINT)%'
@@ -12,6 +13,7 @@ parameters:
     app.supabase_pharmacie_a_key: '%env(SUPABASE_PHARMACIE_A_KEY)%'
     app.supabase_pharmacie_b_url: '%env(SUPABASE_PHARMACIE_B_URL)%'
     app.supabase_pharmacie_b_key: '%env(SUPABASE_PHARMACIE_B_KEY)%'
+
 services:
     # default configuration for services in *this* file
     App\Service\MedicalScoreCalculator: ~
@@ -20,26 +22,31 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $apiKey: '%env(NEWS_API_KEY)%' # Symfony saura quoi injecter dans ton NewsHealthService
+            $apiKey: '%env(NEWS_API_KEY)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../src/'
+        resource: "../src/"
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+            - "../src/DependencyInjection/"
+            - "../src/Entity/"
+            - "../src/Kernel.php"
 
-    # 👇 LES SERVICES SPÉCIFIQUES VIENNENT ICI (APRÈS App\)
+    # Gemini AI Service (Ahmed - constantes vitales)
+    App\Service\GeminiService:
+        arguments:
+            $geminiApiKey: "%gemini_api_key%"
+
+    # Services des autres modules
     App\Service\MedicalScoreCalculator:
         # Pas besoin d'arguments, Symfony injectera automatiquement
 
     App\Service\SmsService:
         arguments:
-            $accountSid: '%env(TWILIO_SID)%'      # ← correspond à TWILIO_SID
-            $authToken: '%env(TWILIO_TOKEN)%'     # ← correspond à TWILIO_TOKEN
-            $fromNumber: '%env(TWILIO_FROM)%'     # ← correspond à TWILIO_FROM
+            $accountSid: '%env(TWILIO_SID)%'
+            $authToken: '%env(TWILIO_TOKEN)%'
+            $fromNumber: '%env(TWILIO_FROM)%'
 
     App\Service\PdfGeneratorService:
         arguments:
@@ -50,8 +57,6 @@ services:
             $httpClient: '@http_client'
             $logger: '@logger'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
     App\Service\NewsHealthService:
         arguments:
             $apiKey: '%app.news_api_key%'
