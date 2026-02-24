@@ -27,6 +27,8 @@ return [
     PhpLlm\LlmChainBundle\LlmChainBundle::class => ['all' => true],
     Vich\UploaderBundle\VichUploaderBundle::class => ['all' => true],
     SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle::class => ['all' => true],
-    Scheb\TwoFactorBundle\SchebTwoFactorBundle::class => ['all' => true],
+Scheb\TwoFactorBundle\SchebTwoFactorBundle::class => ['all' => true],
     Endroid\QrCodeBundle\EndroidQrCodeBundle::class => ['all' => true],
+    Symfony\UX\Chartjs\ChartjsBundle::class => ['all' => true],
+    App\FacturePdfBundle\FacturePdfBundle::class => ['all' => true],
 ];
