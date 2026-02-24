@@ -2,6 +2,12 @@
 
 {% block title %}Mes Rendez-vous{% endblock %}
 
+{% block sidebar %}
+    {% include 'titulaire/_partials/_sidebar.html.twig' %}
+{% endblock %}
+
+{% block topbar %}{% endblock %}
+
 {% block stylesheets %}
     {{ parent() }}
     <style>
