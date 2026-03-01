@@ -240,15 +240,20 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
         rateBanner.style.display = 'block';
 
-        fetch('https://api.exchangerate-api.com/v4/latest/TND')
-            .then(r => r.json())
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        fetch('https://api.exchangerate-api.com/v4/latest/TND', { signal: controller.signal })
+            .then(r => { clearTimeout(timeoutId); return r.json(); })
             .then(data => {
                 eurRate = data.rates['EUR'];
                 liveRate.textContent = eurRate.toFixed(4);
                 rateLoading.style.display = 'none';
                 fillEurCells(eurRate);
             })
-            .catch(() => {
+            .catch((err) => {
+                clearTimeout(timeoutId);
+                console.error('Currency API error:', err);
                 liveRate.textContent = 'indisponible';
                 rateLoading.style.display = 'none';
                 document.querySelectorAll('.eur-cell').forEach(c => {
