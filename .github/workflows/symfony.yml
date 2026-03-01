@@ -6,11 +6,21 @@ on:
   push:
     branches: ["main", "develop"]
 
+permissions:
+  contents: write
+
 jobs:
-  symfony-tests:
+  update-lock:
+    name: Sync composer.lock
     runs-on: ubuntu-latest
+    # Only on PRs from the same repo (needs write access to push back)
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -18,7 +28,66 @@ jobs:
           php-version: "8.2"
           extensions: ctype, iconv, intl
 
-      # We add "working-directory: web" to these steps
+      - name: Check if composer.lock is in sync
+        id: lock-check
+        working-directory: web
+        run: |
+          if composer validate 2>&1 | grep -q "lock file is not up to date"; then
+            echo "in_sync=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::composer.lock is out of sync with composer.json"
+          else
+            echo "in_sync=true" >> "$GITHUB_OUTPUT"
+            echo "composer.lock is in sync"
+          fi
+
+      - name: Regenerate composer.lock
+        if: steps.lock-check.outputs.in_sync == 'false'
+        working-directory: web
+        env:
+          COMPOSER_NO_INTERACTION: 1
+        run: composer update
+
+      - name: Verify lock file after regeneration
+        if: steps.lock-check.outputs.in_sync == 'false'
+        working-directory: web
+        run: |
+          if composer validate 2>&1 | grep -q "lock file is not up to date"; then
+            echo "::error::composer.lock is still out of sync after running composer update. Manual intervention required."
+            exit 1
+          fi
+          echo "composer.lock is now in sync"
+
+      - name: Commit and push updated composer.lock
+        if: steps.lock-check.outputs.in_sync == 'false'
+        run: |
+          if git diff --quiet web/composer.lock; then
+            echo "No actual changes to composer.lock"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add web/composer.lock
+            git commit -m "chore(web): auto-update composer.lock"
+            git push
+          fi
+
+  ci-checks:
+    name: CI Checks
+    runs-on: ubuntu-latest
+    needs: [update-lock]
+    # Run even if update-lock was skipped (push events), but not if it failed
+    if: always() && needs.update-lock.result != 'failure'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # On PRs, use head_ref to pick up any bot commits; on push, use default ref
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: ctype, iconv, intl
+
       - name: Check PHP Syntax
         run: find src -name "*.php" -print0 | xargs -0 -n1 php -l
         working-directory: web
