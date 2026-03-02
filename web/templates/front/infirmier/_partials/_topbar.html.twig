@@ -1,6 +1,8 @@
-<nav class="navbar navbar-expand navbar-dark bg-dark topbar mb-4 static-top shadow">
+<nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow-sm"
+     style="background-color: #ffffff; border-bottom: 2px solid #e0f2f1;">
 
-    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3 text-white">
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"
+            style="color: #0097a7;">
         <i class="fa fa-bars"></i>
     </button>
 
@@ -9,17 +11,18 @@
         <li class="nav-item dropdown no-arrow mx-1">
             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
+                <i class="fas fa-bell fa-fw" style="color: #78909c;"></i>
             </a>
-            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in bg-dark border-secondary"
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                 style="background-color: #ffffff; border: 1px solid #e0e0e0;"
                 aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header bg-secondary border-secondary text-white">
+                <h6 class="dropdown-header" style="background: linear-gradient(135deg, #0097a7, #00bcd4); color: white;">
                     Centre de Notifications
                 </h6>
-                <a class="dropdown-item d-flex align-items-center text-white-50 hover-dark" href="#">
+                <a class="dropdown-item d-flex align-items-center" href="#" style="color: #5a5c69;">
                     <div class="mr-3">
-                        <div class="icon-circle bg-info">
-                            <i class="fas fa-heartbeat text-white"></i>
+                        <div class="icon-circle" style="background-color: #e0f7fa;">
+                            <i class="fas fa-heartbeat" style="color: #0097a7;"></i>
                         </div>
                     </div>
                     <div>
@@ -31,26 +34,28 @@
             </div>
         </li>
 
-        <div class="topbar-divider d-none d-sm-block border-secondary"></div>
+        <div class="topbar-divider d-none d-sm-block" style="border-left: 1px solid #e0e0e0;"></div>
 
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-white small">
+                <span class="mr-2 d-none d-lg-inline small" style="color: #37474f; font-weight: 600;">
                     {{ app.user.nom ?? 'Infirmier' }} {{ app.user.prenom ?? '' }}
                 </span>
-                <img class="img-profile rounded-circle border border-secondary"
-                    src="{{ asset('backoffice/img/undraw_profile.svg') }}" width="30">
+                <img class="img-profile rounded-circle shadow-sm"
+                    src="{{ asset('backoffice/img/undraw_profile.svg') }}" width="32"
+                    style="border: 2px solid #0097a7;">
             </a>
-            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in bg-dark border-secondary"
+            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                 style="background-color: #ffffff; border: 1px solid #e0e0e0;"
                 aria-labelledby="userDropdown">
-                <a class="dropdown-item text-white hover-dark" href="#">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                <a class="dropdown-item" href="#" style="color: #5a5c69;">
+                    <i class="fas fa-user fa-sm fa-fw mr-2" style="color: #0097a7;"></i>
                     Profil
                 </a>
-                <div class="dropdown-divider border-secondary"></div>
-                <a class="dropdown-item text-white hover-dark" href="#" data-toggle="modal" data-target="#logoutModal">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                <div class="dropdown-divider" style="border-top: 1px solid #eee;"></div>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal" style="color: #e57373;">
+                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>
                     Déconnexion
                 </a>
             </div>
@@ -59,13 +64,3 @@
     </ul>
 
 </nav>
-
-<style>
-    .hover-dark:hover {
-        background-color: #3a3b45 !important;
-        color: white !important;
-    }
-    .bg-dark {
-        background-color: #1a1c2e !important;
-    }
-</style>

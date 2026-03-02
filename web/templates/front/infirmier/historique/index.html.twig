@@ -1,0 +1,708 @@
+{% extends 'front/infirmier/base_infirmier.html.twig' %}
+
+{% block title %}Historique & Comparaison | Clinique 360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-transparent p-0 m-0">
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_dashboard') }}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_consultation_index') }}">Consultations</a></li>
+            <li class="breadcrumb-item active">Historique & Comparaison</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-chart-line mr-2" style="color: #0097a7;"></i>
+                Historique & Comparaison
+            </h1>
+            <p class="text-muted small mb-0">
+                Évolution des constantes vitales entre les consultations
+            </p>
+        </div>
+        <div class="d-flex align-items-center">
+            {# Bouton PDF — Bundle dompdf/dompdf #}
+            <a href="{{ path('infirmier_historique_pdf', app.request.query.all) }}" class="btn btn-danger mr-2" title="Télécharger le rapport PDF">
+                <i class="fas fa-file-pdf mr-1"></i> PDF
+            </a>
+            {# Bouton Email — Bundle symfony/mailer #}
+            <button type="button" class="btn btn-info mr-2" data-toggle="modal" data-target="#emailModal" data-bs-toggle="modal" data-bs-target="#emailModal" title="Envoyer par email">
+                <i class="fas fa-envelope mr-1"></i> Email
+            </button>
+            <a href="{{ path('infirmier_consultation_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    {# ===== FILTRES MULTICRITÈRES ===== #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background: linear-gradient(135deg, #0097a7, #00bcd4);">
+            <h6 class="m-0 font-weight-bold text-white">
+                <i class="fas fa-filter mr-2"></i> Filtres de recherche
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ path('infirmier_historique_index') }}" id="filterForm">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label font-weight-bold" style="color: #0097a7;">
+                            <i class="fas fa-heartbeat mr-1"></i> Type de constante
+                        </label>
+                        <select name="type" class="form-control" id="filterType" style="border: 1px solid #b0bec5;">
+                            <option value="">— Tous les types —</option>
+                            {% for t in types %}
+                                <option value="{{ t }}" {{ selectedType == t ? 'selected' : '' }}>{{ t|capitalize }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label font-weight-bold" style="color: #0097a7;">
+                            <i class="fas fa-calendar mr-1"></i> Date début
+                        </label>
+                        <input type="date" name="date_from" class="form-control" value="{{ dateFrom }}" style="border: 1px solid #b0bec5;">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label font-weight-bold" style="color: #0097a7;">
+                            <i class="fas fa-calendar-check mr-1"></i> Date fin
+                        </label>
+                        <input type="date" name="date_to" class="form-control" value="{{ dateTo }}" style="border: 1px solid #b0bec5;">
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label font-weight-bold" style="color: #e65100;">
+                                    <i class="fas fa-star mr-1"></i> Consultation A <small class="text-muted">(référence)</small>
+                                </label>
+                                <select name="consultation_a" class="form-control" style="border: 2px solid #e65100;">
+                                    <option value="">— Choisir —</option>
+                                    {% for c in consultations %}
+                                        <option value="{{ c.id }}" {{ consultationA == c.id ? 'selected' : '' }}>
+                                            #{{ c.id }} — {{ c.dateEffectuee ? c.dateEffectuee|date('d/m/Y') : 'N/A' }}
+                                            {% if c.medecin %} (Dr. {{ c.medecin.nom }}){% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label font-weight-bold" style="color: #1565c0;">
+                                    <i class="fas fa-exchange-alt mr-1"></i> Comparer avec
+                                </label>
+                                <select name="consultations_b[]" class="form-control" multiple style="border: 2px solid #1565c0; min-height: 38px;" title="Maintenir Ctrl pour sélectionner plusieurs">
+                                    {% for c in consultations %}
+                                        <option value="{{ c.id }}" {{ c.id in consultationsB ? 'selected' : '' }}>
+                                            #{{ c.id }} — {{ c.dateEffectuee ? c.dateEffectuee|date('d/m/Y') : 'N/A' }}
+                                            {% if c.medecin %} (Dr. {{ c.medecin.nom }}){% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted"><i class="fas fa-info-circle mr-1"></i>Ctrl+clic pour multi-sélection</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-right">
+                        <a href="{{ path('infirmier_historique_index') }}" class="btn btn-outline-secondary mr-2" title="Réinitialiser">
+                            <i class="fas fa-undo mr-1"></i> Réinitialiser
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-search mr-1"></i> Comparer
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# ===== STATISTIQUES RÉSUMÉ ===== #}
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Mesures</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ constantes|length }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-list-ol fa-2x text-info"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Types distincts</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ chartData|keys|length }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-tags fa-2x text-primary"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Consultations</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ comparisonData|keys|length }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-hospital fa-2x text-warning"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Alertes critiques</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ analysis.criticalCount }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-danger"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if constantes|length > 0 %}
+
+    {# ===== GRAPHIQUES D'ÉVOLUTION ===== #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color: #f8f9fa; border-bottom: 2px solid #0097a7;">
+            <h6 class="m-0 font-weight-bold" style="color: #0097a7;">
+                <i class="fas fa-chart-line mr-2"></i> Évolution des constantes vitales
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if chartData|keys|length == 0 %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-chart-area fa-3x mb-3" style="opacity: 0.3;"></i>
+                    <p>Aucune donnée à afficher avec les filtres actuels.</p>
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for type, data in chartData %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header py-2" style="background-color: #e0f7fa;">
+                                    <h6 class="mb-0 font-weight-bold" style="color: #00838f;">
+                                        <i class="fas fa-heartbeat mr-1"></i> {{ type|capitalize }}
+                                        <span class="badge badge-info float-right">{{ data.values|length }} mesures</span>
+                                    </h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <canvas id="chart_{{ loop.index }}" height="220"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ===== TABLEAU COMPARATIF ENTRE CONSULTATIONS ===== #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color: #f8f9fa; border-bottom: 2px solid #ff9800;">
+            <h6 class="m-0 font-weight-bold" style="color: #e65100;">
+                <i class="fas fa-exchange-alt mr-2"></i> Comparaison entre consultations
+                {% if consultationA %}
+                    <span class="badge badge-warning ml-2">Réf: Consultation #{{ consultationA }}</span>
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if comparisonData|keys|length < 1 %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-balance-scale fa-3x mb-3" style="opacity: 0.3;"></i>
+                    <p>Sélectionnez une <strong>Consultation A</strong> (référence) et au moins une consultation à comparer.</p>
+                </div>
+            {% elseif comparisonData|keys|length < 2 %}
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Une seule consultation trouvée.</strong>
+                    Sélectionnez au moins une autre consultation dans « Comparer avec » pour voir les écarts.
+                </div>
+            {% else %}
+
+                {# Légende #}
+                <div class="mb-3 d-flex align-items-center flex-wrap">
+                    <span class="badge px-3 py-2 mr-3" style="background: #e65100; color: white;"><i class="fas fa-star mr-1"></i> Consultation A (référence)</span>
+                    <span class="badge px-3 py-2 mr-3" style="background: #1565c0; color: white;"><i class="fas fa-exchange-alt mr-1"></i> Consultations comparées</span>
+                    <span class="ml-auto small text-muted"><i class="fas fa-arrow-up text-danger mr-1"></i>Hausse <i class="fas fa-arrow-down text-success ml-2 mr-1"></i>Baisse par rapport à A</span>
+                </div>
+            {% endif %}
+
+            {% if comparisonData|keys|length >= 1 %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle">
+                        <thead style="background-color: #fff3e0;">
+                            <tr>
+                                <th style="color: #e65100; min-width: 160px;">
+                                    <i class="fas fa-stethoscope mr-1"></i> Consultation
+                                </th>
+                                <th style="color: #e65100;">
+                                    <i class="fas fa-calendar mr-1"></i> Date
+                                </th>
+                                <th style="color: #e65100;">
+                                    <i class="fas fa-user-md mr-1"></i> Médecin
+                                </th>
+                                {% set allTypes = [] %}
+                                {% for consultId, cData in comparisonData %}
+                                    {% for t, val in cData.constantes %}
+                                        {% if t not in allTypes %}
+                                            {% set allTypes = allTypes|merge([t]) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for t in allTypes %}
+                                    <th class="text-center" style="color: #00838f;">
+                                        {{ t|capitalize }}
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {# Données de la Consultation A pour calculer les écarts #}
+                            {% set refData = comparisonData[consultationA] ?? null %}
+
+                            {% for consultId, cData in comparisonData %}
+                                {% set isRef = (consultationA and consultId == consultationA) %}
+                                <tr style="{{ isRef ? 'background-color: rgba(230, 81, 0, 0.08); border-left: 4px solid #e65100;' : '' }}">
+                                    <td>
+                                        <a href="{{ path('infirmier_constante_index', {'id': consultId}) }}" class="font-weight-bold" style="color: {{ isRef ? '#e65100' : '#0097a7' }};">
+                                            {% if isRef %}
+                                                <i class="fas fa-star mr-1"></i> Consultation #{{ consultId }} <small class="text-muted">(A)</small>
+                                            {% else %}
+                                                <i class="fas fa-folder-open mr-1"></i> Consultation #{{ consultId }}
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>{{ cData.date }}</td>
+                                    <td>{{ cData.medecin }}</td>
+                                    {% for t in allTypes %}
+                                        <td class="text-center">
+                                            {% if cData.constantes[t] is defined %}
+                                                {% set ref = references[t] is defined ? references[t] : null %}
+                                                {% set val = cData.constantes[t].valeur %}
+                                                
+                                                {# Couleur selon le niveau d'alerte #}
+                                                {% if ref %}
+                                                    {% if val < ref.critical_low or val > ref.critical_high %}
+                                                        {% set cellColor = '#ff6b6b' %}
+                                                        {% set cellBg = 'rgba(220, 53, 69, 0.1)' %}
+                                                    {% elseif val < ref.normal_low or val > ref.normal_high %}
+                                                        {% set cellColor = '#ffc107' %}
+                                                        {% set cellBg = 'rgba(255, 193, 7, 0.1)' %}
+                                                    {% else %}
+                                                        {% set cellColor = '#28a745' %}
+                                                        {% set cellBg = 'rgba(40, 167, 69, 0.05)' %}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% set cellColor = '#333' %}
+                                                    {% set cellBg = 'transparent' %}
+                                                {% endif %}
+                                                
+                                                <span class="font-weight-bold" style="color: {{ cellColor }}; background: {{ cellBg }}; padding: 2px 8px; border-radius: 4px;">
+                                                    {{ val }}
+                                                </span>
+                                                <small class="text-muted d-block">{{ cData.constantes[t].unite }}</small>
+
+                                                {# Écart par rapport à A #}
+                                                {% if not isRef and refData and refData.constantes[t] is defined %}
+                                                    {% set refVal = refData.constantes[t].valeur %}
+                                                    {% set diff = val - refVal %}
+                                                    {% if diff > 0 %}
+                                                        <small class="text-danger d-block"><i class="fas fa-arrow-up"></i> +{{ diff|number_format(1) }}</small>
+                                                    {% elseif diff < 0 %}
+                                                        <small class="text-success d-block"><i class="fas fa-arrow-down"></i> {{ diff|number_format(1) }}</small>
+                                                    {% else %}
+                                                        <small class="text-info d-block"><i class="fas fa-equals"></i> 0</small>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# Tendances #}
+                {% if comparisonData|keys|length >= 2 %}
+                <div class="mt-3 p-3 rounded" style="background-color: #f1f8e9; border: 1px solid #c5e1a5;">
+                    <h6 class="mb-2" style="color: #33691e;">
+                        <i class="fas fa-chart-bar mr-1"></i> Tendances observées
+                    </h6>
+                    <div class="row" id="trendsContainer">
+                        {# Sera rempli par le JS #}
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3" style="background-color: #f8f9fa; border-bottom: 2px solid #7b1fa2;">
+            <h6 class="m-0 font-weight-bold" style="color: #7b1fa2;">
+                <i class="fas fa-table mr-2"></i> Détail des mesures ({{ constantes|length }})
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="detailTable">
+                    <thead>
+                        <tr style="background-color: #f3e5f5;">
+                            <th style="color: #7b1fa2;">Consultation</th>
+                            <th style="color: #7b1fa2;">Type</th>
+                            <th style="color: #7b1fa2;">Valeur</th>
+                            <th style="color: #7b1fa2;">Unité</th>
+                            <th style="color: #7b1fa2;">Statut</th>
+                            <th style="color: #7b1fa2;">Date de prise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, constante in constantes %}
+                            {% set alert = analysis.alerts[key] ?? null %}
+                            {% if alert and alert.level == 'critical' %}
+                                {% set rowStyle = 'background-color: rgba(220, 53, 69, 0.1);' %}
+                            {% elseif alert and alert.level == 'warning' %}
+                                {% set rowStyle = 'background-color: rgba(255, 193, 7, 0.08);' %}
+                            {% else %}
+                                {% set rowStyle = '' %}
+                            {% endif %}
+                            <tr style="{{ rowStyle }}">
+                                <td>
+                                    <a href="{{ path('infirmier_constante_index', {'id': constante.consultationId.id}) }}" style="color: #0097a7;">
+                                        #{{ constante.consultationId.id }}
+                                    </a>
+                                </td>
+                                <td class="font-weight-bold">{{ constante.type }}</td>
+                                <td>
+                                    <span class="font-weight-bold" style="font-size: 1.1em;
+                                        {% if alert and alert.level == 'critical' %}color: #ff6b6b;
+                                        {% elseif alert and alert.level == 'warning' %}color: #ffc107;
+                                        {% else %}color: #28a745;{% endif %}">
+                                        {{ constante.valeur }}
+                                    </span>
+                                </td>
+                                <td>{{ constante.unite }}</td>
+                                <td>
+                                    {% if alert %}
+                                        <span class="badge badge-{{ alert.badge_class }} px-2 py-1">
+                                            <i class="{{ alert.icon }} mr-1"></i>
+                                            {{ alert.level == 'normal' ? 'Normal' : (alert.level == 'warning' ? 'Attention' : 'CRITIQUE') }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-2 py-1">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ constante.datePrise ? constante.datePrise|date('d/m/Y H:i') : '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-chart-line fa-4x mb-3" style="color: #ccc;"></i>
+                <h5 class="text-muted">Aucune constante vitale trouvée</h5>
+                <p class="text-muted">Modifiez les filtres ci-dessus ou ajoutez des constantes vitales via les consultations.</p>
+                <a href="{{ path('infirmier_consultation_index') }}" class="btn btn-outline-primary mt-2">
+                    <i class="fas fa-stethoscope mr-1"></i> Voir les consultations
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    {# ===== FLASH MESSAGES ===== #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show mt-3" role="alert">
+                <i class="fas fa-{{ label == 'success' ? 'check-circle' : (label == 'danger' ? 'exclamation-circle' : 'info-circle') }} mr-2"></i>
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+</div>
+
+{# ===== MODAL ENVOI EMAIL — Bundle symfony/mailer ===== #}
+<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form action="{{ path('infirmier_historique_email') }}" method="POST">
+                <div class="modal-header" style="background: linear-gradient(135deg, #0097a7, #00bcd4);">
+                    <h5 class="modal-title text-white" id="emailModalLabel">
+                        <i class="fas fa-envelope mr-2"></i> Envoyer par Email
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Fermer" onclick="$('#emailModal').modal('hide');">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {# Passer les filtres actuels en champs cachés #}
+                    <input type="hidden" name="type" value="{{ selectedType }}">
+                    <input type="hidden" name="date_from" value="{{ dateFrom }}">
+                    <input type="hidden" name="date_to" value="{{ dateTo }}">
+                    <input type="hidden" name="consultation_a" value="{{ consultationA }}">
+                    {% for b in consultationsB %}
+                        <input type="hidden" name="consultations_b[]" value="{{ b }}">
+                    {% endfor %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="font-weight-bold" style="color: #0097a7;">
+                                <i class="fas fa-at mr-1"></i> Email du destinataire *
+                            </label>
+                            <input type="email" name="email" class="form-control" placeholder="exemple@email.com" required style="border: 2px solid #0097a7;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="font-weight-bold" style="color: #0097a7;">
+                                <i class="fas fa-user mr-1"></i> Nom du destinataire
+                            </label>
+                            <input type="text" name="name" class="form-control" placeholder="Dr. Dupont" value="{{ app.user.nom ~ ' ' ~ app.user.prenom }}" style="border: 2px solid #0097a7;">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="font-weight-bold" style="color: #0097a7;">
+                            <i class="fas fa-paper-plane mr-1"></i> Type d'envoi *
+                        </label>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <div class="card border-primary h-100" style="cursor: pointer;" onclick="document.getElementById('sendTypeReport').checked = true;">
+                                    <div class="card-body text-center py-3">
+                                        <input type="radio" name="send_type" value="report" id="sendTypeReport" checked class="mb-2">
+                                        <br>
+                                        <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                                        <h6 class="mb-1">Rapport complet</h6>
+                                        <small class="text-muted">Envoie le rapport avec le PDF en pièce jointe</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-danger h-100" style="cursor: pointer;" onclick="document.getElementById('sendTypeAlert').checked = true;">
+                                    <div class="card-body text-center py-3">
+                                        <input type="radio" name="send_type" value="alert" id="sendTypeAlert" class="mb-2">
+                                        <br>
+                                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                                        <h6 class="mb-1">Alerte critique</h6>
+                                        <small class="text-muted">Envoie uniquement les alertes critiques détectées</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal" onclick="$('#emailModal').modal('hide');">
+                        <i class="fas fa-times mr-1"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane mr-1"></i> Envoyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# Chart.js CDN #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartData = {{ chartData|json_encode|raw }};
+    const references = {{ references|json_encode|raw }};
+
+    // Palette de couleurs pour les graphiques
+    const colors = [
+        { bg: 'rgba(0, 151, 167, 0.15)', border: '#0097a7' },
+        { bg: 'rgba(255, 152, 0, 0.15)', border: '#ff9800' },
+        { bg: 'rgba(76, 175, 80, 0.15)', border: '#4caf50' },
+        { bg: 'rgba(233, 30, 99, 0.15)', border: '#e91e63' },
+        { bg: 'rgba(63, 81, 181, 0.15)', border: '#3f51b5' },
+    ];
+
+    let chartIndex = 0;
+    for (const [type, data] of Object.entries(chartData)) {
+        chartIndex++;
+        const canvasId = 'chart_' + chartIndex;
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) continue;
+
+        const color = colors[(chartIndex - 1) % colors.length];
+
+        // Normaliser le type pour trouver la référence
+        const normalizedType = type.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9 ]/g, '')
+            .trim();
+
+        let ref = null;
+        for (const [refKey, refVal] of Object.entries(references)) {
+            if (refKey === normalizedType || refKey === type.toLowerCase()) {
+                ref = refVal;
+                break;
+            }
+        }
+
+        // Annotations pour les seuils normaux
+        const plugins = [];
+        const annotations = {};
+        if (ref) {
+            annotations.normalLow = {
+                type: 'line',
+                yMin: ref.normal_low,
+                yMax: ref.normal_low,
+                borderColor: 'rgba(40, 167, 69, 0.6)',
+                borderWidth: 2,
+                borderDash: [6, 4],
+                label: {
+                    display: true,
+                    content: 'Min normal: ' + ref.normal_low,
+                    position: 'start',
+                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                    font: { size: 10 }
+                }
+            };
+            annotations.normalHigh = {
+                type: 'line',
+                yMin: ref.normal_high,
+                yMax: ref.normal_high,
+                borderColor: 'rgba(255, 152, 0, 0.6)',
+                borderWidth: 2,
+                borderDash: [6, 4],
+                label: {
+                    display: true,
+                    content: 'Max normal: ' + ref.normal_high,
+                    position: 'start',
+                    backgroundColor: 'rgba(255, 152, 0, 0.8)',
+                    font: { size: 10 }
+                }
+            };
+        }
+
+        new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: type,
+                    data: data.values,
+                    backgroundColor: color.bg,
+                    borderColor: color.border,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: data.values.map((v, i) => {
+                        if (!ref) return color.border;
+                        if (v < ref.critical_low || v > ref.critical_high) return '#dc3545';
+                        if (v < ref.normal_low || v > ref.normal_high) return '#ffc107';
+                        return '#28a745';
+                    }),
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(ctx) {
+                                const idx = ctx.dataIndex;
+                                let tip = 'Consultation: ' + data.consultations[idx];
+                                if (ref) {
+                                    tip += '\nPlage normale: ' + ref.normal_low + ' – ' + ref.normal_high + ' ' + (ref.unite || '');
+                                }
+                                return tip;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: { color: '#546e7a' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#78909c', maxRotation: 45 }
+                    }
+                }
+            }
+        });
+    }
+
+    // Calculer les tendances
+    const trendsContainer = document.getElementById('trendsContainer');
+    if (trendsContainer) {
+        let trendsHtml = '';
+        for (const [type, data] of Object.entries(chartData)) {
+            if (data.values.length < 2) continue;
+
+            const first = data.values[0];
+            const last = data.values[data.values.length - 1];
+            const diff = last - first;
+            const pct = first !== 0 ? ((diff / first) * 100).toFixed(1) : 0;
+
+            let icon, badgeClass, label;
+            if (Math.abs(pct) < 2) {
+                icon = 'fas fa-equals';
+                badgeClass = 'info';
+                label = 'Stable';
+            } else if (diff > 0) {
+                icon = 'fas fa-arrow-up';
+                badgeClass = 'warning';
+                label = '+' + pct + '%';
+            } else {
+                icon = 'fas fa-arrow-down';
+                badgeClass = 'success';
+                label = pct + '%';
+            }
+
+            trendsHtml += `
+                <div class="col-md-4 col-sm-6 mb-2">
+                    <div class="d-flex align-items-center p-2 rounded" style="background: white; border: 1px solid #e0e0e0;">
+                        <i class="${icon} mr-2 text-${badgeClass}"></i>
+                        <span class="font-weight-bold mr-2" style="color: #37474f;">${type}</span>
+                        <span class="badge badge-${badgeClass} ml-auto">${label}</span>
+                    </div>
+                </div>
+            `;
+        }
+        trendsContainer.innerHTML = trendsHtml || '<div class="col-12 text-muted">Pas assez de données pour calculer les tendances.</div>';
+    }
+});
+</script>
+{% endblock %}
