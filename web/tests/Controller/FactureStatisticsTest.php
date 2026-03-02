@@ -70,7 +70,7 @@ class FactureStatisticsTest extends TestCase
             $this->createPaiementMock(new \DateTime("$currentYear-03-10"), 200),
         ];
 
-        $monthlyRevenue = array_fill(1, 12, 0);
+        $monthlyRevenue = array_fill(1, 12, 0.0);
         foreach ($paiements as $paiement) {
             $month = (int) $paiement->getDatePaiement()->format('n');
             $year  = (int) $paiement->getDatePaiement()->format('Y');
@@ -92,7 +92,7 @@ class FactureStatisticsTest extends TestCase
             $this->createPaiementMock(new \DateTime("$lastYear-06-15"), 1000),
         ];
 
-        $monthlyRevenue = array_fill(1, 12, 0);
+        $monthlyRevenue = array_fill(1, 12, 0.0);
         foreach ($paiements as $paiement) {
             $month = (int) $paiement->getDatePaiement()->format('n');
             $year  = (int) $paiement->getDatePaiement()->format('Y');
@@ -101,7 +101,7 @@ class FactureStatisticsTest extends TestCase
             }
         }
 
-        $this->assertSame(0.0, array_sum($monthlyRevenue));
+        $this->assertSame(0.0, (float) array_sum($monthlyRevenue));
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -125,7 +125,7 @@ class FactureStatisticsTest extends TestCase
     {
         $paiements = [];
 
-        $totalEncaisse = array_sum(array_map(fn($p) => (float) $p->getMontant(), $paiements));
+        $totalEncaisse = (float) array_sum(array_map(fn($p) => (float) $p->getMontant(), $paiements));
 
         $this->assertSame(0.0, $totalEncaisse);
     }

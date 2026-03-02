@@ -4,7 +4,8 @@ namespace App\Controller\Front\Reception; // <--- Check 1: Is the namespace corr
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route; // <--- Check 2: Is this line here?
+use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Utilisateur;
 
 #[Route('/{id}', name: 'reception_', requirements: ['id' => '\d+'])]
 class DashboardController extends AbstractController
@@ -12,6 +13,7 @@ class DashboardController extends AbstractController
     #[Route('/dashboard', name: 'dashboard')]
     public function index(int $id): Response
     {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
 
         // 🔒 VERY IMPORTANT SECURITY CHECK

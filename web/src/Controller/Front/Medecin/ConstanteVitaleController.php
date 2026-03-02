@@ -8,6 +8,7 @@ use App\Service\ConstanteVitaleAlertService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Utilisateur;
 
 #[Route('/medecin/consultation/{id}/constantes')]
 final class ConstanteVitaleController extends AbstractController
@@ -19,7 +20,9 @@ final class ConstanteVitaleController extends AbstractController
         ConstanteVitaleAlertService $alertService
     ): Response {
         // Security: only the owning doctor can view
-        if ($consultation->getMedecin()->getId() !== $this->getUser()->getId()) {
+        /** @var Utilisateur $currentUser */
+        $currentUser = $this->getUser();
+        if ($consultation->getMedecin()->getId() !== $currentUser->getId()) {
             throw $this->createAccessDeniedException();
         }
 

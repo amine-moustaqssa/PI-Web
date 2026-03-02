@@ -11,7 +11,7 @@ class MedicalScoreCalculator
         $score = 0;
 
         // 1️⃣ Allergies
-        $allergies = $dossier->getAllergies() ?? [];
+        $allergies = $dossier->getAllergies();
         if (count($allergies) >= 3) {
             $score += 2;
         } elseif (count($allergies) >= 1) {

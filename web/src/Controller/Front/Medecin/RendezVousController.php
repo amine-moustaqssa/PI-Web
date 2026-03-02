@@ -11,6 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Utilisateur;
+use App\Entity\Medecin;
 
 #[Route('/medecin/rendez-vous')]
 final class RendezVousController extends AbstractController
@@ -18,6 +20,7 @@ final class RendezVousController extends AbstractController
     #[Route('/', name: 'medecin_rdv_index', methods: ['GET'])]
     public function index(Request $request, RendezVousRepository $rdvRepo, ConsultationRepository $consultRepo): Response
     {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         $profils = $user->getProfilsMedicaux();
         $statut = $request->query->get('statut');
@@ -74,6 +77,7 @@ final class RendezVousController extends AbstractController
     public function show(RendezVous $rdv, ConsultationRepository $consultRepo): Response
     {
         // Security: ensure this RDV belongs to one of the doctor's profiles
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         $profils = $user->getProfilsMedicaux();
         $allowed = false;
@@ -103,6 +107,7 @@ final class RendezVousController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         // Security: ensure this RDV belongs to one of the doctor's profiles
+        /** @var Medecin $user */
         $user = $this->getUser();
         $profils = $user->getProfilsMedicaux();
         $allowed = false;

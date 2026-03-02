@@ -380,7 +380,7 @@ class DossierCliniqueController extends AbstractController
 
         $scoreData = $this->calculator->calculate($dossier);
 
-        $allergies = $dossier->getAllergies() ?? [];
+        $allergies = $dossier->getAllergies();
         $antecedents = $dossier->getAntecedents() ? explode(',', $dossier->getAntecedents()) : [];
         $age = $profil->getDateNaissance() 
             ? (new \DateTime())->diff($profil->getDateNaissance())->y 

@@ -74,12 +74,12 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         // Redirect infirmiers to infirmier dashboard
-        if (in_array('ROLE_PERSONNEL', $roles, true) && method_exists($user, 'getNiveauAcces') && $user->getNiveauAcces() === 'INFIRMIER') {
+        if (in_array('ROLE_PERSONNEL', $roles, true) && $user->getNiveauAcces() === 'INFIRMIER') {
             return new RedirectResponse($this->urlGenerator->generate('infirmier_dashboard'));
         }
 
         // Redirect receptionnistes to receptionniste dashboard
-        if (in_array('ROLE_PERSONNEL', $roles, true) && method_exists($user, 'getNiveauAcces') && $user->getNiveauAcces() === 'RECEPTIONIST') {
+        if (in_array('ROLE_PERSONNEL', $roles, true) && $user->getNiveauAcces() === 'RECEPTIONIST') {
             return new RedirectResponse($this->urlGenerator->generate('receptionniste_dashboard'));
         }
 

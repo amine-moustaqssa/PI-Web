@@ -23,7 +23,9 @@ class DashboardController extends AbstractController
 {
     private function checkReceptionist(): void
     {
-        if ($this->getUser()->getNiveauAcces() !== 'RECEPTIONIST') {
+        /** @var Utilisateur $user */
+        $user = $this->getUser();
+        if ($user->getNiveauAcces() !== 'RECEPTIONIST') {
             throw $this->createAccessDeniedException('Accès réservé aux réceptionnistes.');
         }
     }

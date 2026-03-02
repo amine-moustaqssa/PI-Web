@@ -219,7 +219,7 @@ class DashboardController extends AbstractController
 
             // --- Spécialités sans aucun créneau ---
             foreach ($allSpecialites as $spec) {
-                if (!isset($comptageParSpecialite[$spec->getNom()]) || $comptageParSpecialite[$spec->getNom()] === 0) {
+                if (!isset($comptageParSpecialite[$spec->getNom()])) {
                     $alertesIA[] = [
                         'type' => 'secondary',
                         'icon' => 'fa-ghost',

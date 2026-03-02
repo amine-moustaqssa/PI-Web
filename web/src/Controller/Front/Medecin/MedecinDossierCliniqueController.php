@@ -76,9 +76,6 @@ final class MedecinDossierCliniqueController extends AbstractController
 
             // ✅ Récupération sécurisée des checkboxes allergies
             $allergies = $request->request->all('allergies'); // tableau ou vide
-            if (!is_array($allergies)) {
-                $allergies = [];
-            }
             $dossier->setAllergies($allergies ?: null);
 
             $em->persist($dossier);

@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Utilisateur;
 
 #[Route('/medecin/{id}', name: 'medecin_')]
 class DashboardController extends AbstractController
@@ -22,6 +23,7 @@ class DashboardController extends AbstractController
         DossierCliniqueRepository $dossierRepo,
         ConsultationRepository $consultRepo
     ): Response {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         // Get the medical profiles collection
         $profilsMedicaux = $user->getProfilsMedicaux(); // This is a PersistentCollection
@@ -53,6 +55,7 @@ class DashboardController extends AbstractController
     #[Route('/planning/agenda', name: 'app_medecin_disponibilite_agenda', methods: ['GET'])]
     public function agenda(int $id, DisponibiliteRepository $dispoRepo, PaginatorInterface $paginator, Request $request): Response
     {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         if ($user->getId() !== $id) {
             throw $this->createAccessDeniedException();
