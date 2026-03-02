@@ -403,7 +403,7 @@ Mapping
 | ✔ OK   | `App\Entity\ConstanteVitale`      | ManyToOne → Consultation           |
 | ✔ OK   | `App\Entity\RendezVous`           | ManyToOne → ProfilMedical, Medecin |
 | ✔ OK   | `App\Entity\Disponibilite`        | ManyToOne → Medecin                |
-| ✔ OK   | `App\Entity\Facture`              | OneToOne → Consultation            |
+| ✔ OK   | `App\Entity\Facture`              | ManyToOne → Consultation           |
 | ✔ OK   | `App\Entity\Paiement`             | ManyToOne → Facture                |
 | ✔ OK   | `App\Entity\ProfilMedical`        | ManyToOne → Utilisateur            |
 | ✔ OK   | `App\Entity\DossierClinique`      | OneToOne → ProfilMedical           |
@@ -420,19 +420,26 @@ Mapping
 ```
 Database
 --------
- [ERROR] The database schema is not in sync with the current mapping file.
+ [OK] The database schema is in sync with the mapping files.
 ```
 
-**Différences détectées** (non bloquantes en développement) :
+**✔ La base de données est entièrement synchronisée avec le mapping Doctrine.**
 
-| Type              | Description                                                                                                        | Impact               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------- |
-| Renommage d'index | Les index utilisent des noms MySQL natifs (`Utilisateur_ibfk_1`) au lieu des noms Doctrine (`FK_9B80EC642195E0F0`) | Cosmétique           |
-| Clés étrangères   | Certaines FK utilisent la syntaxe MySQL legacy au lieu de la convention Doctrine                                   | Cosmétique           |
-| Index manquant    | `ConstanteVitale.consultation_id` n'a pas d'index dédié                                                            | Performance          |
-| Colonne supprimée | `RapportMedical.consultation_id` existe en BDD mais pas dans le mapping                                            | Migration nécessaire |
+Les corrections apportées aux entités pour atteindre la synchronisation :
 
-**Recommandation** : Exécuter `php bin/console doctrine:migrations:diff` pour générer une migration de synchronisation, puis `doctrine:migrations:migrate`.
+| Entité            | Correction                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| `Utilisateur`     | `email` length 180→255, `roles`/`nom`/`prenom` rendus nullable                         |
+| `Medecin`         | `specialite` — ajout `onDelete: SET NULL`                                               |
+| `Departement`     | `nom` length→255, `code` length→50, ajout `UniqueConstraint`, suppression orphanRemoval |
+| `Specialite`      | `nom` length→255, `couleur` length→7, `departement` nullable + `onDelete: SET NULL`     |
+| `ProfilMedical`   | `contact_urgence` nullable, `titulaire` `onDelete: CASCADE`                             |
+| `RapportMedical`  | Ajout relation `consultation` (OneToOne), `contenu`/`conclusion`/`date_creation` nullable, `onDelete: CASCADE/SET NULL` |
+| `Facture`         | `statut` length→50, `OneToOne→ManyToOne` pour consultation, `onDelete: CASCADE`         |
+| `RendezVous`      | `type` length→50 + nullable, `motif` NOT NULL, `onDelete: CASCADE`                     |
+| `Disponibilite`   | `jourSemaine`/`estRecurrent` nullable, `onDelete: CASCADE`                              |
+| `DossierClinique` | `profilMedical` `onDelete: CASCADE`                                                     |
+| `Paiement`        | `facture` `onDelete: CASCADE`                                                           |
 
 ### 3.5 Diagramme des Relations
 
@@ -525,7 +532,7 @@ Le `MedicalScoreCalculator` calcule un score composite basé sur :
 | Erreurs PHPStan (niveau 5) | **53** (22 critiques, 31 mineures)          |
 | Entités Doctrine mappées   | **18/18 valides**                           |
 | Mapping Doctrine           | **✔ Correct**                               |
-| Synchronisation BDD        | **⚠ Migration nécessaire**                  |
+| Synchronisation BDD        | **✔ En sync**                               |
 | APIs IA intégrées          | Gemini (Google AI)                          |
 | APIs externes              | Nager.Date (jours fériés)                   |
 | Authentification           | Form login + OAuth2 (Google/Facebook) + 2FA |

@@ -28,7 +28,7 @@ class Paiement
     private ?string $montant = null;
 
     #[ORM\ManyToOne(targetEntity: Facture::class, inversedBy: 'paiements')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Le paiement doit être rattaché à une facture.")]
     private ?Facture $facture = null;
 

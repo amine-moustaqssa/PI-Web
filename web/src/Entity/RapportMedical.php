@@ -20,12 +20,15 @@ class RapportMedical
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'rapportsMedicaux')]
-    #[ORM\JoinColumn(name: 'dossier_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'dossier_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Le dossier clinique est obligatoire.")]
     private ?DossierClinique $dossierClinique = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "Le contenu du rapport est obligatoire.")]
+    #[ORM\OneToOne(targetEntity: Consultation::class)]
+    #[ORM\JoinColumn(name: 'consultation_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Consultation $consultation = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
         min: 10,
         max: 5000,
@@ -34,8 +37,7 @@ class RapportMedical
     )]
     private ?string $contenu = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "La conclusion est obligatoire.")]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
         min: 5,
         max: 2000,
@@ -55,9 +57,7 @@ class RapportMedical
     )]
     private ?File $pdfFile = null;
 
-    #[ORM\Column]
-    #[Assert\NotNull(message: "La date de création est obligatoire.")]
-    #[Assert\Type(\DateTime::class)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTime $date_creation = null;
 
     public function getId(): ?int
@@ -73,6 +73,17 @@ class RapportMedical
     public function setDossierClinique(?DossierClinique $dossierClinique): static
     {
         $this->dossierClinique = $dossierClinique;
+        return $this;
+    }
+
+    public function getConsultation(): ?Consultation
+    {
+        return $this->consultation;
+    }
+
+    public function setConsultation(?Consultation $consultation): static
+    {
+        $this->consultation = $consultation;
         return $this;
     }
 

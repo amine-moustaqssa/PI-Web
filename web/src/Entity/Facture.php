@@ -28,7 +28,7 @@ class Facture
     #[Assert\Positive(message: "Le montant doit être un nombre positif.")]
     private ?string $montantTotal = null;
 
-   #[ORM\Column(length: 255)]
+   #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: "Le statut est obligatoire.")]
     #[Assert\Choice(
         choices: ["PAYEE", "EN_ATTENTE", "ANNULEE", "IMPAYEE"], 
@@ -43,8 +43,8 @@ class Facture
     #[ORM\OneToMany(targetEntity: Paiement::class, mappedBy: 'facture', cascade: ['persist', 'remove'])]
     private Collection $paiements;
 
-    #[ORM\OneToOne(targetEntity: Consultation::class, cascade: ['persist'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Consultation::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Une facture doit être liée à une consultation.")]
     private ?Consultation $consultation = null;
 
