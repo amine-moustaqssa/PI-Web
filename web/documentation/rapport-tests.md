@@ -469,6 +469,7 @@ L'application intègre **Google Gemini** (LLM) via `GeminiService` pour :
 - **Analyse IA des constantes vitales** (`/infirmier/constantes/ai-analysis/{id}`) : Après agrégation des alertes par le `ConstanteVitaleAlertService`, les résultats sont envoyés à Gemini pour une interprétation médicale en langage naturel.
 - **Assistant médical** (`MedicalAssistantService`) : Aide au triage et à la priorisation des patients.
 - **Triage par symptômes** (`SymptomTriageService`) : Classification automatique de la gravité.
+- **Détection de surcharge médecin** : Alertes IA lorsqu'un médecin a un nombre élevé de rendez-vous sur une journée donnée, permettant une répartition optimale de la charge de travail.
 
 ### 4.2 API REST Sécurisée
 
