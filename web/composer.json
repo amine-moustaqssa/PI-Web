@@ -126,7 +126,7 @@
     }
   },
   "require-dev": {
-    "phpstan/phpstan": "*",
+    "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-doctrine": "*",
     "phpstan/phpstan-symfony": "*",
     "phpunit/phpunit": "^11.5",

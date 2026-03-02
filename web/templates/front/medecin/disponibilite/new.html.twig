@@ -13,6 +13,14 @@
         </a>
     </div>
 
+    {# Holiday error message #}
+    {% if holiday_error is defined and holiday_error %}
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+            {{ holiday_error }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    {% endif %}
+
     {# Flash messages #}
     {% for label, messages in app.flashes %}
         {% for message in messages %}

@@ -4,6 +4,7 @@ namespace App\Tests\Service;
 
 use App\Service\HolidayApiService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -59,7 +60,7 @@ class HolidayApiServiceTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->method('request')->willThrowException(new \RuntimeException('Network error'));
 
-        $service = new HolidayApiService($client);
+        $service = new HolidayApiService($client, $this->createMock(LoggerInterface::class));
         $date = new \DateTime('2025-03-20');
 
         $this->assertFalse($service->isHoliday($date));
@@ -99,7 +100,7 @@ class HolidayApiServiceTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->method('request')->willThrowException(new \RuntimeException('Timeout'));
 
-        $service = new HolidayApiService($client);
+        $service = new HolidayApiService($client, $this->createMock(LoggerInterface::class));
 
         $result = $service->getHolidaysForYear(2025);
 
@@ -122,7 +123,7 @@ class HolidayApiServiceTest extends TestCase
             ->with('GET', 'https://date.nager.at/api/v3/PublicHolidays/2025/TN')
             ->willReturn($response);
 
-        $service = new HolidayApiService($client);
+        $service = new HolidayApiService($client, $this->createMock(LoggerInterface::class));
         $service->isHoliday(new \DateTime('2025-06-15'));
     }
 
@@ -139,6 +140,6 @@ class HolidayApiServiceTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
 
-        return new HolidayApiService($client);
+        return new HolidayApiService($client, $this->createMock(LoggerInterface::class));
     }
 }
