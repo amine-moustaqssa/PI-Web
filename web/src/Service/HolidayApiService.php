@@ -2,15 +2,18 @@
 
 namespace App\Service;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HolidayApiService
 {
     private HttpClientInterface $client;
+    private LoggerInterface $logger;
 
-    public function __construct(HttpClientInterface $client)
+    public function __construct(HttpClientInterface $client, LoggerInterface $logger)
     {
         $this->client = $client;
+        $this->logger = $logger;
     }
 
     /**
@@ -42,7 +45,11 @@ class HolidayApiService
                 }
             }
         } catch (\Exception $e) {
-            // Log erreur ou ignorer et considérer non-férié pour ne pas casser le workflow
+            // Log erreur pour diagnostiquer le problème
+            $this->logger->error('HolidayApiService::isHoliday failed', [
+                'date' => $formattedDate,
+                'error' => $e->getMessage(),
+            ]);
             return false;
         }
 
