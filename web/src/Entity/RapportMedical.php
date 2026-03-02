@@ -134,7 +134,7 @@ class RapportMedical
     public function setPdfFile(?File $pdfFile = null): void
     {
         $this->pdfFile = $pdfFile;
-        
+
         // IMPORTANT: On met à jour date_creation au lieu d'ajouter updated_at
         if (null !== $pdfFile) {
             $this->date_creation = new \DateTime();

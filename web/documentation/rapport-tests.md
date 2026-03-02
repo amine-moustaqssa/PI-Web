@@ -427,19 +427,19 @@ Database
 
 Les corrections apportées aux entités pour atteindre la synchronisation :
 
-| Entité            | Correction                                                                              |
-| ----------------- | --------------------------------------------------------------------------------------- |
-| `Utilisateur`     | `email` length 180→255, `roles`/`nom`/`prenom` rendus nullable                         |
-| `Medecin`         | `specialite` — ajout `onDelete: SET NULL`                                               |
-| `Departement`     | `nom` length→255, `code` length→50, ajout `UniqueConstraint`, suppression orphanRemoval |
-| `Specialite`      | `nom` length→255, `couleur` length→7, `departement` nullable + `onDelete: SET NULL`     |
-| `ProfilMedical`   | `contact_urgence` nullable, `titulaire` `onDelete: CASCADE`                             |
+| Entité            | Correction                                                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `Utilisateur`     | `email` length 180→255, `roles`/`nom`/`prenom` rendus nullable                                                          |
+| `Medecin`         | `specialite` — ajout `onDelete: SET NULL`                                                                               |
+| `Departement`     | `nom` length→255, `code` length→50, ajout `UniqueConstraint`, suppression orphanRemoval                                 |
+| `Specialite`      | `nom` length→255, `couleur` length→7, `departement` nullable + `onDelete: SET NULL`                                     |
+| `ProfilMedical`   | `contact_urgence` nullable, `titulaire` `onDelete: CASCADE`                                                             |
 | `RapportMedical`  | Ajout relation `consultation` (OneToOne), `contenu`/`conclusion`/`date_creation` nullable, `onDelete: CASCADE/SET NULL` |
-| `Facture`         | `statut` length→50, `OneToOne→ManyToOne` pour consultation, `onDelete: CASCADE`         |
-| `RendezVous`      | `type` length→50 + nullable, `motif` NOT NULL, `onDelete: CASCADE`                     |
-| `Disponibilite`   | `jourSemaine`/`estRecurrent` nullable, `onDelete: CASCADE`                              |
-| `DossierClinique` | `profilMedical` `onDelete: CASCADE`                                                     |
-| `Paiement`        | `facture` `onDelete: CASCADE`                                                           |
+| `Facture`         | `statut` length→50, `OneToOne→ManyToOne` pour consultation, `onDelete: CASCADE`                                         |
+| `RendezVous`      | `type` length→50 + nullable, `motif` NOT NULL, `onDelete: CASCADE`                                                      |
+| `Disponibilite`   | `jourSemaine`/`estRecurrent` nullable, `onDelete: CASCADE`                                                              |
+| `DossierClinique` | `profilMedical` `onDelete: CASCADE`                                                                                     |
+| `Paiement`        | `facture` `onDelete: CASCADE`                                                                                           |
 
 ### 3.5 Diagramme des Relations
 

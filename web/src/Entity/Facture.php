@@ -28,10 +28,10 @@ class Facture
     #[Assert\Positive(message: "Le montant doit être un nombre positif.")]
     private ?string $montantTotal = null;
 
-   #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: "Le statut est obligatoire.")]
     #[Assert\Choice(
-        choices: ["PAYEE", "EN_ATTENTE", "ANNULEE", "IMPAYEE"], 
+        choices: ["PAYEE", "EN_ATTENTE", "ANNULEE", "IMPAYEE"],
         message: "Statut invalide. Valeurs acceptées: PAYEE, EN_ATTENTE, ANNULEE, IMPAYEE"
     )]
     private ?string $statut = null;
