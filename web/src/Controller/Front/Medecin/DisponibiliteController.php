@@ -8,6 +8,7 @@ use App\Repository\DisponibiliteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -46,7 +47,7 @@ final class DisponibiliteController extends AbstractController
 
             // --- US-2.3 : VÉRIFICATION JOURS FÉRIÉS ---
             if ($disponibilite->getDateSpecifique() && $holidayApi->isHoliday($disponibilite->getDateSpecifique())) {
-                $this->addFlash('warning', "⚠️ Attention : Vous essayez de créer un créneau le jour d'une fête nationale. Ce n'est pas permis.");
+                $form->get('dateSpecifique')->addError(new FormError("⚠️ Cette date correspond à un jour férié national. Veuillez choisir une autre date."));
                 return $this->render('front/medecin/disponibilite/new.html.twig', [
                     'form' => $form,
                     'disponibilite' => $disponibilite,
@@ -110,7 +111,7 @@ final class DisponibiliteController extends AbstractController
 
             // --- US-2.3 : VÉRIFICATION JOURS FÉRIÉS ---
             if ($disponibilite->getDateSpecifique() && $holidayApi->isHoliday($disponibilite->getDateSpecifique())) {
-                $this->addFlash('warning', "⚠️ Attention : Vous essayez de modifier un créneau vers un jour de fête nationale. Ce n'est pas permis.");
+                $form->get('dateSpecifique')->addError(new FormError("⚠️ Cette date correspond à un jour férié national. Veuillez choisir une autre date."));
                 return $this->render('front/medecin/disponibilite/edit.html.twig', [
                     'form' => $form,
                     'disponibilite' => $disponibilite,

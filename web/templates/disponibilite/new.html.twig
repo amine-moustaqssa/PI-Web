@@ -3,6 +3,16 @@
 {% block title %}Nouvelle Disponibilité{% endblock %}
 
 {% block body %}
+    {# Holiday error message #}
+    {% if holiday_error is defined and holiday_error %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ holiday_error }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+
     {# 1. En-tête de la page : Titre + Bouton Retour #}
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Créer une nouvelle disponibilité</h1>
