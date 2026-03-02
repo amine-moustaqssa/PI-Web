@@ -20,7 +20,7 @@ class DossierClinique
 
     // Relation OneToOne avec ProfilMedical
     #[ORM\OneToOne(inversedBy: 'dossierClinique', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
+    #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Le profil médical est obligatoire.")]
     private ?ProfilMedical $profilMedical = null;
 

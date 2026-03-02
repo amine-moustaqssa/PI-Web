@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Entity\Utilisateur;
 
 #[Route('/infirmier')]
 #[IsGranted('ROLE_PERSONNEL')]
@@ -19,6 +20,7 @@ class DashboardController extends AbstractController
         ConstanteVitaleRepository $constanteRepo
     ): Response {
         // Verify the logged-in user is an infirmier
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         if ($user->getNiveauAcces() !== 'INFIRMIER') {
             throw $this->createAccessDeniedException('Accès réservé aux infirmiers.');

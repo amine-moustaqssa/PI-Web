@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Entity\Utilisateur;
 
 #[Route('/medecin/disponibilite')]
 #[IsGranted('ROLE_MEDECIN')]
@@ -32,7 +33,9 @@ final class DisponibiliteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em, DisponibiliteRepository $repo, \App\Service\HolidayApiService $holidayApi): Response
     {
         $disponibilite = new Disponibilite();
-        $disponibilite->setMedecin($this->getUser());
+        /** @var Utilisateur $currentUser */
+        $currentUser = $this->getUser();
+        $disponibilite->setMedecin($currentUser);
 
         $form = $this->createForm(DisponibiliteType::class, $disponibilite, ['hide_medecin' => true]);
         $form->handleRequest($request);
@@ -87,7 +90,9 @@ final class DisponibiliteController extends AbstractController
     #[Route('/{id}/edit', name: 'medecin_disponibilite_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Disponibilite $disponibilite, EntityManagerInterface $em, DisponibiliteRepository $repo, \App\Service\HolidayApiService $holidayApi): Response
     {
-        if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
+        /** @var Utilisateur $currentUser */
+        $currentUser = $this->getUser();
+        if ($disponibilite->getMedecin()->getId() !== $currentUser->getId()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -151,7 +156,9 @@ final class DisponibiliteController extends AbstractController
     #[Route('/{id}', name: 'medecin_disponibilite_show', methods: ['GET'])]
     public function show(Disponibilite $disponibilite): Response
     {
-        if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
+        /** @var Utilisateur $currentUser */
+        $currentUser = $this->getUser();
+        if ($disponibilite->getMedecin()->getId() !== $currentUser->getId()) {
             throw $this->createAccessDeniedException();
         }
         return $this->render('front/medecin/disponibilite/show.html.twig', [
@@ -162,7 +169,9 @@ final class DisponibiliteController extends AbstractController
     #[Route('/{id}', name: 'medecin_disponibilite_delete', methods: ['POST'])]
     public function delete(Request $request, Disponibilite $disponibilite, EntityManagerInterface $em): Response
     {
-        if ($disponibilite->getMedecin()->getId() !== $this->getUser()->getId()) {
+        /** @var Utilisateur $currentUser */
+        $currentUser = $this->getUser();
+        if ($disponibilite->getMedecin()->getId() !== $currentUser->getId()) {
             throw $this->createAccessDeniedException();
         }
 

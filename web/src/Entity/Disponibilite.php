@@ -19,7 +19,7 @@ class Disponibilite
     private ?int $id = null;
 
     // 1 = Monday, 7 = Sunday OR Unix Timestamp (if estRecurrent = false)
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     #[Assert\NotNull(message: 'Le jour de la semaine est obligatoire.')]
     private ?int $jourSemaine = null;
 
@@ -35,11 +35,11 @@ class Disponibilite
     #[Assert\NotNull(message: "L'heure de fin est obligatoire.")]
     private ?\DateTimeInterface $heureFin = null;
 
-    #[ORM\Column]
-    private ?bool $estRecurrent = false;
+    #[ORM\Column(nullable: true, options: ['default' => true])]
+    private ?bool $estRecurrent = true;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Veuillez sélectionner un médecin.")]
     private ?Utilisateur $medecin = null;
 

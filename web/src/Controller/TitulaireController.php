@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\DisponibiliteRepository;
 use App\Service\GeminiChatService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Entity\Utilisateur;
 
 #[Route('/espace-client')]
 class TitulaireController extends AbstractController
@@ -23,6 +24,7 @@ class TitulaireController extends AbstractController
     #[Route('/settings', name: 'app_titulaire_settings')]
     public function settings(): Response
     {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
@@ -35,7 +37,7 @@ class TitulaireController extends AbstractController
         TotpAuthenticatorInterface $totpAuthenticator,
         EntityManagerInterface $em
     ): Response {
-        /** @var \App\Entity\Utilisateur $user */
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
@@ -89,9 +91,8 @@ class TitulaireController extends AbstractController
     public function twoFactorDisable(
         EntityManagerInterface $em
     ): Response {
-        /** @var \App\Entity\Utilisateur $user */
+        /** @var Utilisateur $user */
         $user = $this->getUser();
-        if (!$user) return $this->redirectToRoute('app_login');
 
         $user->setTotpSecret(null);
         $em->persist($user);
@@ -150,6 +151,7 @@ class TitulaireController extends AbstractController
         EntityManagerInterface $entityManager,
         \App\Repository\DisponibiliteRepository $disponibiliteRepository
     ): Response {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
@@ -194,7 +196,7 @@ class TitulaireController extends AbstractController
             $p['dateNaissance'] = $p['date_naissance'];
             $p['contactUrgence'] = $p['contact_urgence'];
 
-            if (!isset($p['dossierClinique']) || $p['dossierClinique'] === null) {
+            if (empty($p['dossierClinique'])) {
                 $p['dossierClinique'] = [
                     'antecedents' => null,
                     'allergies' => [],

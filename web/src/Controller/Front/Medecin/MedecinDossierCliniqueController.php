@@ -76,9 +76,6 @@ final class MedecinDossierCliniqueController extends AbstractController
 
             // ✅ Récupération sécurisée des checkboxes allergies
             $allergies = $request->request->all('allergies'); // tableau ou vide
-            if (!is_array($allergies)) {
-                $allergies = [];
-            }
             $dossier->setAllergies($allergies ?: null);
 
             $em->persist($dossier);
@@ -97,7 +94,7 @@ final class MedecinDossierCliniqueController extends AbstractController
         ]);
     }
 
-    #[Route('/profil/dossier/{id}/delete', name: 'medecin_dossier_delete', methods: ['POST','GET'])]
+    #[Route('/profil/dossier/{id}/delete', name: 'medecin_dossier_delete', methods: ['POST', 'GET'])]
     public function delete(DossierClinique $dossier, EntityManagerInterface $em): Response
     {
         $em->remove($dossier);

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Entity\Utilisateur;
 
 #[Route('/infirmier/historique')]
 #[IsGranted('ROLE_PERSONNEL')]
@@ -29,6 +30,7 @@ class HistoriqueController extends AbstractController
         ConsultationRepository $consultationRepo,
         ConstanteVitaleAlertService $alertService
     ): Response {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         if ($user->getNiveauAcces() !== 'INFIRMIER') {
             throw $this->createAccessDeniedException('Accès réservé aux infirmiers.');
@@ -172,6 +174,7 @@ class HistoriqueController extends AbstractController
         ConstanteVitaleAlertService $alertService,
         PdfService $pdfService
     ): Response {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         if ($user->getNiveauAcces() !== 'INFIRMIER') {
             throw $this->createAccessDeniedException('Accès réservé aux infirmiers.');
@@ -246,6 +249,7 @@ class HistoriqueController extends AbstractController
         PdfService $pdfService,
         MailingService $mailingService
     ): Response {
+        /** @var Utilisateur $user */
         $user = $this->getUser();
         if ($user->getNiveauAcces() !== 'INFIRMIER') {
             throw $this->createAccessDeniedException('Accès réservé aux infirmiers.');

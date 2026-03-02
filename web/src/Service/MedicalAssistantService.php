@@ -358,7 +358,7 @@ class MedicalAssistantService
                 $suggestions['alertes'][] = '⚠️ Patient âgé >75 ans : adapter les posologies, surveillance rapprochée';
             } elseif ($age < 16) {
                 $suggestions['alertes'][] = '🧒 Patient pédiatrique : adapter les posologies au poids';
-            } elseif ($age >= 60 && $age <= 75) {
+            } elseif ($age >= 60) {
                 $suggestions['alertes'][] = '⚠️ Patient âgé de ' . $age . ' ans : vigilance accrue';
             }
         }

@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use App\Entity\Utilisateur;
 
 #[Route('/admin/disponibilite')]
 class DisponibiliteController extends AbstractController
@@ -20,7 +21,7 @@ class DisponibiliteController extends AbstractController
     public function index(Request $request, DisponibiliteRepository $disponibiliteRepository): Response
     {
         $user = $this->getUser();
-        
+
         // 1. On récupère les filtres du formulaire
         $jour = $request->query->get('jour');
         $recurrent = $request->query->get('recurrent');
@@ -51,7 +52,9 @@ class DisponibiliteController extends AbstractController
         $disponibilite = new Disponibilite();
 
         if (!$this->isGranted('ROLE_ADMIN')) {
-            $disponibilite->setMedecin($this->getUser());
+            /** @var Utilisateur $user */
+            $user = $this->getUser();
+            $disponibilite->setMedecin($user);
         }
 
         $form = $this->createForm(DisponibiliteType::class, $disponibilite);

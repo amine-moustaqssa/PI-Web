@@ -66,8 +66,7 @@ class SymptomTriageService
             // On s'attend à un payload du type:
             // {"urgency":"Urgent","specialty":"Cardiologie","reasoning":"..."}
             if (
-                !is_array($data)
-                || !isset($data['urgency'], $data['specialty'])
+                !isset($data['urgency'], $data['specialty'])
                 || !is_string($data['urgency'])
                 || !is_string($data['specialty'])
             ) {

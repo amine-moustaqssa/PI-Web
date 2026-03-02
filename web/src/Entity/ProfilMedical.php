@@ -19,7 +19,7 @@ class ProfilMedical
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'profilsMedicaux')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: 'Le titulaire est obligatoire.')]
     private ?Utilisateur $titulaire = null;
 
@@ -48,8 +48,7 @@ class ProfilMedical
     #[Assert\LessThan('today', message: 'La date de naissance doit être dans le passé.')]
     private ?\DateTimeInterface $date_naissance = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Le contact d\'urgence est obligatoire.')]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(
         max: 255,
         maxMessage: 'Le contact d\'urgence ne doit pas dépasser {{ limit }} caractères.'

@@ -20,6 +20,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Entity\Utilisateur;
 
 class RendezVousController extends AbstractController
 {
@@ -35,6 +36,7 @@ class RendezVousController extends AbstractController
         MailerInterface $mailer,
         PaginatorInterface $paginator
     ): Response {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user) return $this->redirectToRoute('app_login');
 
@@ -42,7 +44,7 @@ class RendezVousController extends AbstractController
         $rendezVous = new RendezVous();
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $specialiteId = $request->request->get('specialite_id');
@@ -69,6 +71,7 @@ class RendezVousController extends AbstractController
                 }
 
                 // Si des erreurs ont été ajoutées, on ne persiste pas
+                /** @phpstan-ignore booleanNot.alwaysFalse (re-evaluated after addError calls) */
                 if (!$form->isValid()) {
                     $this->addFlash('danger', 'Le formulaire contient des erreurs. Vérifiez les champs.');
                 } else {
@@ -106,6 +109,7 @@ class RendezVousController extends AbstractController
         }
 
         // Récupération sécurisée : On cherche tous les RDV liés aux profils de l'utilisateur
+        /** @var Utilisateur $user */
         $mesProfils = $user->getProfilsMedicaux();
         $mesRendezVous = $rdvRepo->findBy(['profil' => $mesProfils->toArray()], ['date_debut' => 'DESC']);
 
@@ -172,10 +176,13 @@ class RendezVousController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $dateFin = clone $rendezVous->getDateDebut();
-            $dateFin->modify('+30 minutes');
+            $dateDebut = $rendezVous->getDateDebut();
+            $dateFin = $dateDebut ? \DateTime::createFromInterface($dateDebut) : null;
+            if ($dateFin) {
+                $dateFin->modify('+30 minutes');
+            }
             $rendezVous->setDateFin($dateFin);
-            
+
             $entityManager->flush();
 
             $this->sendRdvEmail($mailer, $user->getUserIdentifier(), 'Modification de RDV', "<p>Votre RDV a été mis à jour pour le " . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . ".</p>");

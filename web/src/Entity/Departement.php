@@ -9,7 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DepartementRepository::class)]
-#[ORM\Table(name: 'Departement')]
+#[ORM\Table(name: 'Departement', uniqueConstraints: [
+    new ORM\UniqueConstraint(name: 'code', columns: ['code'])
+])]
 class Departement
 {
     #[ORM\Id]
@@ -17,27 +19,27 @@ class Departement
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom du département est obligatoire.')]
     #[Assert\Length(
         min: 2,
-        max: 100,
+        max: 255,
         minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.',
         maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
     )]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'Le code du département est obligatoire.')]
     #[Assert\Length(
         min: 2,
-        max: 20,
+        max: 50,
         minMessage: 'Le code doit comporter au moins {{ limit }} caractères.',
         maxMessage: 'Le code ne doit pas dépasser {{ limit }} caractères.'
     )]
     private ?string $code = null;
 
-    #[ORM\OneToMany(mappedBy: 'departement', targetEntity: Specialite::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'departement', targetEntity: Specialite::class)]
     private Collection $specialites;
 
     public function __construct()

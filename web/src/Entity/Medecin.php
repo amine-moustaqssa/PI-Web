@@ -27,7 +27,7 @@ class Medecin extends Utilisateur
 
     #[ORM\ManyToOne(inversedBy: 'medecins')]
     // FORCE DOCTRINE TO USE YOUR EXISTING COLUMN 'specialite_id'
-    #[ORM\JoinColumn(name: 'specialite_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'specialite_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Specialite $specialite = null;
 
     /**
