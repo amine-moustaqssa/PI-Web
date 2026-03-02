@@ -507,11 +507,6 @@ Le `MedicalScoreCalculator` calcule un score composite basé sur :
 - **PDF** : Génération de factures PDF via `DomPDF` (`FacturePdfBundle`)
 - **Notifications SMS** : Intégration Twilio pour les rappels de rendez-vous
 
-### 4.8 Paiement en Ligne
-
-- Intégration **Stripe** pour le paiement des factures en ligne
-- Configuration sécurisée via variables d'environnement
-
 ---
 
 ## 5. Résumé Exécutif
@@ -527,5 +522,5 @@ Le `MedicalScoreCalculator` calcule un score composite basé sur :
 | Mapping Doctrine | **✔ Correct** |
 | Synchronisation BDD | **⚠ Migration nécessaire** |
 | APIs IA intégrées | Gemini (Google AI) |
-| APIs externes | Nager.Date (jours fériés), Stripe (paiement) |
+| APIs externes | Nager.Date (jours fériés) |
 | Authentification | Form login + OAuth2 (Google/Facebook) + 2FA |

@@ -36,9 +36,21 @@ class DashboardController extends AbstractController
         $specialiteLabels = [];
         $specialiteData = [];
         $specialiteColors = [
-            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-            '#858796', '#5a5c69', '#6f42c1', '#fd7e14', '#20c997',
-            '#17a2b8', '#6610f2', '#e83e8c', '#28a745', '#dc3545',
+            '#4e73df',
+            '#1cc88a',
+            '#36b9cc',
+            '#f6c23e',
+            '#e74a3b',
+            '#858796',
+            '#5a5c69',
+            '#6f42c1',
+            '#fd7e14',
+            '#20c997',
+            '#17a2b8',
+            '#6610f2',
+            '#e83e8c',
+            '#28a745',
+            '#dc3545',
         ];
 
         foreach ($allSpecialites as $spec) {
@@ -79,8 +91,13 @@ class DashboardController extends AbstractController
 
         // Jours de la semaine en français
         $joursFr = [
-            1 => 'Lundi', 2 => 'Mardi', 3 => 'Mercredi',
-            4 => 'Jeudi', 5 => 'Vendredi', 6 => 'Samedi', 7 => 'Dimanche',
+            1 => 'Lundi',
+            2 => 'Mardi',
+            3 => 'Mercredi',
+            4 => 'Jeudi',
+            5 => 'Vendredi',
+            6 => 'Samedi',
+            7 => 'Dimanche',
         ];
 
         // 1. PRÉTRAITEMENT DES DONNÉES (Data Pretreatment)
@@ -270,7 +287,7 @@ class DashboardController extends AbstractController
             $jour = $dispo->getJourSemaine();
             $dayName = isset($days[$jour]) ? $days[$jour] : 'Monday';
             $dateKey = (new \DateTime("next $dayName"))->format('Y-m-d');
-            
+
             $agenda[$dateKey][] = $dispo;
         }
 

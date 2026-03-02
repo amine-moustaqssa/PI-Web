@@ -44,7 +44,7 @@ class RendezVousController extends AbstractController
         $rendezVous = new RendezVous();
         $form = $this->createForm(RendezVousType::class, $rendezVous, ['titulaire_id' => $user]);
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $specialiteId = $request->request->get('specialite_id');
@@ -182,7 +182,7 @@ class RendezVousController extends AbstractController
                 $dateFin->modify('+30 minutes');
             }
             $rendezVous->setDateFin($dateFin);
-            
+
             $entityManager->flush();
 
             $this->sendRdvEmail($mailer, $user->getUserIdentifier(), 'Modification de RDV', "<p>Votre RDV a été mis à jour pour le " . $rendezVous->getDateDebut()->format('d/m/Y à H:i') . ".</p>");

@@ -53,9 +53,8 @@ class MedicalScoreCalculator
             'score' => $score,
             'level' => $level,
             'color' => $color,
-            'comment' => $level === 'Normal' ? 'Patient sans risque particulier.' :
-                         ($level === 'À vérifier' ? 'Patient à risque modéré, vérification recommandée.' :
-                         'Patient à risque élevé, suivi nécessaire.')
+            'comment' => $level === 'Normal' ? 'Patient sans risque particulier.' : ($level === 'À vérifier' ? 'Patient à risque modéré, vérification recommandée.' :
+                    'Patient à risque élevé, suivi nécessaire.')
         ];
     }
 }

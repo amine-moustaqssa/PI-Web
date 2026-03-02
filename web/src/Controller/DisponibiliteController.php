@@ -20,7 +20,7 @@ class DisponibiliteController extends AbstractController
     public function index(Request $request, DisponibiliteRepository $disponibiliteRepository): Response
     {
         $user = $this->getUser();
-        
+
         // 1. On récupère les filtres du formulaire
         $jour = $request->query->get('jour');
         $recurrent = $request->query->get('recurrent');

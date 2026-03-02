@@ -180,8 +180,14 @@ class FactureStatisticsTest extends TestCase
     {
         $facture = new class($statut, $montant) {
             public function __construct(private string $statut, private float $montant) {}
-            public function getStatut(): string { return $this->statut; }
-            public function getMontantTotal(): float { return $this->montant; }
+            public function getStatut(): string
+            {
+                return $this->statut;
+            }
+            public function getMontantTotal(): float
+            {
+                return $this->montant;
+            }
         };
         return $facture;
     }
@@ -190,8 +196,14 @@ class FactureStatisticsTest extends TestCase
     {
         return new class($date, $montant) {
             public function __construct(private \DateTimeInterface $date, private float $montant) {}
-            public function getDatePaiement(): \DateTimeInterface { return $this->date; }
-            public function getMontant(): float { return $this->montant; }
+            public function getDatePaiement(): \DateTimeInterface
+            {
+                return $this->date;
+            }
+            public function getMontant(): float
+            {
+                return $this->montant;
+            }
         };
     }
 }
