@@ -38,6 +38,11 @@ services:
         arguments:
             $geminiApiKey: "%gemini_api_key%"
 
+    App\Service\MailingService:
+        arguments:
+            $senderEmail: '%env(MAILER_SENDER_EMAIL)%'
+            $senderName: '%env(MAILER_SENDER_NAME)%'
+
     # Services des autres modules
     App\Service\MedicalScoreCalculator:
         # Pas besoin d'arguments, Symfony injectera automatiquement

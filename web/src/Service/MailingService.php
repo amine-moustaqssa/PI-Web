@@ -16,11 +16,19 @@ class MailingService
 {
     private MailerInterface $mailer;
     private Environment $twig;
+    private string $senderEmail;
+    private string $senderName;
 
-    public function __construct(MailerInterface $mailer, Environment $twig)
-    {
+    public function __construct(
+        MailerInterface $mailer,
+        Environment $twig,
+        string $senderEmail = 'noreply@clinique360.tn',
+        string $senderName = 'Clinique 360'
+    ) {
         $this->mailer = $mailer;
         $this->twig = $twig;
+        $this->senderEmail = $senderEmail;
+        $this->senderName = $senderName;
     }
 
     /**
@@ -45,7 +53,7 @@ class MailingService
         ]);
 
         $email = (new Email())
-            ->from(new Address('ahmedhammi25@gmail.com', 'Clinique 360'))
+            ->from(new Address($this->senderEmail, $this->senderName))
             ->to(new Address($recipientEmail, $recipientName))
             ->subject('⚠️ ALERTE CRITIQUE - Constantes vitales anormales - Consultation #' . $consultationId)
             ->html($html)
@@ -78,7 +86,7 @@ class MailingService
         ]);
 
         $email = (new Email())
-            ->from(new Address('ahmedhammi25@gmail.com', 'Clinique 360'))
+            ->from(new Address($this->senderEmail, $this->senderName))
             ->to(new Address($recipientEmail, $recipientName))
             ->subject('📊 Rapport des constantes vitales - Clinique 360')
             ->html($html);
@@ -111,7 +119,7 @@ class MailingService
             ]));
 
             $email = (new Email())
-                ->from(new Address('ahmedhammi25@gmail.com', 'Clinique 360'))
+                ->from(new Address($this->senderEmail, $this->senderName))
                 ->to(new Address($recipient['email'], $recipient['name'] ?? ''))
                 ->subject($subject)
                 ->html($html);

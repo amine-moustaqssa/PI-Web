@@ -71,7 +71,8 @@ security:
     # Do NOT set this to PUBLIC_ACCESS, or login is useless.
     - { path: ^/titulaire, roles: ROLE_TITULAIRE }
 
-      # Protect the API (if you have one)
+      # Protect the API
+    - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
   security:

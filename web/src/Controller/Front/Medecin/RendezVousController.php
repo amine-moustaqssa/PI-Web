@@ -47,12 +47,18 @@ final class RendezVousController extends AbstractController
         }
         $counts['upcoming'] = $upcoming;
 
-        // Build a set of rdv IDs that already have a consultation
+        // Build a set of rdv IDs that already have a consultation (single query instead of N+1)
+        $rdvIds = array_map(fn($rdv) => (int) $rdv->getId(), $allRdvs);
         $rdvIdsWithConsultation = [];
-        foreach ($allRdvs as $rdv) {
-            $existing = $consultRepo->findOneBy(['rdvId' => (int) $rdv->getId()]);
-            if ($existing) {
-                $rdvIdsWithConsultation[$rdv->getId()] = $existing->getId();
+        if (!empty($rdvIds)) {
+            $existingConsultations = $consultRepo->createQueryBuilder('c')
+                ->select('c.rdvId, c.id')
+                ->where('c.rdvId IN (:rdvIds)')
+                ->setParameter('rdvIds', $rdvIds)
+                ->getQuery()
+                ->getResult();
+            foreach ($existingConsultations as $row) {
+                $rdvIdsWithConsultation[$row['rdvId']] = $row['id'];
             }
         }
 
