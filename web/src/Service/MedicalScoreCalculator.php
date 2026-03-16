@@ -11,7 +11,7 @@ class MedicalScoreCalculator
         $score = 0;
 
         // 1️⃣ Allergies
-        $allergies = $dossier->getAllergies() ?? [];
+        $allergies = $dossier->getAllergies();
         if (count($allergies) >= 3) {
             $score += 2;
         } elseif (count($allergies) >= 1) {
@@ -53,9 +53,8 @@ class MedicalScoreCalculator
             'score' => $score,
             'level' => $level,
             'color' => $color,
-            'comment' => $level === 'Normal' ? 'Patient sans risque particulier.' :
-                         ($level === 'À vérifier' ? 'Patient à risque modéré, vérification recommandée.' :
-                         'Patient à risque élevé, suivi nécessaire.')
+            'comment' => $level === 'Normal' ? 'Patient sans risque particulier.' : ($level === 'À vérifier' ? 'Patient à risque modéré, vérification recommandée.' :
+                    'Patient à risque élevé, suivi nécessaire.')
         ];
     }
 }

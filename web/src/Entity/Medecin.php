@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MedecinRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,8 +27,14 @@ class Medecin extends Utilisateur
 
     #[ORM\ManyToOne(inversedBy: 'medecins')]
     // FORCE DOCTRINE TO USE YOUR EXISTING COLUMN 'specialite_id'
-    #[ORM\JoinColumn(name: 'specialite_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'specialite_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Specialite $specialite = null;
+
+    /**
+     * @var Collection<int, RendezVous>
+     */
+    #[ORM\OneToMany(targetEntity: RendezVous::class, mappedBy: 'medecin')]
+    private Collection $rendezVouses;
 
     /**
      * This constructor ensures every new Medecin automatically gets the correct role.
@@ -37,6 +45,7 @@ class Medecin extends Utilisateur
 
         // Automatically assign the doctor role
         $this->setRoles(['ROLE_MEDECIN']);
+        $this->rendezVouses = new ArrayCollection();
     }
 
     public function getMatricule(): ?string
@@ -75,5 +84,35 @@ class Medecin extends Utilisateur
     public function __toString(): string
     {
         return $this->getNom() . ' ' . $this->getPrenom();
+    }
+
+    /**
+     * @return Collection<int, RendezVous>
+     */
+    public function getRendezVouses(): Collection
+    {
+        return $this->rendezVouses;
+    }
+
+    public function addRendezVouse(RendezVous $rendezVouse): static
+    {
+        if (!$this->rendezVouses->contains($rendezVouse)) {
+            $this->rendezVouses->add($rendezVouse);
+            $rendezVouse->setMedecin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRendezVouse(RendezVous $rendezVouse): static
+    {
+        if ($this->rendezVouses->removeElement($rendezVouse)) {
+            // set the owning side to null (unless already changed)
+            if ($rendezVouse->getMedecin() === $this) {
+                $rendezVouse->setMedecin(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -50,20 +50,15 @@
     </a>
     </li>
 
+    <li class="nav-item {{ app.request.get('_route') == 'medecin_app_medecin_disponibilite_agenda' ? 'active' : '' }}">
+    <a class="nav-link" href="{{ path('medecin_app_medecin_disponibilite_agenda', {id: app.user.id}) }}">
+        <img src="{{ asset('front/assets/calendar-date.svg') }}" width="14">
+        <span>Agenda</span>
+    </a>
+    </li>
+
     <div class="text-center d-none d-md-inline mt-4">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
-
-    {# Logout #}
-    <div class="sidebar-logout mt-auto p-3">
-        <a class="text-danger small d-flex align-items-center gap-2"
-           href="#"
-           data-toggle="modal"
-           data-target="#logoutModal"
-           style="text-decoration: none;">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Déconnexion</span>
-        </a>
     </div>
 
 </ul>

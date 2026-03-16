@@ -2,6 +2,7 @@
 
 namespace App\Controller\Front\Receptionniste;
 
+use App\Entity\Titulaire;
 use App\Entity\Utilisateur;
 use App\Form\ReceptionnisteTitulaireType;
 use App\Repository\DisponibiliteRepository;
@@ -22,7 +23,9 @@ class DashboardController extends AbstractController
 {
     private function checkReceptionist(): void
     {
-        if ($this->getUser()->getNiveauAcces() !== 'RECEPTIONIST') {
+        /** @var Utilisateur $user */
+        $user = $this->getUser();
+        if ($user->getNiveauAcces() !== 'RECEPTIONIST') {
             throw $this->createAccessDeniedException('Accès réservé aux réceptionnistes.');
         }
     }
@@ -120,7 +123,7 @@ class DashboardController extends AbstractController
     ): Response {
         $this->checkReceptionist();
 
-        $titulaire = new Utilisateur();
+        $titulaire = new Titulaire();
         $form = $this->createForm(ReceptionnisteTitulaireType::class, $titulaire);
         $form->handleRequest($request);
 

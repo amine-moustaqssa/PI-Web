@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\DisponibiliteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -9,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DisponibiliteRepository::class)]
 #[ORM\Table(name: 'Disponibilite')]
+#[ApiResource]
 class Disponibilite
 {
     #[ORM\Id]
@@ -16,15 +18,14 @@ class Disponibilite
     #[ORM\Column]
     private ?int $id = null;
 
-    // 1 = Monday, 7 = Sunday
-    #[ORM\Column]
+    // 1 = Monday, 7 = Sunday OR Unix Timestamp (if estRecurrent = false)
+    #[ORM\Column(nullable: true)]
     #[Assert\NotNull(message: 'Le jour de la semaine est obligatoire.')]
-    #[Assert\Range(
-        min: 1,
-        max: 7,
-        notInRangeMessage: 'Le jour doit être compris entre {{ min }} (lundi) et {{ max }} (dimanche).'
-    )]
     private ?int $jourSemaine = null;
+
+    // Propriété non mappée (sert uniquement de raccourci formulaire)
+    #[Assert\NotNull(message: 'La date est obligatoire.')]
+    private ?\DateTimeInterface $dateSpecifique = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     #[Assert\NotNull(message: "L'heure de début est obligatoire.")]
@@ -34,11 +35,11 @@ class Disponibilite
     #[Assert\NotNull(message: "L'heure de fin est obligatoire.")]
     private ?\DateTimeInterface $heureFin = null;
 
-    #[ORM\Column]
-    private ?bool $estRecurrent = false;
+    #[ORM\Column(nullable: true, options: ['default' => true])]
+    private ?bool $estRecurrent = true;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Veuillez sélectionner un médecin.")]
     private ?Utilisateur $medecin = null;
 
@@ -103,6 +104,21 @@ class Disponibilite
     public function setMedecin(?Utilisateur $medecin): static
     {
         $this->medecin = $medecin;
+
+        return $this;
+    }
+
+    public function getDateSpecifique(): ?\DateTimeInterface
+    {
+        return $this->dateSpecifique;
+    }
+
+    public function setDateSpecifique(?\DateTimeInterface $dateSpecifique): static
+    {
+        $this->dateSpecifique = $dateSpecifique;
+        if ($dateSpecifique) {
+            $this->jourSemaine = (int) $dateSpecifique->format('N');
+        }
 
         return $this;
     }

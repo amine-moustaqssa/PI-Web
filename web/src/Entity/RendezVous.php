@@ -26,17 +26,21 @@ class RendezVous
     #[ORM\Column(length: 50)]
     private ?string $statut = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 50, nullable: true)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 60, nullable: true)]
+    #[ORM\Column(length: 60)]
+    #[Assert\NotBlank(message: 'Le motif est obligatoire.')]
     #[Assert\Length(max: 60, maxMessage: 'Le motif ne doit pas dépasser {{ limit }} caractères.')]
-    private ?string $motif = null;
+    private ?string $motif = '';
 
     #[ORM\ManyToOne(targetEntity: ProfilMedical::class, inversedBy: 'rendezVouses')]
-    #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false)]
+    #[ORM\JoinColumn(name: "profil_id", referencedColumnName: "id", nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: 'Veuillez sélectionner un patient.')]
     private ?ProfilMedical $profil = null;
+
+    #[ORM\ManyToOne(inversedBy: 'rendezVouses')]
+    private ?Medecin $medecin = null;
 
     public function getId(): ?string
     {
@@ -106,6 +110,18 @@ class RendezVous
     public function setProfil(?ProfilMedical $profil): static
     {
         $this->profil = $profil;
+        return $this;
+    }
+
+    public function getMedecin(): ?Medecin
+    {
+        return $this->medecin;
+    }
+
+    public function setMedecin(?Medecin $medecin): static
+    {
+        $this->medecin = $medecin;
+
         return $this;
     }
 }

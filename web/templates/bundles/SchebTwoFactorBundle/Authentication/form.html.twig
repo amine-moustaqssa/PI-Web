@@ -1,0 +1,72 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}Vérification en deux étapes{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="container px-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="card border-0 shadow rounded-3 overflow-hidden">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="mb-3">
+                                <i class="bi bi-shield-lock" style="font-size: 3rem; color: var(--bs-primary, #0d6efd);"></i>
+                            </div>
+                            <h2 class="fw-bolder">Vérification 2FA</h2>
+                            <p class="lead fw-normal text-muted mb-0">
+                                Entrez le code de votre application d'authentification
+                            </p>
+                        </div>
+
+                        {% if authenticationError %}
+                            <div class="alert alert-danger">
+                                {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                            </div>
+                        {% endif %}
+
+                        <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute) }}">
+                            <div class="form-floating mb-4">
+                                <input type="text"
+                                       name="{{ authCodeParameterName }}"
+                                       id="inputCode"
+                                       class="form-control text-center"
+                                       autocomplete="one-time-code"
+                                       autofocus
+                                       inputmode="numeric"
+                                       pattern="[0-9]*"
+                                       maxlength="6"
+                                       placeholder="000000">
+                                <label for="inputCode">Code à 6 chiffres</label>
+                            </div>
+
+                            {% if isCsrfProtectionEnabled %}
+                                <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+                            {% endif %}
+
+                            {% if displayTrustedOption %}
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="{{ trustedParameterName }}" id="trustedDevice" class="form-check-input">
+                                    <label for="trustedDevice" class="form-check-label">Faire confiance à cet appareil</label>
+                                </div>
+                            {% endif %}
+
+                            <div class="d-grid mb-3">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    Vérifier
+                                </button>
+                            </div>
+
+                            <div class="text-center">
+                                <a href="{{ logoutPath }}" class="text-muted small">
+                                    <i class="bi bi-arrow-left"></i> Annuler et se déconnecter
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

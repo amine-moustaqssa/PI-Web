@@ -12,24 +12,17 @@ use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+
 class DisponibiliteType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('jourSemaine', ChoiceType::class, [
-                'label' => 'Jour de la semaine',
-                'choices' => [
-                    'Lundi' => 1,
-                    'Mardi' => 2,
-                    'Mercredi' => 3,
-                    'Jeudi' => 4,
-                    'Vendredi' => 5,
-                    'Samedi' => 6,
-                    'Dimanche' => 7,
-                ],
-                'placeholder' => '-- Choisir un jour --',
-                'required' => false,
+            ->add('dateSpecifique', DateType::class, [
+                'label' => 'Date spécifique (pour un test ou un créneau unique)',
+                'widget' => 'single_text',
+                'required' => true,
             ])
             ->add('heureDebut', TimeType::class, [
                 'label' => 'Heure de début',
@@ -50,6 +43,7 @@ class DisponibiliteType extends AbstractType
         if (!$options['hide_medecin']) {
             $builder->add('medecin', EntityType::class, [
                 'class' => Medecin::class,
+                // Uses Medecin::__toString() automatically
                 'placeholder' => '-- Sélectionner un médecin --',
                 'required' => false,
             ]);

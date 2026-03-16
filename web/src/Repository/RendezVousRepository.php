@@ -53,6 +53,35 @@ class RendezVousRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+    public function countOverlappingAppointments($medecin, $debut, $fin): int
+{
+    return $this->createQueryBuilder('r')
+        ->select('count(r.id)')
+        ->where('r.medecin = :medecin')
+        ->andWhere('r.statut != :annule')
+        ->andWhere('(r.dateDebut < :fin AND r.dateFin > :debut)')
+        ->setParameter('medecin', $medecin)
+        ->setParameter('annule', 'annulé')
+        ->setParameter('debut', $debut)
+        ->setParameter('fin', $fin)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+public function countRdvDuJour($profil, $date): int
+{
+    $debut = (clone $date)->setTime(0, 0, 0);
+    $fin = (clone $date)->setTime(23, 59, 59);
+
+    return (int) $this->createQueryBuilder('r')
+        ->select('count(r.id)')
+        ->where('r.profil = :profil')
+        ->andWhere('r.date_debut BETWEEN :debut AND :fin')
+        ->setParameter('profil', $profil)
+        ->setParameter('debut', $debut)
+        ->setParameter('fin', $fin)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
 
     /**
      * Fetches today's appointments for a specific medical profile, ordered by time.

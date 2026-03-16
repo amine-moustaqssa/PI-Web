@@ -1,0 +1,45 @@
+flasher:
+    default: flasher
+    use_cdn: true
+    auto_translate: false
+    auto_render: true
+
+    flash_bag:
+        enabled: true
+        mapping:
+            success: [success]
+            error: [error, danger]
+            warning: [warning]
+            info: [info, notice]
+
+    filter_criteria:
+        limit: 5
+
+    presets:
+        clinique_success:
+            type: success
+            title: 'CLINIQUE 360'
+            message: null
+            options:
+                timeout: 5000
+
+        clinique_error:
+            type: error
+            title: 'CLINIQUE 360'
+            message: null
+            options:
+                timeout: 8000
+
+        clinique_warning:
+            type: warning
+            title: 'CLINIQUE 360'
+            message: null
+            options:
+                timeout: 6000
+
+        clinique_info:
+            type: info
+            title: 'CLINIQUE 360'
+            message: null
+            options:
+                timeout: 4000

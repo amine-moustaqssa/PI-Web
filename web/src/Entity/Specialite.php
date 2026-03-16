@@ -17,22 +17,22 @@ class Specialite
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom de la spécialité est obligatoire.')]
     #[Assert\Length(
         min: 2,
-        max: 100,
+        max: 255,
         minMessage: 'Le nom doit comporter au moins {{ limit }} caractères.',
         maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
     )]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\Length(max: 20, maxMessage: 'La couleur ne doit pas dépasser {{ limit }} caractères.')]
+    #[ORM\Column(length: 7, nullable: true)]
+    #[Assert\Length(max: 7, maxMessage: 'La couleur ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $couleur = null;
 
     #[ORM\ManyToOne(inversedBy: 'specialites')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Assert\NotNull(message: 'Le département est obligatoire.')]
     private ?Departement $departement = null;
 

@@ -6,9 +6,12 @@ use App\Repository\RapportMedicalRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Table(name: "RapportMedical")]
 #[ORM\Entity(repositoryClass: RapportMedicalRepository::class)]
+#[Vich\Uploadable]
 class RapportMedical
 {
     #[ORM\Id]
@@ -16,14 +19,16 @@ class RapportMedical
     #[ORM\Column]
     private ?int $id = null;
 
-    // Relation ManyToOne avec DossierClinique
     #[ORM\ManyToOne(inversedBy: 'rapportsMedicaux')]
-    #[ORM\JoinColumn(name: 'dossier_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'dossier_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: "Le dossier clinique est obligatoire.")]
     private ?DossierClinique $dossierClinique = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "Le contenu du rapport est obligatoire.")]
+    #[ORM\OneToOne(targetEntity: Consultation::class)]
+    #[ORM\JoinColumn(name: 'consultation_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Consultation $consultation = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
         min: 10,
         max: 5000,
@@ -32,8 +37,7 @@ class RapportMedical
     )]
     private ?string $contenu = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "La conclusion est obligatoire.")]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(
         min: 5,
         max: 2000,
@@ -42,18 +46,19 @@ class RapportMedical
     )]
     private ?string $conclusion = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\Url(message: "L'URL du PDF doit être valide.")]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $url_pdf = null;
 
-    #[ORM\Column]
-    #[Assert\NotNull(message: "La date de création est obligatoire.")]
-    #[Assert\Type(\DateTime::class)]
-    private ?\DateTime $date_creation = null;
+    #[Vich\UploadableField(mapping: 'rapport_medical_pdfs', fileNameProperty: 'url_pdf')]
+    #[Assert\File(
+        maxSize: '5M',
+        mimeTypes: ['application/pdf'],
+        mimeTypesMessage: 'Veuillez uploader un fichier PDF valide'
+    )]
+    private ?File $pdfFile = null;
 
-    // ------------------------
-    // Getters & Setters
-    // ------------------------
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTime $date_creation = null;
 
     public function getId(): ?int
     {
@@ -68,6 +73,17 @@ class RapportMedical
     public function setDossierClinique(?DossierClinique $dossierClinique): static
     {
         $this->dossierClinique = $dossierClinique;
+        return $this;
+    }
+
+    public function getConsultation(): ?Consultation
+    {
+        return $this->consultation;
+    }
+
+    public function setConsultation(?Consultation $consultation): static
+    {
+        $this->consultation = $consultation;
         return $this;
     }
 
@@ -115,7 +131,18 @@ class RapportMedical
         return $this;
     }
 
+    public function setPdfFile(?File $pdfFile = null): void
+    {
+        $this->pdfFile = $pdfFile;
 
+        // IMPORTANT: On met à jour date_creation au lieu d'ajouter updated_at
+        if (null !== $pdfFile) {
+            $this->date_creation = new \DateTime();
+        }
+    }
 
-    
+    public function getPdfFile(): ?File
+    {
+        return $this->pdfFile;
+    }
 }

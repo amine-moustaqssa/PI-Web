@@ -15,3 +15,7 @@ knpu_oauth2_client:
       redirect_route: connect_facebook_check
       redirect_params: {}
       graph_api_version: v18.0
+knp_paginator:
+    template:
+        # Utilise le template Bootstrap 5 par défaut
+        pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig'

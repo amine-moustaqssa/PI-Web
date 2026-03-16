@@ -23,8 +23,8 @@
     {% endfor %}
 
     {# Active Consultations #}
-    <div class="card shadow bg-dark-card mb-4">
-        <div class="card-header py-3 bg-transparent border-secondary-custom">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-success">
                 <i class="fas fa-heartbeat mr-2"></i>En cours
                 <span class="badge badge-success ml-2">{{ activeConsultations|length }}</span>
@@ -33,7 +33,7 @@
         <div class="card-body">
             {% if activeConsultations|length > 0 %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -76,8 +76,8 @@
     </div>
 
     {# Planned Consultations #}
-    <div class="card shadow bg-dark-card mb-4">
-        <div class="card-header py-3 bg-transparent border-secondary-custom">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-clock mr-2"></i>Planifiées
                 <span class="badge badge-primary ml-2">{{ plannedConsultations|length }}</span>
@@ -86,7 +86,7 @@
         <div class="card-body">
             {% if plannedConsultations|length > 0 %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -127,8 +127,8 @@
     </div>
 
     {# Completed Consultations #}
-    <div class="card shadow bg-dark-card">
-        <div class="card-header py-3 bg-transparent border-secondary-custom">
+    <div class="card shadow">
+        <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-secondary">
                 <i class="fas fa-check-circle mr-2"></i>Terminées
                 <span class="badge badge-secondary ml-2">{{ completedConsultations|length }}</span>
@@ -137,7 +137,7 @@
         <div class="card-body">
             {% if completedConsultations|length > 0 %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle" id="completedTable" width="100%" cellspacing="0">
+                    <table class="table table-hover align-middle" id="completedTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -179,13 +179,7 @@
 
 </div>
 
-<style>
-.bg-dark-card {
-    background-color: #242731 !important;
-    border: 1px solid #2d303e;
-}
-.border-secondary-custom { border-bottom: 1px solid #2d303e !important; }
-</style>
+
 
 {% block javascripts %}
     {{ parent() }}
