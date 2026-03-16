@@ -1,0 +1,56 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier Disponibilité{% endblock %}
+
+{% block body %}
+    {# Holiday error message #}
+    {% if holiday_error is defined and holiday_error %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ holiday_error }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+
+    {# 1. En-tête de la page : Titre + Bouton Retour #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Modifier la disponibilité</h1>
+        <a href="{{ path('app_disponibilite_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Modifier le créneau #{{ disponibilite.id }}</h6>
+        </div>
+        <div class="card-body">
+            
+            {# 1. Le formulaire de modification #}
+            <div class="mb-4">
+                {{ include('disponibilite/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+            </div>
+
+            <hr class="sidebar-divider my-4">
+
+            {# 2. Zone des actions (Boutons alignés et de même taille) #}
+            <div class="d-flex justify-content-end align-items-center">
+                
+                {# Bouton Supprimer #}
+                <div class="mr-2">
+                    {{ include('disponibilite/_delete_form.html.twig') }}
+                </div>
+
+                {# Bouton Mettre à jour (Submit du formulaire principal) #}
+                <button type="submit" form="disponibilite_form" class="btn btn-success btn-icon-split btn-sm shadow-sm">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span class="text">Mettre à jour</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

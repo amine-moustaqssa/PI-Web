@@ -1,0 +1,196 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Mes Rendez-vous | Clinic360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Page Heading #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-calendar-alt mr-2"></i>Mes Rendez-vous</h1>
+    </div>
+
+    {# Filter Cards #}
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 mb-3">
+            <a href="{{ path('medecin_rdv_index') }}" class="text-decoration-none">
+                <div class="card border-left-primary shadow h-100 py-2 {{ currentStatut is null ? 'border border-primary' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center px-3">
+                        <div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tous</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts.total }}</div>
+                        </div>
+                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <a href="{{ path('medecin_rdv_index', {statut: 'confirmé'}) }}" class="text-decoration-none">
+                <div class="card border-left-success shadow h-100 py-2 {{ currentStatut == 'confirmé' ? 'border border-success' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center px-3">
+                        <div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Confirmés</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['confirmé'] }}</div>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <a href="{{ path('medecin_rdv_index', {statut: 'en_attente'}) }}" class="text-decoration-none">
+                <div class="card border-left-warning shadow h-100 py-2 {{ currentStatut == 'en_attente' ? 'border border-warning' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center px-3">
+                        <div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">En attente</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts.en_attente }}</div>
+                        </div>
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <a href="{{ path('medecin_rdv_index', {statut: 'terminé'}) }}" class="text-decoration-none">
+                <div class="card border-left-info shadow h-100 py-2 {{ currentStatut == 'terminé' ? 'border border-info' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center px-3">
+                        <div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Terminés</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['terminé'] }}</div>
+                        </div>
+                        <i class="fas fa-flag-checkered fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3">
+            <a href="{{ path('medecin_rdv_index', {statut: 'annulé'}) }}" class="text-decoration-none">
+                <div class="card border-left-danger shadow h-100 py-2 {{ currentStatut == 'annulé' ? 'border border-danger' : '' }}">
+                    <div class="card-body d-flex justify-content-between align-items-center px-3">
+                        <div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Annulés</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ counts['annulé'] }}</div>
+                        </div>
+                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    {# Table Card #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if currentStatut %}
+                    Rendez-vous — {{ currentStatut|replace({'_': ' '})|capitalize }}
+                {% else %}
+                    Tous les rendez-vous
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle" id="rdvTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width:5%;">#</th>
+                            <th>Patient</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th class="text-center">Type</th>
+                            <th class="text-center">Statut</th>
+                            <th>Motif</th>
+                            <th class="text-center" style="width:8%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for rdv in rendezVous %}
+                        <tr>
+                            <td class="text-muted small">{{ rdv.id }}</td>
+                            <td>
+                                <i class="fas fa-user text-gray-400 mr-1"></i>
+                                {% if rdv.profil %}
+                                    {{ rdv.profil.nom }} {{ rdv.profil.prenom }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <i class="fas fa-calendar-day text-gray-400 mr-1"></i>
+                                {{ rdv.dateDebut ? rdv.dateDebut|date('d/m/Y à H:i') : '—' }}
+                            </td>
+                            <td>
+                                {{ rdv.dateFin ? rdv.dateFin|date('d/m/Y à H:i') : '—' }}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-light border px-2 py-1">{{ rdv.type ?? '—' }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if rdv.statut == 'confirmé' %}
+                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Confirmé</span>
+                                {% elseif rdv.statut == 'en_attente' %}
+                                    <span class="badge badge-warning px-3 py-2"><i class="fas fa-clock mr-1"></i>En attente</span>
+                                {% elseif rdv.statut == 'annulé' %}
+                                    <span class="badge badge-danger px-3 py-2"><i class="fas fa-times mr-1"></i>Annulé</span>
+                                {% elseif rdv.statut == 'terminé' %}
+                                    <span class="badge badge-info px-3 py-2"><i class="fas fa-flag-checkered mr-1"></i>Terminé</span>
+                                {% else %}
+                                    <span class="badge badge-secondary px-3 py-2">{{ rdv.statut }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if rdv.motif %}
+                                    <span class="small">{{ rdv.motif|length > 40 ? rdv.motif|slice(0, 40) ~ '…' : rdv.motif }}</span>
+                                {% else %}
+                                    <span class="text-muted small"><em>—</em></span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ path('medecin_rdv_show', {id: rdv.id}) }}" class="btn btn-info btn-circle btn-sm mr-1" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if rdv.id in rdvIdsWithConsultation|keys %}
+                                    <a href="{{ path('medecin_consultation_show', {id: rdvIdsWithConsultation[rdv.id]}) }}" class="btn btn-success btn-sm" title="Voir la consultation">
+                                        <i class="fas fa-stethoscope mr-1"></i>Consultation
+                                    </a>
+                                {% elseif rdv.statut != 'annulé' and rdv.statut != 'terminé' %}
+                                    <form action="{{ path('medecin_rdv_start_consultation', {id: rdv.id}) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Commencer une consultation pour ce rendez-vous ?')">
+                                            <i class="fas fa-play mr-1"></i>Commencer
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-calendar-alt fa-3x text-gray-300 mb-3 d-block"></i>
+                                <h6 class="text-gray-500">Aucun rendez-vous trouvé</h6>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof $ !== 'undefined' && $.fn.DataTable) {
+            $('#rdvTable').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
+                },
+                pageLength: 10,
+                order: [[2, 'desc']]
+            });
+        }
+    });
+</script>
+{% endblock %}

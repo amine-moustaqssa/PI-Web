@@ -1,0 +1,383 @@
+{% extends 'front/infirmier/base_infirmier.html.twig' %}
+
+{% block title %}Constantes Vitales - Consultation #{{ consultation.id }} | Clinique 360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Breadcrumb #}
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-transparent p-0 m-0">
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_dashboard') }}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('infirmier_consultation_index') }}">Consultations</a></li>
+            <li class="breadcrumb-item active">Consultation #{{ consultation.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-thermometer-half text-info mr-2"></i>
+                Constantes Vitales
+            </h1>
+            <p class="text-muted small mb-0">
+                Consultation #{{ consultation.id }}
+                {% if consultation.medecin %}
+                    — Dr. {{ consultation.medecin.nom ?? '' }} {{ consultation.medecin.prenom ?? '' }}
+                {% endif %}
+                {% if consultation.dateEffectuee %}
+                    — {{ consultation.dateEffectuee|date('d/m/Y H:i') }}
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            {% if consultation.statut == 'en cours' %}
+                <span class="badge badge-success p-2"><i class="fas fa-circle mr-1"></i> En cours</span>
+            {% elseif consultation.statut == 'planifié' %}
+                <span class="badge badge-primary p-2"><i class="fas fa-clock mr-1"></i> Planifié</span>
+            {% elseif consultation.statut == 'terminé' or consultation.statut == 'Terminée' %}
+                <span class="badge badge-secondary p-2"><i class="fas fa-check mr-1"></i> Terminé</span>
+            {% else %}
+                <span class="badge badge-light p-2">{{ consultation.statut }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show shadow-sm" role="alert">
+                {% if label == 'danger' %}
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                {% elseif label == 'warning' %}
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                {% endif %}
+                <strong>{{ msg }}</strong>
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {# Alert Summary Cards #}
+    {% if constantes|length > 0 %}
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Constantes</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ constantes|length }}</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-heartbeat fa-2x text-info"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Normales</div>
+                            <div class="h5 mb-0 font-weight-bold">
+                                {{ analysis.alerts|filter(a => a.level == 'normal')|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-check-circle fa-2x text-success"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Attention</div>
+                            <div class="h5 mb-0 font-weight-bold">
+                                {{ analysis.alerts|filter(a => a.level == 'warning')|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-exclamation-circle fa-2x text-warning"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body py-2">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Critiques</div>
+                            <div class="h5 mb-0 font-weight-bold">
+                                {{ analysis.alerts|filter(a => a.level == 'critical')|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-danger"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Add button + AI Analysis #}
+    <div class="mb-3 d-flex gap-2">
+        {% if consultation.statut != 'Terminée' and consultation.statut != 'terminé' %}
+            <a href="{{ path('infirmier_constante_new', {'id': consultation.id}) }}" class="btn btn-success mr-2">
+                <i class="fas fa-plus mr-1"></i> Ajouter une constante
+            </a>
+        {% endif %}
+        {% if constantes|length > 0 %}
+            <button type="button" class="btn btn-outline-primary" id="btnAiAnalysis"
+                    data-url="{{ path('infirmier_constante_ai_analysis', {'id': consultation.id}) }}">
+                <i class="fas fa-robot mr-1"></i> Analyse IA (Gemini)
+            </button>
+        {% endif %}
+    </div>
+
+    {# Constantes Table #}
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">
+                <i class="fas fa-list mr-2"></i>Relevés des constantes
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if constantes|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="constantesTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Valeur</th>
+                                <th>Unité</th>
+                                <th>Statut</th>
+                                <th>Plage normale</th>
+                                <th>Date de prise</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, constante in constantes %}
+                                {% set alert = analysis.alerts[key] ?? null %}
+                                {% if alert and alert.level == 'critical' %}
+                                    {% set rowStyle = 'background-color: rgba(220, 53, 69, 0.2);' %}
+                                {% elseif alert and alert.level == 'warning' %}
+                                    {% set rowStyle = 'background-color: rgba(255, 193, 7, 0.15);' %}
+                                {% else %}
+                                    {% set rowStyle = '' %}
+                                {% endif %}
+                                <tr style="{{ rowStyle }}">
+                                    <td>
+                                        <span class="font-weight-bold">{{ constante.type }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold" style="font-size: 1.1em;
+                                            {% if alert and alert.level == 'critical' %}color: #ff6b6b;
+                                            {% elseif alert and alert.level == 'warning' %}color: #ffc107;
+                                            {% else %}color: #51cf66;{% endif %}">
+                                            {{ constante.valeur }}
+                                        </span>
+                                    </td>
+                                    <td>{{ constante.unite }}</td>
+                                    <td>
+                                        {% if alert %}
+                                            <span class="badge badge-{{ alert.badge_class }} px-2 py-1">
+                                                <i class="{{ alert.icon }} mr-1"></i>
+                                                {{ alert.level == 'normal' ? 'Normal' : (alert.level == 'warning' ? 'Attention' : (alert.level == 'critical' ? 'CRITIQUE' : 'Inconnu')) }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-secondary px-2 py-1">
+                                                <i class="fas fa-question-circle mr-1"></i> Non référencé
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if alert and alert.reference is defined and alert.reference is not null %}
+                                            <small class="text-light">
+                                                {{ alert.reference.normal_low }} – {{ alert.reference.normal_high }} {{ alert.reference.unite }}
+                                            </small>
+                                            <br>
+                                            <small style="color: #888; font-size: 0.75em;">
+                                                Source : {{ alert.reference.source }}
+                                            </small>
+                                        {% else %}
+                                            <small class="text-muted">—</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ constante.datePrise ? constante.datePrise|date('d/m/Y H:i') : '—' }}</td>
+                                    <td>
+                                        {% if consultation.statut != 'Terminée' and consultation.statut != 'terminé' %}
+                                            <a href="{{ path('infirmier_constante_edit', {'id': consultation.id, 'constanteId': constante.id}) }}"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit mr-1"></i> Modifier
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted small">Lecture seule</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# Medical Reference Legend #}
+                <div class="mt-3 p-3 rounded border" style="background-color: #f8f9fc; border-color: #e0e0e0 !important;">
+                    <h6 class="mb-2" style="color: #37474f;"><i class="fas fa-book-medical mr-1 text-info"></i> Légende des alertes</h6>
+                    <span class="badge badge-success px-2 py-1 mr-2"><i class="fas fa-check-circle mr-1"></i> Normal</span>
+                    <span class="badge badge-warning px-2 py-1 mr-2"><i class="fas fa-exclamation-circle mr-1"></i> Attention</span>
+                    <span class="badge badge-danger px-2 py-1 mr-2"><i class="fas fa-exclamation-triangle mr-1"></i> Critique</span>
+                    <span class="badge badge-secondary px-2 py-1"><i class="fas fa-question-circle mr-1"></i> Non référencé</span>
+                    <p class="small mt-2 mb-0" style="color: #78909c;">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Les seuils sont basés sur les recommandations OMS, AHA, ESC, ERS, ADA, KDIGO, NICE et HAS.
+                        Ces valeurs sont indicatives et doivent être interprétées dans le contexte clinique du patient.
+                    </p>
+                </div>
+
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-thermometer-empty fa-3x mb-3" style="opacity:0.2; color:#ccc;"></i>
+                    <p class="text-muted">Aucune constante vitale enregistrée pour cette consultation.</p>
+                    {% if consultation.statut != 'Terminée' and consultation.statut != 'terminé' %}
+                        <a href="{{ path('infirmier_constante_new', {'id': consultation.id}) }}" class="btn btn-outline-success">
+                            <i class="fas fa-plus mr-1"></i> Ajouter la première constante
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Back button + Historique link #}
+    <div class="mt-3 d-flex gap-2">
+        <a href="{{ path('infirmier_consultation_index') }}" class="btn btn-outline-secondary mr-2">
+            <i class="fas fa-arrow-left mr-1"></i> Retour aux consultations
+        </a>
+        <a href="{{ path('infirmier_historique_index') }}" class="btn btn-outline-info">
+            <i class="fas fa-chart-line mr-1"></i> Historique & Comparaison
+        </a>
+    </div>
+
+</div>
+
+{# AI Analysis Modal #}
+<div class="modal fade" id="aiAnalysisModal" tabindex="-1" role="dialog" aria-labelledby="aiAnalysisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0097a7, #00bcd4); color: white;">
+                <h5 class="modal-title" id="aiAnalysisModalLabel" style="color: white !important;">
+                    <i class="fas fa-robot mr-2"></i> Analyse IA — Google Gemini
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" style="color: white; font-size: 1.5rem; opacity: 1;" onclick="$('#aiAnalysisModal').modal('hide'); var m = bootstrap.Modal.getInstance(document.getElementById('aiAnalysisModal')); if(m) m.hide();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="aiAnalysisBody">
+                <div class="text-center py-5" id="aiLoading">
+                    <div class="spinner-border" style="color: #0097a7; width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only">Analyse en cours...</span>
+                    </div>
+                    <p class="mt-3" style="color: #546e7a; font-weight: 500;">
+                        <i class="fas fa-brain mr-1"></i> L'IA analyse les constantes vitales...
+                    </p>
+                    <p class="small" style="color: #90a4ae;">Appel à l'API externe Google Gemini en cours</p>
+                </div>
+                <div id="aiResult" style="display: none;"></div>
+                <div id="aiError" style="display: none;" class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    <span id="aiErrorMessage"></span>
+                </div>
+            </div>
+            <div class="modal-footer" id="aiModalFooter" style="display: none;">
+                <div class="mr-auto">
+                    <small style="color: #90a4ae;">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Powered by Google Gemini API — Ceci est un outil d'aide, pas un diagnostic médical.
+                    </small>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal" onclick="$('#aiAnalysisModal').modal('hide'); var m = bootstrap.Modal.getInstance(document.getElementById('aiAnalysisModal')); if(m) m.hide();">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btnAiAnalysis');
+    if (!btn) return;
+
+    btn.addEventListener('click', function() {
+        const url = this.dataset.url;
+        const loading = document.getElementById('aiLoading');
+        const result = document.getElementById('aiResult');
+        const error = document.getElementById('aiError');
+        const footer = document.getElementById('aiModalFooter');
+
+        // Reset
+        loading.style.display = 'block';
+        result.style.display = 'none';
+        error.style.display = 'none';
+        footer.style.display = 'none';
+        result.innerHTML = '';
+
+        // Open modal
+        $('#aiAnalysisModal').modal('show');
+
+        // Call API
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+
+            if (data.success) {
+                // Convert markdown-like text to HTML
+                let html = data.analysis
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/^### (.+)$/gm, '<h5 class="mt-3 mb-2" style="color: #00838f;">$1</h5>')
+                    .replace(/^## (.+)$/gm, '<h4 class="mt-3 mb-2" style="color: #0097a7;">$1</h4>')
+                    .replace(/^# (.+)$/gm, '<h3 class="mt-3 mb-2" style="color: #0097a7;">$1</h3>')
+                    .replace(/^[\-\*] (.+)$/gm, '<li style="color: #37474f;">$1</li>')
+                    .replace(/(<li.*<\/li>\n?)+/g, '<ul class="mb-2">$&</ul>')
+                    .replace(/\n/g, '<br>');
+
+                // Stats banner
+                let stats = '<div class="d-flex justify-content-around mb-3 p-2 rounded" style="background-color: #f0f4f8;">';
+                stats += '<span class="badge badge-info px-3 py-2"><i class="fas fa-heartbeat mr-1"></i> ' + data.stats.total + ' constantes</span>';
+                if (data.stats.critical > 0) {
+                    stats += '<span class="badge badge-danger px-3 py-2"><i class="fas fa-exclamation-triangle mr-1"></i> ' + data.stats.critical + ' critiques</span>';
+                }
+                if (data.stats.warning > 0) {
+                    stats += '<span class="badge badge-warning px-3 py-2"><i class="fas fa-exclamation-circle mr-1"></i> ' + data.stats.warning + ' alertes</span>';
+                }
+                stats += '</div>';
+
+                result.innerHTML = stats + '<div class="ai-content" style="color: #37474f; line-height: 1.7;">' + html + '</div>';
+                result.style.display = 'block';
+                footer.style.display = 'flex';
+            } else {
+                document.getElementById('aiErrorMessage').textContent = data.message;
+                error.style.display = 'block';
+                footer.style.display = 'flex';
+            }
+        })
+        .catch(err => {
+            loading.style.display = 'none';
+            document.getElementById('aiErrorMessage').textContent = 'Erreur de connexion : ' + err.message;
+            error.style.display = 'block';
+            footer.style.display = 'flex';
+        });
+    });
+});
+</script>
+
+{% endblock %}

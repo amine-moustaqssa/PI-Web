@@ -1,0 +1,147 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Rendez-vous #{{ rdv.id }} | Clinic360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Page Heading #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-calendar-alt mr-2"></i>Détails du Rendez-vous</h1>
+        <a href="{{ path('medecin_rdv_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Retour à la liste
+        </a>
+    </div>
+
+    <div class="row">
+        {# Main Info #}
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>
+                    <h6 class="m-0 font-weight-bold text-primary">Informations du rendez-vous</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted font-weight-bold" style="width:35%;">
+                                    <i class="fas fa-hashtag mr-2 text-gray-400"></i>Référence
+                                </td>
+                                <td>
+                                    <span class="badge badge-light border px-3 py-2" style="font-size:.9rem;">#{{ rdv.id }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-user mr-2 text-gray-400"></i>Patient
+                                </td>
+                                <td>
+                                    {% if rdv.profil %}
+                                        <strong>{{ rdv.profil.nom }} {{ rdv.profil.prenom }}</strong>
+                                        {% if rdv.profil.dateNaissance %}
+                                            <br><small class="text-muted">Né(e) le {{ rdv.profil.dateNaissance|date('d/m/Y') }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-calendar-day mr-2 text-gray-400"></i>Date début
+                                </td>
+                                <td>{{ rdv.dateDebut ? rdv.dateDebut|date('d/m/Y à H:i') : '—' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-calendar-check mr-2 text-gray-400"></i>Date fin
+                                </td>
+                                <td>{{ rdv.dateFin ? rdv.dateFin|date('d/m/Y à H:i') : '—' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-tag mr-2 text-gray-400"></i>Type
+                                </td>
+                                <td>
+                                    <span class="badge badge-light border px-3 py-2">{{ rdv.type ?? '—' }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-flag mr-2 text-gray-400"></i>Statut
+                                </td>
+                                <td>
+                                    {% if rdv.statut == 'confirmé' %}
+                                        <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Confirmé</span>
+                                    {% elseif rdv.statut == 'en_attente' %}
+                                        <span class="badge badge-warning px-3 py-2"><i class="fas fa-clock mr-1"></i>En attente</span>
+                                    {% elseif rdv.statut == 'annulé' %}
+                                        <span class="badge badge-danger px-3 py-2"><i class="fas fa-times mr-1"></i>Annulé</span>
+                                    {% elseif rdv.statut == 'terminé' %}
+                                        <span class="badge badge-info px-3 py-2"><i class="fas fa-flag-checkered mr-1"></i>Terminé</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-3 py-2">{{ rdv.statut }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-comment-medical mr-2 text-gray-400"></i>Motif
+                                </td>
+                                <td>{{ rdv.motif ?? '—' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# Actions Sidebar #}
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-bolt mr-2"></i>Actions</h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if existingConsultation %}
+                        <a href="{{ path('medecin_consultation_show', {id: existingConsultation.id}) }}" class="btn btn-success btn-block mb-2">
+                            <i class="fas fa-stethoscope mr-1"></i> Voir la consultation
+                        </a>
+                    {% elseif rdv.statut != 'annulé' and rdv.statut != 'terminé' %}
+                        <form action="{{ path('medecin_rdv_start_consultation', {id: rdv.id}) }}" method="post">
+                            <button type="submit" class="btn btn-primary btn-block mb-2" onclick="return confirm('Commencer une consultation pour ce rendez-vous ?')">
+                                <i class="fas fa-play mr-1"></i> Commencer une consultation
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a href="{{ path('medecin_rdv_index') }}" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-list mr-1"></i> Tous les rendez-vous
+                    </a>
+                </div>
+            </div>
+
+            {# Patient Quick Info #}
+            {% if rdv.profil %}
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-info"><i class="fas fa-user-circle mr-1"></i> Patient</h6>
+                    <p class="mb-1"><strong>{{ rdv.profil.nom }} {{ rdv.profil.prenom }}</strong></p>
+                    {% if rdv.profil.dateNaissance %}
+                        <p class="text-muted small mb-1">
+                            <i class="fas fa-birthday-cake mr-1"></i>{{ rdv.profil.dateNaissance|date('d/m/Y') }}
+                        </p>
+                    {% endif %}
+                    {% if rdv.profil.contactUrgence %}
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-phone mr-1"></i>{{ rdv.profil.contactUrgence }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

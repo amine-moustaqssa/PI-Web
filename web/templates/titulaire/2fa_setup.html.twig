@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activer la 2FA – Clinic360{% endblock %}
+
+{% block sidebar %}
+    {% include 'titulaire/_partials/_sidebar.html.twig' %}
+{% endblock %}
+
+{% block topbar %}{% endblock %}
+
+{% block body %}
+<div class="mt-4" style="max-width: 640px;">
+
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ path('app_titulaire_settings') }}" class="btn btn-link p-0 mr-3" title="Retour aux paramètres">
+            <i class="fas fa-arrow-left fa-lg text-primary"></i>
+        </a>
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-shield-alt mr-2 text-primary"></i>Activer la double authentification
+        </h1>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }} alert-dismissible fade show shadow-sm">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+
+            <h5 class="font-weight-bold mb-1">Étape 1 — Scannez le QR code</h5>
+            <p class="text-muted small mb-3">
+                Ouvrez <strong>Google Authenticator</strong>, <strong>Authy</strong> ou toute autre application compatible TOTP,
+                puis scannez le QR code ci-dessous.
+            </p>
+
+            <div class="text-center my-4">
+                <img src="{{ qrCodeDataUri }}" alt="QR Code 2FA" class="img-fluid border rounded p-2" style="max-width:220px;">
+            </div>
+
+            <div class="alert alert-secondary small py-2">
+                <strong>Clé manuelle :</strong>
+                <code class="ml-1" style="font-size: .85rem; letter-spacing:.1em;">{{ secret }}</code>
+                <br><span class="text-muted">Utilisez cette clé si vous ne pouvez pas scanner le QR code.</span>
+            </div>
+
+            <hr>
+
+            <h5 class="font-weight-bold mb-1 mt-3">Étape 2 — Confirmez avec un code</h5>
+            <p class="text-muted small mb-3">
+                Entrez le code à 6 chiffres affiché dans votre application pour activer la 2FA.
+            </p>
+
+            <form method="post" action="{{ path('app_titulaire_2fa_setup') }}">
+                <div class="form-group">
+                    <label for="_auth_code" class="font-weight-bold">Code de vérification</label>
+                    <input
+                        type="text"
+                        id="_auth_code"
+                        name="_auth_code"
+                        class="form-control"
+                        style="letter-spacing:.3em; font-size:1.2rem; text-align:center; max-width:200px;"
+                        placeholder="000000"
+                        maxlength="6"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        autofocus
+                        required
+                    >
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success font-weight-bold">
+                        <i class="fas fa-check mr-1"></i> Activer la 2FA
+                    </button>
+                    <a href="{{ path('app_titulaire_settings') }}" class="btn btn-outline-secondary ml-2">Annuler</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'titulaire/_partials/_ai_chat.html.twig' %}
+{% endblock %}

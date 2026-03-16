@@ -1,0 +1,26 @@
+{# templates/rendez_vous/step3_details.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Rendez-vous{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 700px;">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i> {{ specialite.nom }}</h5>
+        </div>
+        <div class="card-body p-4">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_row(form.date_debut) }}
+                {{ form_row(form.profil) }} 
+                {{ form_row(form.motif) }}
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Envoyer ma demande</button>
+                    <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-link text-muted">Annuler</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

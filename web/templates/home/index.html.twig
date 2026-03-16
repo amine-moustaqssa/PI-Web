@@ -1,0 +1,49 @@
+{% extends 'front/base_front.html.twig' %}
+
+{% block title %}Accueil - Ma Clinique{% endblock %}
+
+{% block stylesheets %}
+    {# You can keep the page-specific CSS here, or move it to a .css file later #}
+    <style>
+        /* ... KEEP YOUR EXISTING CSS HERE ... */
+        /* (The long CSS block you wrote previously) */
+        
+        /* 1. TYPOGRAPHY & COLORS */
+        :root { --bs-primary: #4e73df; --bs-primary-rgb: 78, 115, 223; }
+        .hero-section { background-color: #4e73df; background-image: linear-gradient(135deg, #4e73df 10%, #224abe 100%); position: relative; overflow: hidden; }
+        .hero-pattern { position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px; pointer-events: none; }
+        .hero-carousel-height { height: 520px; width: 100%; position: relative; }
+        .hero-img { height: 100%; width: 100%; object-fit: contain; object-position: bottom center; filter: drop-shadow(0 0 8px rgba(255,255,255,0.1)); }
+        .carousel-item { transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out; }
+        .carousel-item.active.carousel-item-start, .carousel-item.active.carousel-item-end { opacity: 0; }
+        .feature-card { border: none; border-radius: 15px; background: #fff; padding: 2rem; height: 100%; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(78, 115, 223, 0.15); }
+        .feature-icon-box { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem; }
+        .contact-card { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; }
+        .form-control-lg { border-radius: 10px; font-size: 0.95rem; padding: 1rem; background-color: #f8f9fc; border: 1px solid #eaecf4; }
+        .form-control-lg:focus { background-color: #fff; border-color: #4e73df; box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1); }
+        .btn-custom-white { background: white; color: #4e73df; border: 2px solid white; border-radius: 50px; padding: 10px 30px; transition: all 0.3s; }
+        .btn-custom-white:hover { background: transparent; color: white; }
+        .btn-custom-outline { color: white; border: 2px solid rgba(255,255,255,0.5); border-radius: 50px; padding: 10px 30px; transition: all 0.3s; }
+        .btn-custom-outline:hover { background: white; color: #4e73df; border-color: white; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    
+    {# 1. Hero Section (Slider + Intro) #}
+    {{ include('home/sections/_hero.html.twig') }}
+
+    {# 2. Features Grid #}
+    {{ include('home/sections/_features.html.twig') }}
+
+    {# 3. About Us #}
+    {{ include('home/sections/_about.html.twig') }}
+
+    {# 4. Contact Form #}
+    {{ include('home/sections/_contact.html.twig') }}
+
+    {# 5. Quote / Footer Callout #}
+    {{ include('home/sections/_quote.html.twig') }}
+
+{% endblock %}

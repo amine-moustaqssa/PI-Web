@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Poppins', Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+        .container { max-width: 500px; margin: 40px auto; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: #4e73df; padding: 30px; text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+        .body { padding: 30px; text-align: center; }
+        .code { display: inline-block; background: #f0f4ff; border: 2px dashed #4e73df; padding: 15px 40px; font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #4e73df; border-radius: 8px; margin: 20px 0; }
+        .footer { padding: 20px 30px; text-align: center; color: #999; font-size: 12px; border-top: 1px solid #eee; }
+        p { color: #5a5c69; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Clinique 360</h1>
+        </div>
+        <div class="body">
+            <h2 style="color: #333;">Vérification de votre email</h2>
+            <p>Bonjour {{ userName }},</p>
+            <p>Merci de vous être inscrit(e) sur Clinique 360. Voici votre code de vérification :</p>
+            <div class="code">{{ verificationCode }}</div>
+            <p>Ce code est valable pendant <strong>15 minutes</strong>.</p>
+            <p style="color: #999; font-size: 13px;">Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
+        </div>
+        <div class="footer">
+            &copy; {{ "now"|date("Y") }} Clinique 360. Tous droits réservés.
+        </div>
+    </div>
+</body>
+</html>

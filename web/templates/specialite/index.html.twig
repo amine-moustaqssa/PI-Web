@@ -1,0 +1,67 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gestion des Spécialités{% endblock %}
+
+{% block body %}
+    {# 1. En-tête : Titre + Bouton Ajouter #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Spécialités Médicales</h1>
+        <a href="{{ path('app_specialite_new') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Nouvelle Spécialité
+        </a>
+    </div>
+
+    {# 2. La Carte (Card) blanche ombrée #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Liste des départements</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Couleur</th>
+                            <th class="text-center" style="width: 15%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for specialite in specialites %}
+                        <tr>
+                            <td>{{ specialite.id }}</td>
+                            <td class="font-weight-bold text-gray-800">{{ specialite.nom }}</td>
+                            
+                            {# Affichage visuel de la couleur #}
+                            <td>
+                                <span class="d-flex align-items-center">
+                                    <span style="display:inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: {{ specialite.couleur }}; border: 1px solid #ccc; margin-right: 8px;"></span>
+                                    {{ specialite.couleur }}
+                                </span>
+                            </td>
+
+                            {# Boutons d'actions #}
+                            <td class="text-center">
+                                <a href="{{ path('app_specialite_show', {'id': specialite.id}) }}" class="btn btn-info btn-circle btn-sm" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('app_specialite_edit', {'id': specialite.id}) }}" class="btn btn-warning btn-circle btn-sm" title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <i class="fas fa-folder-open fa-2x text-gray-300 mb-2"></i><br>
+                                Aucune spécialité enregistrée.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

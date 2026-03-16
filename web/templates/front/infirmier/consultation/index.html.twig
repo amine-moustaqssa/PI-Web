@@ -1,0 +1,199 @@
+{% extends 'front/infirmier/base_infirmier.html.twig' %}
+
+{% block title %}Consultations | Clinique 360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-dark">Consultations</h1>
+            <p class="text-muted small">Gérez les constantes vitales des patients en consultation.</p>
+        </div>
+    </div>
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {# Active Consultations #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">
+                <i class="fas fa-heartbeat mr-2"></i>En cours
+                <span class="badge badge-success ml-2">{{ activeConsultations|length }}</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if activeConsultations|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Médecin</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in activeConsultations %}
+                                <tr>
+                                    <td>{{ c.id }}</td>
+                                    <td>{{ c.dateEffectuee ? c.dateEffectuee|date('d/m/Y H:i') : '—' }}</td>
+                                    <td>
+                                        {% if c.medecin %}
+                                            Dr. {{ c.medecin.nom ?? '' }} {{ c.medecin.prenom ?? '' }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ c.notesPrivees|default('—')|slice(0,50) }}{% if c.notesPrivees|default('')|length > 50 %}…{% endif %}</td>
+                                    <td>
+                                        <a href="{{ path('infirmier_constante_index', {'id': c.id}) }}"
+                                           class="btn btn-sm btn-info">
+                                            <i class="fas fa-thermometer-half mr-1"></i> Constantes
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">Aucune consultation en cours.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Planned Consultations #}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-clock mr-2"></i>Planifiées
+                <span class="badge badge-primary ml-2">{{ plannedConsultations|length }}</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if plannedConsultations|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Médecin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in plannedConsultations %}
+                                <tr>
+                                    <td>{{ c.id }}</td>
+                                    <td>{{ c.dateEffectuee ? c.dateEffectuee|date('d/m/Y H:i') : '—' }}</td>
+                                    <td>
+                                        {% if c.medecin %}
+                                            Dr. {{ c.medecin.nom ?? '' }} {{ c.medecin.prenom ?? '' }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('infirmier_constante_index', {'id': c.id}) }}"
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-thermometer-half mr-1"></i> Constantes
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">Aucune consultation planifiée.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Completed Consultations #}
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-check-circle mr-2"></i>Terminées
+                <span class="badge badge-secondary ml-2">{{ completedConsultations|length }}</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if completedConsultations|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="completedTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Médecin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in completedConsultations %}
+                                <tr>
+                                    <td>{{ c.id }}</td>
+                                    <td>{{ c.dateEffectuee ? c.dateEffectuee|date('d/m/Y H:i') : '—' }}</td>
+                                    <td>
+                                        {% if c.medecin %}
+                                            Dr. {{ c.medecin.nom ?? '' }} {{ c.medecin.prenom ?? '' }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('infirmier_constante_index', {'id': c.id}) }}"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye mr-1"></i> Voir
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">Aucune consultation terminée.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $('#completedTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+                },
+                order: [[0, 'desc']],
+                pageLength: 10
+            });
+        });
+    </script>
+{% endblock %}
+
+{% endblock %}

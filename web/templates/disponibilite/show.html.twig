@@ -1,0 +1,82 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Détails de la Disponibilité{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {# Titre de la page #}
+        <h1 class="h3 mb-4 text-gray-800">Détails du créneau</h1>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Informations Disponibilité #{{ disponibilite.id }}</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th style="width: 30%;">ID</th>
+                            <td>{{ disponibilite.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Jour de la semaine</th>
+                            <td>
+                                <span class="font-weight-bold text-dark">
+                                    {% if disponibilite.jourSemaine == 1 %}Lundi
+                                    {% elseif disponibilite.jourSemaine == 2 %}Mardi
+                                    {% elseif disponibilite.jourSemaine == 3 %}Mercredi
+                                    {% elseif disponibilite.jourSemaine == 4 %}Jeudi
+                                    {% elseif disponibilite.jourSemaine == 5 %}Vendredi
+                                    {% elseif disponibilite.jourSemaine == 6 %}Samedi
+                                    {% elseif disponibilite.jourSemaine == 7 %}Dimanche
+                                    {% else %}Jour {{ disponibilite.jourSemaine }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Heure de Début</th>
+                            <td>{{ disponibilite.heureDebut ? disponibilite.heureDebut|date('H:i') : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Heure de Fin</th>
+                            <td>{{ disponibilite.heureFin ? disponibilite.heureFin|date('H:i') : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Récurrence</th>
+                            <td>
+                                {% if disponibilite.estRecurrent %}
+                                    <span class="badge badge-success px-2 py-1">Oui (Hebdomadaire)</span>
+                                {% else %}
+                                    <span class="badge badge-secondary px-2 py-1">Non (Ponctuel)</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                {# Zone des boutons d'action #}
+                <div class="mt-4 d-flex align-items-center justify-content-end">
+                    <a href="{{ path('app_disponibilite_index') }}" class="btn btn-secondary btn-icon-split btn-sm shadow-sm mr-2">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Retour</span>
+                    </a>
+
+                    <a href="{{ path('app_disponibilite_edit', {'id': disponibilite.id}) }}" class="btn btn-warning btn-icon-split btn-sm shadow-sm mr-2">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span class="text">Modifier</span>
+                    </a>
+
+                    {# Inclusion du formulaire de suppression #}
+                    <div class="d-inline-block">
+                        {{ include('disponibilite/_delete_form.html.twig') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

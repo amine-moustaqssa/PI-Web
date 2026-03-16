@@ -1,0 +1,33 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouveau Paiement{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    {# Header #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card text-success mr-2"></i> Nouveau Paiement
+        </h1>
+        <a href="{{ path('app_admin_paiement_index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center">
+                    <i class="fas fa-file-invoice-dollar text-success mr-2"></i>
+                    <h6 class="m-0 font-weight-bold text-success">Informations du Paiement</h6>
+                </div>
+                <div class="card-body">
+                    {{ include('admin/paiement/_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

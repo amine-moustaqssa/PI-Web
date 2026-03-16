@@ -1,0 +1,37 @@
+{{ form_start(form, {'attr': {'class': 'user', 'id': 'departement_form', 'novalidate': 'novalidate'}}) }}
+    
+    <div class="row">
+        {# Champ Nom #}
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="small mb-1 font-weight-bold text-gray-700">Nom du département <span class="text-danger">*</span></label>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-building"></i></span>
+                    </div>
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-sm bg-light border-0 small', 'placeholder': 'Ex: Chirurgie'}}) }}
+                </div>
+                {{ form_errors(form.nom) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {# Champ Code #}
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="small mb-1 font-weight-bold text-gray-700">Code du département <span class="text-danger">*</span></label>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-info text-white border-0"><i class="fas fa-barcode"></i></span>
+                    </div>
+                    {{ form_widget(form.code, {'attr': {'class': 'form-control form-control-sm bg-light border-0 small', 'placeholder': 'Ex: CHIR-01'}}) }}
+                </div>
+                {{ form_errors(form.code) }}
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+{{ form_end(form) }}

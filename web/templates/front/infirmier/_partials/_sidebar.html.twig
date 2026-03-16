@@ -1,0 +1,127 @@
+<ul class="navbar-nav sidebar accordion" id="accordionSidebar"
+     style="background: linear-gradient(180deg, #f8f9fc 0%, #eaecf4 100%); min-height: 100vh;">
+
+    <a class="sidebar-brand d-flex align-items-center justify-content-center py-4" href="{{ path('infirmier_dashboard') }}"
+       style="background: linear-gradient(135deg, #0097a7, #00bcd4); border-radius: 0;">
+        <img class="img-profile rounded-circle border border-white shadow-sm"
+             src="{{ asset('front/assets/logo.png') }}" width="44" style="border-width: 2px !important;">
+        <div class="sidebar-brand-text mx-2" style="color: #fff; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px;">
+            CLINIC<span style="font-weight: 300;">360</span>
+        </div>
+    </a>
+
+    <hr class="sidebar-divider my-0" style="border-top: 1px solid #dee2e6;">
+
+    {# Dashboard #}
+    <li class="nav-item inf-nav-item {{ app.request.get('_route') == 'infirmier_dashboard' ? 'active' : '' }}">
+        <a class="nav-link inf-nav-link" href="{{ path('infirmier_dashboard') }}">
+            <i class="fas fa-fw fa-home"></i>
+            <span>Tableau de bord</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider" style="border-top: 1px solid #dee2e6;">
+
+    <div class="inf-sidebar-heading">
+        <i class="fas fa-heartbeat mr-1" style="font-size: 0.6rem;"></i>
+        Soins Infirmiers
+    </div>
+
+    <li class="nav-item inf-nav-item {{ app.request.get('_route') starts with 'infirmier_consultation' ? 'active' : '' }}">
+        <a class="nav-link inf-nav-link" href="{{ path('infirmier_consultation_index') }}">
+            <i class="fas fa-fw fa-stethoscope"></i>
+            <span>Consultations</span>
+        </a>
+    </li>
+
+    <li class="nav-item inf-nav-item {{ app.request.get('_route') starts with 'infirmier_historique' ? 'active' : '' }}">
+        <a class="nav-link inf-nav-link" href="{{ path('infirmier_historique_index') }}">
+            <i class="fas fa-fw fa-chart-line"></i>
+            <span>Historique & Comparaison</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider d-none d-md-block" style="border-top: 1px solid #dee2e6;">
+
+    <div class="text-center d-none d-md-inline mt-3">
+        <button class="rounded-circle border-0 shadow-sm" id="sidebarToggle"
+                style="background-color: #0097a7; color: white; width: 32px; height: 32px;"></button>
+    </div>
+
+    {# Logout #}
+    <div class="mt-auto p-3">
+        <a class="d-flex align-items-center gap-2 inf-logout-link"
+           href="#"
+           data-toggle="modal"
+           data-target="#logoutModal"
+           style="text-decoration: none;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
+        </a>
+    </div>
+
+</ul>
+
+<style>
+    /* ─── Infirmier Sidebar — Light Teal Theme ─── */
+    #accordionSidebar .inf-sidebar-heading {
+        color: #0097a7;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.75rem 1.5rem 0.25rem;
+    }
+
+    .inf-nav-item .inf-nav-link {
+        color: #5a5c69 !important;
+        font-weight: 500;
+        font-size: 0.88rem;
+        padding: 0.65rem 1.5rem;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .inf-nav-item .inf-nav-link i {
+        color: #b0bec5;
+        width: 1.25rem;
+        text-align: center;
+        margin-right: 0.5rem;
+        transition: color 0.2s;
+    }
+
+    .inf-nav-item .inf-nav-link:hover {
+        background-color: #e0f2f1 !important;
+        color: #00838f !important;
+        border-left-color: #00bcd4;
+    }
+
+    .inf-nav-item .inf-nav-link:hover i {
+        color: #00838f;
+    }
+
+    .inf-nav-item.active .inf-nav-link {
+        background-color: #e0f7fa !important;
+        color: #00838f !important;
+        font-weight: 600;
+        border-left-color: #0097a7;
+    }
+
+    .inf-nav-item.active .inf-nav-link i {
+        color: #0097a7;
+    }
+
+    .inf-logout-link {
+        color: #e57373;
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .inf-logout-link:hover {
+        background-color: #ffebee;
+        color: #c62828 !important;
+    }
+</style>

@@ -1,0 +1,56 @@
+{% extends 'front/Patient/base_patient.html.twig' %}
+
+{% block title %}Gestion des Paiements{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gestion des Paiements</h1>
+            <a href="{{ path('app_reception_facture_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Retour aux Factures
+            </a>
+        </div>
+
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Réf. Facture</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for paiement in paiements %}
+                <tr>
+                    <td>{{ paiement.id }}</td>
+                    <td>{{ paiement.datePaiement ? paiement.datePaiement|date('d/m/Y H:i') : '' }}</td>
+                    <td><strong>{{ paiement.montant }} DT</strong></td>
+                    <td>
+                        <span class="badge badge-info">
+                            {{ paiement.facture.reference ?? 'N/A' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ path('app_reception_facture_show', {'id': paiement.facture.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-file-invoice"></i> Voir Facture
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Aucun paiement enregistré.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="mt-4">
+            <a href="{{ path('app_patient_paiement_new') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Enregistrer un nouveau paiement
+            </a>
+        </div>
+    </div>
+{% endblock %}

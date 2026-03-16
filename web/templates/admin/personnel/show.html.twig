@@ -1,0 +1,86 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ personnel.prenom }} {{ personnel.nom }}{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <a href="{{ path('admin_personnel_index') }}" class="text-decoration-none text-gray-400 mr-2">
+            <i class="fas fa-arrow-left fa-sm"></i>
+        </a>
+        Fiche Personnel
+    </h1>
+    <a href="{{ path('admin_personnel_edit', {id: personnel.id}) }}" class="btn btn-sm btn-warning shadow-sm">
+        <i class="fas fa-pen fa-sm mr-1"></i> Modifier
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-body text-center py-5">
+                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3"
+                     style="width: 80px; height: 80px; font-size: 1.6rem;">
+                    {{ personnel.prenom|first|upper }}{{ personnel.nom|first|upper }}
+                </div>
+                <h5 class="font-weight-bold text-gray-800 mb-1">{{ personnel.prenom }} {{ personnel.nom }}</h5>
+                <p class="text-muted small mb-3">{{ personnel.email }}</p>
+                {% if personnel.niveauAcces %}
+                    <span class="badge badge-info px-3 py-2">{{ personnel.niveauAcces }}</span>
+                {% else %}
+                    <span class="badge badge-secondary px-3 py-2">Aucun niveau d'accès</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-id-card mr-1"></i> Informations détaillées</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Nom complet</div>
+                    <div class="col-sm-8">{{ personnel.prenom }} {{ personnel.nom }}</div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">E-mail</div>
+                    <div class="col-sm-8">{{ personnel.email }}</div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Niveau d'accès</div>
+                    <div class="col-sm-8">
+                        {% if personnel.niveauAcces %}
+                            <span class="badge badge-info px-2 py-1">{{ personnel.niveauAcces }}</span>
+                        {% else %}
+                            <span class="text-muted">Non défini</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Adresse</div>
+                    <div class="col-sm-8">
+                        {{ personnel.adresse|default('Non renseignée') }}
+                        {% if personnel.codePostal %} — {{ personnel.codePostal }}{% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 font-weight-bold text-gray-600">Rôles</div>
+                    <div class="col-sm-8">
+                        {% for role in personnel.roles %}
+                            <span class="badge badge-primary mr-1">{{ role }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

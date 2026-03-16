@@ -1,0 +1,18 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Score Médical de {{ profil.nom }} {{ profil.prenom }}{% endblock %}
+
+{% block body %}
+<h1>Score Médical pour {{ profil.nom }} {{ profil.prenom }}</h1>
+
+<p>Âge : {{ age is not null ? age ~ ' ans' : 'Inconnu' }}</p>
+<p>Allergies : {{ allergies|join(', ') ?: 'Aucune' }}</p>
+<p>Antécédents : {{ antecedents|join(', ') ?: 'Aucun' }}</p>
+
+<div class="alert alert-{{ scoreData.color }}">
+    <strong>Niveau de risque :</strong> {{ scoreData.level }}<br>
+    <strong>Commentaire :</strong> {{ scoreData.comment }}
+</div>
+
+<a href="{{ path('admin_dossier_clinique_index') }}" class="btn btn-secondary">Retour aux dossiers</a>
+{% endblock %}

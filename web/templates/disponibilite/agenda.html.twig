@@ -1,0 +1,52 @@
+{% extends layout|default('base.html.twig') %}
+
+{% block title %}Agenda de la Clinique{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4 text-primary"><i class="fas fa-list-ul"></i> Agenda des Disponibilités</h2>
+
+    {% if agenda is empty %}
+        <div class="alert alert-info shadow-sm">Aucun créneau disponible pour le moment.</div>
+    {% else %}
+        <div class="row">
+            {# We loop through the grouped array. 'date' is the key (e.g., 2026-03-20), 'dispos' is the list of slots for that day #}
+            {% for date, dispos in agenda %}
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow border-left-primary">
+                        <div class="card-header bg-white font-weight-bold text-primary">
+                            <i class="far fa-calendar-alt"></i> Date : {{ date|date('d/m/Y') }}
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for dispo in dispos %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Dr. {{ dispo.medecin ? dispo.medecin.nom : 'Non assigné' }} {{ dispo.medecin ? dispo.medecin.prenom : '' }}</strong>
+                                        {% if dispo.medecin and dispo.medecin.specialite is defined and dispo.medecin.specialite %}
+                                            <span class="badge badge-light text-secondary ml-2 border">{{ dispo.medecin.specialite.nom }}</span>
+                                        {% endif %}
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="far fa-clock"></i> {{ dispo.heureDebut ? dispo.heureDebut|date('H:i') : '' }} - {{ dispo.heureFin ? dispo.heureFin|date('H:i') : '' }}
+                                        </small>
+                                    </div>
+                                    
+                                    {% if dispo.estRecurrent %}
+                                        <span class="badge badge-success rounded-pill px-3 py-2">Récurrent</span>
+                                    {% else %}
+                                        <span class="badge badge-primary rounded-pill px-3 py-2">Standard</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-center mt-4 mb-4">
+        {{ knp_pagination_render(pagination, '@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig') }}
+    </div>
+</div>
+{% endblock %}

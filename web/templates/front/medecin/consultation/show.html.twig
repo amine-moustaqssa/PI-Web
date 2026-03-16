@@ -1,0 +1,119 @@
+{% extends 'front/medecin/base_medecin.html.twig' %}
+
+{% block title %}Consultation #{{ consultation.id }} | Clinic360{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    {# Page Heading #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-stethoscope mr-2"></i>Détails de la Consultation</h1>
+        <a href="{{ path('medecin_consultation_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Retour à la liste
+        </a>
+    </div>
+
+    {# Flash messages (alert system) #}
+    {% for label, messages in app.flashes %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show shadow-sm" role="alert">
+                {% if label == 'danger' %}
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                {% elseif label == 'warning' %}
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                {% elseif label == 'success' %}
+                    <i class="fas fa-check-circle mr-2"></i>
+                {% endif %}
+                <strong>{{ msg }}</strong>
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="row">
+        {# Main Info #}
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>
+                    <h6 class="m-0 font-weight-bold text-primary">Informations</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted font-weight-bold" style="width:35%;">
+                                    <i class="fas fa-hashtag mr-2 text-gray-400"></i>Référence
+                                </td>
+                                <td>
+                                    <span class="badge badge-light border px-3 py-2" style="font-size:.9rem;">#{{ consultation.id }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-calendar-day mr-2 text-gray-400"></i>Date
+                                </td>
+                                <td>{{ consultation.dateEffectuee ? consultation.dateEffectuee|date('d/m/Y à H:i') : '—' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted font-weight-bold">
+                                    <i class="fas fa-flag mr-2 text-gray-400"></i>Statut
+                                </td>
+                                <td>
+                                    {% if consultation.statut == 'en_cours' %}
+                                        <span class="badge badge-warning px-3 py-2"><i class="fas fa-spinner mr-1"></i>En cours</span>
+                                    {% elseif consultation.statut == 'terminée' %}
+                                        <span class="badge badge-success px-3 py-2"><i class="fas fa-check mr-1"></i>Terminée</span>
+                                    {% elseif consultation.statut == 'planifiée' %}
+                                        <span class="badge badge-info px-3 py-2"><i class="fas fa-calendar mr-1"></i>Planifiée</span>
+                                    {% elseif consultation.statut == 'annulée' %}
+                                        <span class="badge badge-danger px-3 py-2"><i class="fas fa-times mr-1"></i>Annulée</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-3 py-2">{{ consultation.statut }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {# Notes Card #}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center">
+                    <i class="fas fa-sticky-note text-info mr-2"></i>
+                    <h6 class="m-0 font-weight-bold text-info">Notes privées</h6>
+                </div>
+                <div class="card-body">
+                    {% if consultation.notesPrivees %}
+                        <p class="mb-0">{{ consultation.notesPrivees|nl2br }}</p>
+                    {% else %}
+                        <p class="text-muted mb-0"><em>Aucune note pour cette consultation.</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Actions Sidebar #}
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-bolt mr-2"></i>Actions</h6>
+                </div>
+                <div class="card-body text-center">
+                    <a href="{{ path('medecin_constante_index', {id: consultation.id}) }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-heartbeat mr-1"></i> Constantes Vitales
+                    </a>
+                    <a href="{{ path('medecin_consultation_edit', {id: consultation.id}) }}" class="btn btn-warning btn-block mb-2">
+                        <i class="fas fa-pen mr-1"></i> Modifier
+                    </a>
+                    <a href="{{ path('medecin_consultation_index') }}" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-list mr-1"></i> Toutes les consultations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

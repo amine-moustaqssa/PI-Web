@@ -1,0 +1,62 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Détails Spécialité{% endblock %}
+
+{% block body %}
+    {# Titre de la page #}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Détails de la spécialité</h1>
+        <a href="{{ path('app_specialite_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Retour la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Informations : {{ specialite.nom }}</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th style="width: 30%;">ID</th>
+                        <td>{{ specialite.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nom</th>
+                        <td class="font-weight-bold text-dark">{{ specialite.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Couleur</th>
+                        <td>
+                            {% if specialite.couleur %}
+                                <span class="d-flex align-items-center">
+                                    <span style="display:inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: {{ specialite.couleur }}; border: 1px solid #ccc; margin-right: 10px;"></span>
+                                    {{ specialite.couleur }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Non définie</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr class="sidebar-divider my-4">
+
+            <div class="d-flex align-items-center">
+                <a href="{{ path('app_specialite_edit', {'id': specialite.id}) }}" class="btn btn-warning btn-sm btn-icon-split shadow-sm mr-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-pen"></i>
+                    </span>
+                    <span class="text">Modifier</span>
+                </a>
+
+                <div class="d-inline-block">
+                    {{ include('specialite/_delete_form.html.twig') }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

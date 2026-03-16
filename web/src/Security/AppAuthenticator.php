@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Security;
+
+use App\Entity\Utilisateur;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\SecurityRequestAttributes;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
+
+class AppAuthenticator extends AbstractLoginFormAuthenticator
+{
+    use TargetPathTrait;
+
+    public const LOGIN_ROUTE = 'app_login';
+
+    public function __construct(private UrlGeneratorInterface $urlGenerator) {}
+
+    public function authenticate(Request $request): Passport
+    {
+        $email = $request->getPayload()->getString('email');
+
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
+
+        return new Passport(
+            new UserBadge($email),
+            new PasswordCredentials($request->getPayload()->getString('password')),
+            [
+                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),
+                new RememberMeBadge(),
+            ]
+        );
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    {
+        // 0. First-login flow: check if the user needs email verification or password change
+        /** @var Utilisateur $user */
+        $user = $token->getUser();
+
+        if (!$user->isVerified()) {
+            // Redirect to email verification (step 1 of first-login)
+            return new RedirectResponse($this->urlGenerator->generate('first_login_verify_email'));
+        }
+
+        if ($user->isMustChangePassword()) {
+            // Redirect to password change (step 2 of first-login)
+            return new RedirectResponse($this->urlGenerator->generate('first_login_change_password'));
+        }
+
+        // 1. If the user tried to access a protected page before logging in, send them back there.
+        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+            return new RedirectResponse($targetPath);
+        }
+
+        // 2. Get the User roles to decide where to send them
+        $roles = $user->getRoles();
+
+        // 3. Role-based redirects
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+            return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+        }
+        if (in_array('ROLE_MEDECIN', $roles, true)) {
+            return new RedirectResponse($this->urlGenerator->generate('medecin_dashboard', ['id' => $user->getId()]));
+        }
+
+        // Redirect infirmiers to infirmier dashboard
+        if (in_array('ROLE_PERSONNEL', $roles, true) && $user->getNiveauAcces() === 'INFIRMIER') {
+            return new RedirectResponse($this->urlGenerator->generate('infirmier_dashboard'));
+        }
+
+        // Redirect receptionnistes to receptionniste dashboard
+        if (in_array('ROLE_PERSONNEL', $roles, true) && $user->getNiveauAcces() === 'RECEPTIONIST') {
+            return new RedirectResponse($this->urlGenerator->generate('receptionniste_dashboard'));
+        }
+
+        // 4. Default Redirect: Send Titulaires/Patients to their dashboard
+        return new RedirectResponse($this->urlGenerator->generate('app_titulaire_dashboard'));
+    }
+
+    protected function getLoginUrl(Request $request): string
+    {
+        return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+    }
+}

@@ -1,0 +1,88 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Ajouter Dossier Clinique{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center mb-4">
+        <!-- Bouton retour en haut gauche -->
+        <a href="{{ path('admin_dossier_clinique_index') }}" class="btn btn-sm btn-light shadow-sm mr-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="h3 mb-0 text-gray-800">Ajouter un Dossier Clinique</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="mb-3">
+                {{ form_label(form.profilMedical) }}
+                {{ form_widget(form.profilMedical) }}
+                {{ form_errors(form.profilMedical) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.antecedents) }}
+                {{ form_widget(form.antecedents) }}
+                {{ form_errors(form.antecedents) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(form.allergies) }}
+                {{ form_widget(form.allergies) }}
+                {{ form_errors(form.allergies) }}
+            </div>
+
+            {# Input texte pour "Autre" #}
+            <div id="autre-allergie-container" style="display:none;" class="mb-3">
+                <label for="autre-allergie">Veuillez préciser votre allergie :</label>
+                <input type="text" id="autre-allergie" name="autre_allergie" class="form-control">
+            </div>
+
+            {# Bouton Ajouter en bleu normal #}
+            <button class="btn btn-primary">Ajouter</button>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {# jQuery + Select2 #}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Select2 pour profilMedical
+            $('.select2').select2({
+                placeholder: "Tapez le nom du patient",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Affichage input "Autre" selon checkbox
+            $('#dossier_clinique_allergies_5').change(function() { 
+                if($(this).is(':checked')) {
+                    $('#autre-allergie-container').show();
+                } else {
+                    $('#autre-allergie-container').hide();
+                    $('#autre-allergie').val('');
+                }
+            });
+        });
+    </script>
+{% endblock %}

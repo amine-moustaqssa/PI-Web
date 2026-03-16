@@ -1,17 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
-
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Gestion Clinique">
+        <meta name="author" content="Clinic360">
+        
+        <title>{% block title %}Clinic360 - Gestion Clinique{% endblock %}</title>
+        
+        {# Intégration des styles SB Admin 2 #}
+        <link href="{{ asset('backoffice/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+        <link href="{{ asset('backoffice/css/sb-admin-2.css') }}" rel="stylesheet">
+        
+        {% block stylesheets %}{% endblock %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
+
+    <body id="page-top">
+
+        <div id="wrapper">
+
+            {# --- BLOC SIDEBAR (Modifiable par les enfants) --- #}
+            {% block sidebar %}
+                <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+                        <div class="sidebar-brand-icon rotate-n-15">
+                             <img src="{{ asset('logoApp.png') }}" 
+                                  alt="Clinic360 Logo" 
+                                  height="40" 
+                                  class="d-inline-block bg-white rounded-circle p-1">
+                        </div>
+                        <div class="sidebar-brand-text mx-3">Clinic360</div>
+                    </a>
+
+                    <hr class="sidebar-divider my-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-fw fa-home"></i>
+                            <span>Accueil</span></a>
+                    </li>
+
+                    <hr class="sidebar-divider">
+
+                    <div class="sidebar-heading">
+                        Espace Patient
+                    </div>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_mes_rendez_vous') }}">
+                            <i class="fas fa-fw fa-calendar-plus"></i>
+                            <span>Réserver</span></a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_mes_rendez_vous') }}">
+                            <i class="fas fa-fw fa-calendar-check"></i>
+                            <span>Mes Rendez-vous</span></a>
+                    </li>
+
+                    <hr class="sidebar-divider d-none d-md-block">
+
+                    <div class="text-center d-none d-md-inline">
+                        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                    </div>
+
+                </ul>
+            {% endblock %}
+            {# --- FIN BLOC SIDEBAR --- #}
+
+            <div id="content-wrapper" class="d-flex flex-column">
+
+                <div id="content">
+
+                    {# --- BLOC TOPBAR (Modifiable par les enfants) --- #}
+                    {% block topbar %}
+                        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                                <i class="fa fa-bars"></i>
+                            </button>
+
+                            <ul class="navbar-nav ml-auto">
+                                <div class="topbar-divider d-none d-sm-block"></div>
+
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">Utilisateur</span>
+                                        <img class="img-profile rounded-circle"
+                                            src="{{ asset('backoffice/img/undraw_profile.svg') }}">
+                                    </a>
+                                </li>
+                            </ul>
+
+                        </nav>
+                    {% endblock %}
+                    {# --- FIN BLOC TOPBAR --- #}
+
+                    <div class="container-fluid">
+
+                        {# Messages Flash #}
+                        <div class="row">
+                            <div class="col-12">
+                                {% for label, messages in app.flashes %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ label == 'success' ? 'success' : 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# Contenu principal de la page #}
+                        {% block body %}{% endblock %}
+
+                    </div>
+                </div>
+
+                <footer class="sticky-footer bg-white">
+                    <div class="container my-auto">
+                        <div class="copyright text-center my-auto">
+                            <span>Copyright &copy; Clinic360 2024</span>
+                        </div>
+                    </div>
+                </footer>
+
+            </div>
+        </div>
+
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
+
+        <script src="{{ asset('backoffice/vendor/jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('backoffice/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ asset('backoffice/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+        <script src="{{ asset('backoffice/js/sb-admin-2.min.js') }}"></script>
+        <script src="{{ asset('js/scripts.js') }}"></script>
+        
+        {% block javascripts %}{% endblock %}
+
     </body>
 </html>

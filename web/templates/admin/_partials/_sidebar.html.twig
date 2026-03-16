@@ -1,0 +1,102 @@
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+        <div class="sidebar-brand-icon rotate-n-15">
+        <img src="{{ asset('logoApp.png') }}"
+                 alt="Clinic360 Logo"
+                 height="70"
+                 class="d-inline-block align-text-top rounded-circle">        
+                 </div>
+        <div class="sidebar-brand-text mx-3">Clinique <sup>360</sup></div>
+    </a>
+
+    <hr class="sidebar-divider my-0">
+
+    <li class="nav-item {{ app.request.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
+        <a class="nav-link" href="{{ path('admin_dashboard') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Tableau de Bord</span></a>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-heading">
+        Gestion
+    </div>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+            aria-expanded="true" aria-controls="collapseUsers">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Utilisateurs</span>
+        </a>
+        <div id="collapseUsers" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Comptes:</h6>
+                <a class="collapse-item" href="{{ path('admin_medecin_index') }}">Médecins</a>
+                <a class="collapse-item" href="{{ path('admin_titulaire_index') }}">Clients</a>
+                <a class="collapse-item" href="{{ path('admin_personnel_index') }}">Personnel</a>
+            </div>
+        </div>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{{ path('admin_consultation_index') }}">
+            <i class="fas fa-fw fa-stethoscope"></i>
+            <span>Consultations</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+    <a class="nav-link" href="{{ path('admin_dossier_clinique_index') }}">
+    <i class="fas fa-fw fa-notes-medical"></i>
+
+        <span>Dossier Clinique</span>
+    </a>
+    </li>
+
+    <li class="nav-item {{ app.request.get('_route') and 'disponibilite' in app.request.get('_route') and app.request.get('_route') != 'app_disponibilite_calendar' ? 'active' : '' }}">
+    {# Attention : Utilisez la route Admin (souvent app_disponibilite_index) et non medecin_ #}
+    <a class="nav-link" href="{{ path('app_disponibilite_index') }}">
+        <i class="fas fa-calendar-alt"></i> {# Icône FontAwesome blanche #}
+        <span>Disponibilité</span>
+    </a>
+    </li>
+
+    <li class="nav-item {{ app.request.get('_route') == 'admin_app_admin_disponibilite_agenda' ? 'active' : '' }}">
+    <a class="nav-link" href="{{ path('admin_app_admin_disponibilite_agenda') }}">
+        <i class="fas fa-calendar-check"></i>
+        <span>Agenda</span>
+    </a>
+    </li>
+
+    <li class="nav-item {{ app.request.get('_route') and 'specialite' in app.request.get('_route') ? 'active' : '' }}">
+    {# Utilisez la route Admin pour les spécialités #}
+    <a class="nav-link" href="{{ path('app_specialite_index') }}">
+        <i class="fas fa-hospital"></i> {# Icône FontAwesome blanche #}
+        <span>Spécialité & Département</span>
+    </a>
+</li>
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_facture_index') }}">
+        <i class="fas fa-file-alt"></i>
+        <span>Facture</span>
+    </a>
+</li>
+<li class="nav-item {{ app.request.attributes.get('_route') matches '/^app_specialite_/' ? 'active' : '' }}">
+    {# Uses the primary route for the 'spécialités' section #}
+    <a class="nav-link" href="{{ path('app_admin_paiement_index') }}">
+        <i class="fas fa-dollar-sign"></i>
+        <span>paiement</span>
+    </a>
+</li>
+
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+

@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le Rendez-vous{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Re-using the same Modern Modal CSS for consistency */
+        body {
+            background-color: #f8f9fc; /* Ensure background matches dashboard */
+        }
+        
+        /* This container mimics the modal backdrop */
+        .modal-page-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content-modern { 
+            border: none; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            background: white;
+            width: 100%;
+            max-width: 600px; /* Width of the 'modal' */
+        }
+        
+        .modal-header-modern { 
+            border-bottom: none; 
+            padding: 20px 24px 0; 
+            background-color: white; 
+            border-radius: 12px 12px 0 0; 
+        }
+        
+        .modal-body-modern {
+            padding: 24px;
+        }
+
+        .modal-title-modern { font-weight: 700; color: #1a1f36; font-size: 1.1rem; }
+        .modal-subtitle { font-size: 0.85rem; color: #697386; margin-top: 4px; }
+        
+        .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #3c4257; margin-bottom: 6px; display: block; }
+        .form-group-modern { margin-bottom: 1.25rem; }
+        
+        .form-control-modern { 
+            border-radius: 6px; 
+            border: 1px solid #e3e8ee; 
+            padding: 10px 12px; 
+            font-size: 0.9rem; 
+            color: #1a1f36; 
+            transition: all 0.2s; 
+            width: 100%; 
+        }
+        .form-control-modern:focus { border-color: #3c4257; box-shadow: 0 0 0 2px rgba(60, 66, 87, 0.1); }
+        
+        .btn-ghost-modern { 
+            background: transparent; 
+            border: 1px solid #e3e8ee; 
+            color: #3c4257; 
+            font-weight: 600; 
+            border-radius: 6px; 
+            padding: 8px 16px; 
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-ghost-modern:hover { background: #f7f9fc; color: #3c4257; text-decoration: none; }
+        
+        .btn-primary-modern { 
+            background-color: #2e3b55; 
+            border: none; 
+            color: white; 
+            font-weight: 600; 
+            border-radius: 6px; 
+            padding: 8px 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .btn-primary-modern:hover { background-color: #1a1f36; color: white; }
+        
+        .required-star { color: #e51c00; }
+    </style>
+{% endblock %}
+
+{# We do NOT include the sidebar/topbar here to focus on the 'modal' task, 
+   or you can include them if you want the full dashboard feel behind it. 
+   Usually for an 'edit page' acting as a modal, a clean background is nice. #}
+
+{% block body %}
+
+<div class="modal-page-container">
+    
+    <div class="modal-content-modern fade-in-up">
+        
+        <div class="modal-header-modern d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="modal-title-modern">Modifier le Rendez-vous</h5>
+                <p class="modal-subtitle">Mettez à jour les informations ci-dessous.</p>
+            </div>
+            {# Close button acts as Cancel #}
+            <a href="{{ path('app_mes_rendez_vous') }}" class="close text-gray-500" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </a>
+        </div>
+
+        <div class="modal-body-modern">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                
+                {# Display global errors #}
+                {{ form_errors(form) }}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group form-group-modern">
+                            <label class="form-label-modern">Patient concerné</label>
+                            {# Using the same modern classes #}
+                            {{ form_widget(form.profil, {'attr': {'class': 'form-control form-control-modern'}}) }}
+                            {{ form_errors(form.profil) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group form-group-modern">
+                            <label class="form-label-modern">Date et Heure</label>
+                            {{ form_widget(form.date_debut, {'attr': {'class': 'form-control form-control-modern'}}) }}
+                            {{ form_errors(form.date_debut) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group form-group-modern">
+                    <label class="form-label-modern">Motif de consultation</label>
+                    {{ form_widget(form.motif, {'attr': {'class': 'form-control form-control-modern', 'rows': '4'}}) }}
+                    {{ form_errors(form.motif) }}
+                </div>
+
+                {# Render any hidden fields (CSRF token, etc) #}
+                {{ form_rest(form) }}
+
+                <div class="d-flex justify-content-end mt-4 pt-2 border-top">
+                    <a href="{{ path('app_mes_rendez_vous') }}" class="btn btn-ghost-modern mr-2">Annuler</a>
+                    <button type="submit" class="btn btn-primary-modern">
+                        <i class="fas fa-save mr-2"></i> Enregistrer
+                    </button>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,146 @@
+{# templates/admin/dossier_clinique/index.html.twig #}
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Dossiers Cliniques - CLINIQUE 360{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ flasher_render() }}
+{% endblock %}
+
+{% block body %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dossiers Cliniques</h1>
+    <a href="{{ path('admin_dossier_clinique_new') }}" class="btn btn-sm btn-primary shadow-sm">
+        Ajouter un dossier clinique
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Liste des profils médicaux</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="profilTable" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Date de naissance</th>
+                        <th>Score</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th><input type="text" placeholder="Nom" class="column-filter form-control"></th>
+                        <th><input type="text" placeholder="Prénom" class="column-filter form-control"></th>
+                        <th><input type="date" class="column-filter form-control"></th>
+                        <th><input type="text" placeholder="Score" class="column-filter form-control"></th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal unique pour modifier -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="editModalContent"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ flasher_render() }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    $(document).ready(function() {
+        // DataTable avec filtre multi-critères
+        let table = $('#profilTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ path('admin_dossier_clinique_data') }}",
+            "columns": [
+                { "data": "id" },
+                { "data": "nom" },
+                { "data": "prenom" },
+                { "data": "dateNaissance" },
+                { "data": "score" },
+                { "data": "actions", "orderable": false, "searchable": false }
+            ]
+        });
+
+        // Filtre par colonne
+        $('.column-filter').on('keyup change', function() {
+            let index = $(this).parent().index();
+            table.column(index).search(this.value).draw();
+        });
+
+        // Modifier dossier via modal AJAX
+        $('#profilTable').on('click', '.edit-btn', function() {
+            let profilId = $(this).data('id');
+            $.get("{{ path('admin_dossier_clinique_edit', {'id': 0}) }}".replace('0', profilId), function(data) {
+                $('#editModalContent').html(data);
+                $('#editModal').modal('show');
+
+                // Soumission AJAX du formulaire
+                $('#editForm').on('submit', function(e) {
+                    e.preventDefault();
+                    let form = $(this);
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: form.attr('method'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            $('#editModal').modal('hide');
+                            table.ajax.reload(null, false);
+                            if(response && response.message) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'info',
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Erreur', 'Impossible de mettre à jour le dossier.', 'error');
+                        }
+                    });
+                });
+            });
+        });
+
+        // Confirmation suppression SweetAlert2
+        $('#profilTable').on('click', '.delete-btn', function(e) {
+            e.preventDefault();
+            let form = $(this).closest('form');
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Cette action est irréversible !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#6c757d',
+                cancelButtonColor: '#adb5bd',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %}

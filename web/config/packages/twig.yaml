@@ -1,5 +1,8 @@
 twig:
-    file_name_pattern: '*.twig'
+    default_path: '%kernel.project_dir%/templates'
+    form_themes: ['bootstrap_5_layout.html.twig']
+    paths:
+        '%kernel.project_dir%/src/FacturePdfBundle/Resources/views': 'FacturePdf'
 
 when@test:
     twig:
